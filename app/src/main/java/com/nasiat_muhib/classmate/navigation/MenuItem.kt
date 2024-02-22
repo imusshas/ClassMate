@@ -9,5 +9,5 @@ enum class MenuItem(val iconId: Int, val title: String) {
 
     Profile(R.drawable.profile, PROFILE),
     Routine(R.drawable.routine, ROUTINE),
-    LogOut(R.drawable.log_out, LOG_OUT),
+    SignOut(R.drawable.log_out, LOG_OUT),
 }

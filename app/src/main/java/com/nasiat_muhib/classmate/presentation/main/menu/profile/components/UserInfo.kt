@@ -1,4 +1,4 @@
-package com.nasiat_muhib.classmate.presentation.main.menu.components.proflie
+package com.nasiat_muhib.classmate.presentation.main.menu.profile.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -22,11 +22,12 @@ fun UserInfo(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ){
-        Text(text = "$title:")
+        Text(text = "$title:", modifier.weight(1f))
         TextField(
             value = info,
             onValueChange = onInfoChange,
-            enabled = isEditable
+            enabled = isEditable,
+            modifier = modifier.weight(2.25f)
         )
     }
 }

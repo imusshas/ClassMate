@@ -10,11 +10,11 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.nasiat_muhib.classmate.presentation.auth.sign_in.SignInScreen
 import com.nasiat_muhib.classmate.presentation.auth.sign_up.SignUpScreen
-import com.nasiat_muhib.classmate.presentation.main.ClassMateAppScreen
 import com.nasiat_muhib.classmate.presentation.main.create_semester.CreateSemesterScreen
 import com.nasiat_muhib.classmate.presentation.main.enroll_course.EnrollCourseScreen
 import com.nasiat_muhib.classmate.presentation.main.home.HomeScreen
 import com.nasiat_muhib.classmate.presentation.main.menu.MenuScreen
+import com.nasiat_muhib.classmate.presentation.main.menu.profile.ProfileScreen
 import com.nasiat_muhib.classmate.presentation.main.notification.NotificationScreen
 
 @Composable
@@ -25,6 +25,8 @@ fun ClassMateApp() {
         navController = navController, startDestination = if (Firebase.auth.currentUser != null)
             TabItem.Home.name else Routes.SignIn.name
     ) {
+
+        /******************************** Authentication *************************************/
 
         composable(route = Routes.SignIn.name) {
             SignInScreen(
@@ -51,7 +53,14 @@ fun ClassMateApp() {
         }
 
 
-        /******************************** Main *************************************/
+        composable(route = Routes.ForgotPassword.name) {
+            /*TODO*/
+        }
+
+        /******************************** Authentication *************************************/
+
+
+        /******************************** TabItem *************************************/
 
         composable(route = TabItem.Home.name) {
             HomeScreen(
@@ -92,13 +101,38 @@ fun ClassMateApp() {
                 },
                 navigateToMenu = {menuItem ->
                     navController.navigate(menuItem.name)
-                },
-                signOut = {
-                    navigateTo(navController, Routes.SignIn.name)
                 }
             )
         }
+
+        /******************************** TabItem *************************************/
+
+
+        /******************************** MenuItem *************************************/
+
+        composable(route = MenuItem.Profile.name) {
+            ProfileScreen(navigateBackToMenuScreen = { navigateTo(navController, TabItem.Menu.name) })
+        }
+
+        composable(route = MenuItem.Routine.name) {
+            /*TODO*/
+        }
+
+        composable(route = MenuItem.SignOut.name) {
+            SignInScreen(
+                navigateToHomeScreen = { navigateTo(navController, TabItem.Home.name) },
+                navigateToForgotPasswordScreen = {
+                    navigateTo(
+                        navController,
+                        Routes.ForgotPassword.name
+                    )
+                },
+                navigateToSignUpScreen = { navigateTo(navController, Routes.SignUp.name) }
+            )
+        }
     }
+
+    /******************************** MenuItem *************************************/
 }
 
 private fun navigateTo(navController: NavController, route: String) {

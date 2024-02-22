@@ -24,7 +24,5 @@ class FirebaseModule {
 
     @Singleton
     @Provides
-    fun providesUserCollection(): CollectionReference = Firebase.firestore.collection(USERS_COLLECTION)
-
-
+    fun providesFirestoreReference(): FirebaseFirestore = Firebase.firestore
 }

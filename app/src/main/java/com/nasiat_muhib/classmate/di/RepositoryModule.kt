@@ -30,7 +30,6 @@ class RepositoryModule {
     @Provides
     fun providesUserRepository(): UserRepository =
         UserRepositoryImpl(
-            auth = Firebase.auth,
-            usersCollection = Firebase.firestore.collection(USERS_COLLECTION)
+            firestoreRef = Firebase.firestore
         )
 }

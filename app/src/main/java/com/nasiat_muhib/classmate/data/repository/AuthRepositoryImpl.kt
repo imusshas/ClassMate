@@ -22,7 +22,7 @@ class AuthRepositoryImpl @Inject constructor(
     override val currentUser: FirebaseUser?
         get() = auth.currentUser
 
-    override suspend fun signUp(
+    override fun signUp(
         email: String,
         password: String,
         user: User
@@ -34,20 +34,22 @@ class AuthRepositoryImpl @Inject constructor(
                 if (it != null) {
                     isSuccessful = true
                     Log.d(TAG, "signUp: Successful")
-                    createUser(user)
+                    isSuccessful = createUser(user)
                 } else {
                     Log.d(TAG, "signUp: Failed")
                 }
             }.await()
 
-            emit(ResponseState.Success(isSuccessful))
+            if (isSuccessful) {
+                emit(ResponseState.Success(isSuccessful))
+            }
 
         } catch (e: Exception) {
             emit(ResponseState.Failure(e.message.toString()))
         }
     }
 
-    override suspend fun signIn(email: String, password: String): Flow<ResponseState<Boolean>> =
+    override fun signIn(email: String, password: String): Flow<ResponseState<Boolean>> =
         flow {
             emit(ResponseState.Loading)
             var isSuccessful = false
@@ -57,13 +59,15 @@ class AuthRepositoryImpl @Inject constructor(
                         isSuccessful = true
                     }
                 }.await()
-                emit(ResponseState.Success(isSuccessful))
+                if (isSuccessful) {
+                    emit(ResponseState.Success(isSuccessful))
+                }
             } catch (e: Exception) {
                 emit(ResponseState.Failure(e.message.toString()))
             }
         }
 
-    override suspend fun signOut(): Flow<ResponseState<Boolean>> = flow {
+    override fun signOut(): Flow<ResponseState<Boolean>> = flow {
         emit(ResponseState.Loading)
         try {
             auth.signOut()

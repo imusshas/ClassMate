@@ -1,4 +1,4 @@
-package com.nasiat_muhib.classmate.presentation.main.menu.components.proflie
+package com.nasiat_muhib.classmate.presentation.main.menu.profile.components
 
 import androidx.compose.runtime.Composable
 

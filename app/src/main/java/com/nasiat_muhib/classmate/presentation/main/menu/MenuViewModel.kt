@@ -1,11 +1,10 @@
-package com.nasiat_muhib.classmate.presentation.auth.sign_in
+package com.nasiat_muhib.classmate.presentation.main.menu
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nasiat_muhib.classmate.domain.model.ResponseState
 import com.nasiat_muhib.classmate.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
@@ -14,16 +13,16 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignInViewModel @Inject constructor(
+class MenuViewModel @Inject constructor(
     private val authRepo: AuthRepository
-):ViewModel() {
+): ViewModel() {
 
-    private var _signInState = MutableStateFlow<ResponseState<Boolean>>(ResponseState.Success(true))
-    val signInState = _signInState.asStateFlow()
+    private var _menuState = MutableStateFlow<ResponseState<Boolean>>(ResponseState.Success(true))
+    val menuState = _menuState.asStateFlow()
 
-    fun signIn(email: String, password: String) = viewModelScope.launch {
-        authRepo.signIn(email, password).collectLatest {
-            _signInState.value = it
+    fun signOut() = viewModelScope.launch {
+        authRepo.signOut().collectLatest {
+            _menuState.value = it
         }
     }
 }

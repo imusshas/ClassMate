@@ -1,7 +1,7 @@
 package com.nasiat_muhib.classmate.domain.model
 
 sealed class ResponseState<out T>(
-    val data: T? = null,
+    val data:  T? = null,
     val error: String? = null
 ) {
     data object Loading: ResponseState<Nothing>()
