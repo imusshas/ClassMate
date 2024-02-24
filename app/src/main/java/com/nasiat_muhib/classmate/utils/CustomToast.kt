@@ -13,7 +13,6 @@ import com.nasiat_muhib.classmate.core.Constants.TAG
 
 @Composable
 fun CustomToast(message: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = message)
-    }
+    val context = LocalContext.current
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }

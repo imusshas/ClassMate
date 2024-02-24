@@ -18,6 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.nasiat_muhib.classmate.core.Constants.BLOOD_GROUP_TITLE
 import com.nasiat_muhib.classmate.core.Constants.DEPARTMENT_TITLE
@@ -97,7 +98,8 @@ fun ProfileContent(
                 title = BLOOD_GROUP_TITLE,
                 info = if(isEditable) bloodGroup else user.bloodGroup,
                 onInfoChange = {bloodGroup = it},
-                isEditable = isEditable
+                isEditable = isEditable,
+                imeAction = ImeAction.Done
             )
             UserInfo(
                 title = PHONE_NO_TITLE,
@@ -106,7 +108,7 @@ fun ProfileContent(
                 isEditable = isEditable
             )
             UserInfo(title = EMAIL_TITLE, info = user.email, onInfoChange = {}, isEditable = false)
-            UserInfo(
+            UserPasswordInfo(
                 title = PASSWORD_TITLE,
                 info = user.password,
                 onInfoChange = {},
@@ -121,12 +123,17 @@ fun ProfileContent(
                         val userData = User(
                             firstName = firstName,
                             lastName = lastName,
+                            role = user.role,
                             department = department,
                             session = session,
                             bloodGroup = bloodGroup,
                             phoneNo = phoneNo,
+                            email = user.email,
+                            password = user.password
                         )
-                        profileViewModel.updateUser(user.email, userData)
+                        if(firstName.isNotEmpty() && lastName.isNotEmpty() && department.isNotEmpty() && session.isNotEmpty() && bloodGroup.isNotEmpty() && phoneNo.isNotEmpty()) {
+                            profileViewModel.updateUser(user.email, userData)
+                        }
                     }
                     isEditable = !isEditable
                 }) {

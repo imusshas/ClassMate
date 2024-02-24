@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.ClassMateAppScreen
+import com.nasiat_muhib.classmate.presentation.main.enroll_course.components.EnrollCourseContent
 
 @Composable
 fun EnrollCourseScreen(navigateToTab: (TabItem) -> Unit) {
@@ -22,7 +23,10 @@ fun EnrollCourseScreen(navigateToTab: (TabItem) -> Unit) {
     ) {
         ClassMateAppScreen(
             tab = TabItem.EnrollCourse,
-            navigateToTab = { tabItem -> navigateToTab.invoke(tabItem) })
-        Text(text = TabItem.EnrollCourse.name)
+            navigateToTab = { tabItem -> navigateToTab.invoke(tabItem) }
+        )
+
+        EnrollCourseContent()
     }
 }
+

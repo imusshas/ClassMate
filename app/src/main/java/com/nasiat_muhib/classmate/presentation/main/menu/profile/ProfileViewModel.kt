@@ -35,7 +35,7 @@ class ProfileViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             if(auth.currentUser != null) {
-                Log.d(TAG, ": ${auth.currentUser?.email!!}")
+//                Log.d(TAG, "ProfileViewModel : ${auth.currentUser?.email!!}")
                 getUser(auth.currentUser?.email!!)
             }
         }

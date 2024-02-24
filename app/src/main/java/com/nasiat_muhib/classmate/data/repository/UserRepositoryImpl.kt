@@ -16,6 +16,7 @@ import com.nasiat_muhib.classmate.core.Constants.ROLE
 import com.nasiat_muhib.classmate.core.Constants.SESSION
 import com.nasiat_muhib.classmate.core.Constants.TAG
 import com.nasiat_muhib.classmate.core.Constants.USERS_COLLECTION
+import com.nasiat_muhib.classmate.core.Constants.USER_DOES_NOT_EXIST
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.model.ResponseState
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
@@ -39,44 +40,43 @@ class UserRepositoryImpl @Inject constructor(
     private val usersCollection = firestoreRef.collection(USERS_COLLECTION)
 
     override fun updateUser(email: String, user: User): Flow<ResponseState<User>> = callbackFlow {
-        var isSuccessful = false
+
         var response: ResponseState<User> = ResponseState.Loading
+        var isSuccessful = false
 
-        try {
-
-            usersCollection.document(email).get().addOnSuccessListener {
+        usersCollection.document(email).get().addOnSuccessListener { snapshot ->
+            if (snapshot.exists()) {
                 isSuccessful = true
                 val userDocument = usersCollection.document(email)
-
                 if (user.firstName.isNotEmpty()) {
                     isSuccessful = false
-                    userDocument.update(mapOf(FIRST_NAME to user.firstName))
-                        .addOnSuccessListener {
-                            isSuccessful = true
-                        }
+                    userDocument.update(mapOf(FIRST_NAME to user.firstName)).addOnSuccessListener {
+                        isSuccessful = true
+                    }
+                    Log.d(TAG, "firstname Update: $isSuccessful")
                 }
 
                 if (user.lastName.isNotEmpty()) {
                     isSuccessful = false
-                    userDocument.update(mapOf(LAST_NAME to user.lastName))
-                        .addOnSuccessListener {
-                            isSuccessful = true
-                        }
-                }
-
-                if (user.role.isNotEmpty()) {
-                    isSuccessful = false
-                    userDocument.update(mapOf(ROLE to user.role)).addOnSuccessListener {
+                    userDocument.update(mapOf(LAST_NAME to user.lastName)).addOnSuccessListener {
                         isSuccessful = true
                     }
+                    Log.d(TAG, "lastname Update: $isSuccessful")
                 }
+
+//                if(user.role.isNotEmpty()) {
+//                    isSuccessful = false
+//                    userDocument.update(mapOf(ROLE to user.role)).addOnSuccessListener {
+//                        isSuccessful = true
+//                    }
+//                }
 
                 if (user.department.isNotEmpty()) {
                     isSuccessful = false
-                    userDocument.update(mapOf(DEPARTMENT to user.department))
-                        .addOnSuccessListener {
-                            isSuccessful = true
-                        }
+                    userDocument.update(mapOf(DEPARTMENT to user.department)).addOnSuccessListener {
+                        isSuccessful = true
+                    }
+                    Log.d(TAG, "department Update: $isSuccessful")
                 }
 
                 if (user.session.isNotEmpty()) {
@@ -84,6 +84,16 @@ class UserRepositoryImpl @Inject constructor(
                     userDocument.update(mapOf(SESSION to user.session)).addOnSuccessListener {
                         isSuccessful = true
                     }
+                    Log.d(TAG, "session Update: $isSuccessful")
+                }
+
+                if (user.bloodGroup.isNotEmpty()) {
+                    isSuccessful = false
+                    userDocument.update(mapOf(BLOOD_GROUP to user.bloodGroup))
+                        .addOnSuccessListener {
+                            isSuccessful = true
+                        }
+                    Log.d(TAG, "bloodGroup Update: $isSuccessful")
                 }
 
                 if (user.phoneNo.isNotEmpty()) {
@@ -93,39 +103,19 @@ class UserRepositoryImpl @Inject constructor(
                     }
                 }
 
-                if (user.bloodGroup.isNotEmpty()) {
-                    isSuccessful = false
-                    userDocument.update(mapOf(BLOOD_GROUP to user.bloodGroup))
-                        .addOnSuccessListener {
-                            isSuccessful = true
-                        }
-                }
-
-//                    if (user.enrolledCourse.isNotEmpty()) {
-//                        isSuccessful = false
-//                        userDocument.update(user.toEnrolledMap()).addOnSuccessListener {
-//                            isSuccessful = true
-//                        }
-//                    }
-//
-//                    if (user.requestedCourse.isNotEmpty()) {
-//                        userDocument.update(user.toMapRequested()).addOnSuccessListener {
-//                            isSuccessful = true
-//                        }
-//                    }
-
+            } else {
+                response = ResponseState.Failure(USER_DOES_NOT_EXIST)
             }
 
-            if (isSuccessful) {
-                response = ResponseState.Success(user)
-            }
-
-        } catch (e: Exception) {
+        }.addOnFailureListener { e ->
             response = ResponseState.Failure(e.message.toString())
-            Log.d(TAG, "updateUser: ${e.localizedMessage}")
+        }.await()
+
+        if (isSuccessful) {
+            response = ResponseState.Success(user)
         }
 
-        trySend(response)
+        trySend(response).isSuccess
 
         awaitClose {
 
@@ -134,6 +124,7 @@ class UserRepositoryImpl @Inject constructor(
 
 
     override fun getUser(email: String): Flow<ResponseState<User>> = callbackFlow {
+
         var response: ResponseState<User> = ResponseState.Loading
 
         val snapshotListener =
@@ -148,13 +139,13 @@ class UserRepositoryImpl @Inject constructor(
                     val phoneNo: String = snapshot[PHONE_NO].toString()
                     val userEmail: String = snapshot[EMAIL].toString()
                     val userPassword: String = snapshot[PASSWORD].toString()
-                    val enrolledCourses: List<String> = listOf(snapshot[ENROLLED].toString())
-                    val requestedCourses: List<String> = listOf(snapshot[REQUESTED].toString())
+                    val enrolledCourses: List<String> = snapshot[ENROLLED] as List<String>
+                    val requestedCourses: List<String> = snapshot[REQUESTED] as List<String>
 
-                    Log.d(
-                        TAG,
-                        "variables: $firstName, $lastName, $role, $department, $bloodGroup, $phoneNo, $userEmail, $userPassword"
-                    )
+//                    Log.d(
+//                        TAG,
+//                        "variables: $firstName, $lastName, $role, $department, $bloodGroup, $phoneNo, $userEmail, $userPassword"
+//                    )
 
                     val user = User(
                         firstName = firstName,
@@ -168,11 +159,11 @@ class UserRepositoryImpl @Inject constructor(
                         password = userPassword
                     )
                     response = ResponseState.Success(user)
-                } else {
-                    response = ResponseState.Failure(error?.message.toString())
+                } else if (error != null) {
+                    response = ResponseState.Failure(error.message.toString())
                 }
 
-                Log.d(TAG, "Snapshot: $snapshot")
+//                Log.d(TAG, "Snapshot: $snapshot")
 
                 trySend(response).isSuccess
             }

@@ -13,6 +13,8 @@ object Constants {
     const val PASSWORD_LABEL = "Password"
     const val FIRSTNAME_LABEL = "Firstname"
     const val LASTNAME_LABEL = "Lastname"
+    const val COURSE_CODE_LABEL = "Course Code"
+    const val COURSE_PASSWORD_LABEL = "Course Password"
 
     // Buttons
     const val SIGN_IN_BUTTON = "Sign In"
@@ -22,6 +24,12 @@ object Constants {
     const val EDIT_PROFILE_BUTTON = "Edit Profile"
     const val GO_BACK_BUTTON = "Go Back"
     const val DONE_BUTTON = "Done"
+    const val ENROLL_BUTTON = "Enroll"
+
+    // Image Descriptions
+
+    // Icon Descriptions
+    const val VISIBILITY_ICON = "Visibility Icon"
 
     // Clickable Text
     const val FORGOT_PASSWORD = "Forgot Password?"

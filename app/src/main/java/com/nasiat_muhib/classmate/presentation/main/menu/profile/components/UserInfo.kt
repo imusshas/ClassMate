@@ -2,11 +2,13 @@ package com.nasiat_muhib.classmate.presentation.main.menu.profile.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -15,7 +17,8 @@ fun UserInfo(
     info: String,
     onInfoChange: (String) -> Unit,
     isEditable: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    imeAction: ImeAction = ImeAction.Next
 ) {
     Row (
         modifier = modifier,
@@ -27,7 +30,8 @@ fun UserInfo(
             value = info,
             onValueChange = onInfoChange,
             enabled = isEditable,
-            modifier = modifier.weight(2.25f)
+            modifier = modifier.weight(2.25f),
+            keyboardOptions = KeyboardOptions(imeAction = imeAction)
         )
     }
 }
