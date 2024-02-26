@@ -27,7 +27,8 @@ fun PasswordField(
     password: String,
     onPasswordChange: (String) -> Unit,
     imeAction: ImeAction,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    label: String = "",
 ) {
 
     var isVisible by rememberSaveable { mutableStateOf(false) }
@@ -35,7 +36,7 @@ fun PasswordField(
     OutlinedTextField(
         value = password,
         onValueChange = onPasswordChange,
-        label = { Text(text = PASSWORD_LABEL) },
+        label = { Text(text = label.ifEmpty {  PASSWORD_LABEL }) },
         trailingIcon = {
             IconButton(onClick = { isVisible = !isVisible }) {
                 Icon(imageVector = if(isVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility, contentDescription = VISIBILITY_ICON)
@@ -46,6 +47,7 @@ fun PasswordField(
             imeAction = imeAction
         ),
         visualTransformation = if (isVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        singleLine = true,
         modifier = modifier
     )
 }

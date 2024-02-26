@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Tab
 import androidx.compose.runtime.Composable
@@ -39,7 +40,7 @@ fun ClassMateAppScreen(tab: TabItem, navigateToTab: (TabItem) -> Unit) {
                         }
                     )
                     if(tab == tabItem) {
-                        Divider(thickness = 1.dp, color = Color.Red)
+                        HorizontalDivider(thickness = 1.dp, color = Color.Red)
                     }
                 }
             }

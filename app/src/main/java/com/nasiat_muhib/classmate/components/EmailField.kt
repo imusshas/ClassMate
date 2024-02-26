@@ -22,6 +22,7 @@ fun EmailField(
         onValueChange = onEmailChange,
         label = { Text(text = EMAIL_LABEL) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = imeAction),
+        singleLine = true,
         modifier = modifier
     )
 }

@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
+import com.nasiat_muhib.classmate.core.Constants.PLEASE_PROVIDE_ALL_THE_INFORMATION
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.model.ResponseState
 import com.nasiat_muhib.classmate.domain.repository.AuthRepository
@@ -30,15 +31,20 @@ class AuthRepositoryImpl @Inject constructor(
         emit(ResponseState.Loading)
         var isSuccessful = false
         try {
-            auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener {
-                if (it != null) {
-                    isSuccessful = true
-                    Log.d(TAG, "signUp: Successful")
-                    isSuccessful = createUser(user)
-                } else {
-                    Log.d(TAG, "signUp: Failed")
-                }
-            }.await()
+            if(user.firstName.isNotEmpty() && user.lastName.isNotEmpty() && user.role.isNotEmpty() && user.email.isNotEmpty() && user.password.isNotEmpty()) {
+                auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener {
+                    if (it != null) {
+                        isSuccessful = true
+                        Log.d(TAG, "signUp: Successful")
+                        isSuccessful = createUser(user)
+                    } else {
+                        Log.d(TAG, "signUp: Failed")
+                    }
+                }.await()
+            } else {
+                emit(ResponseState.Failure(PLEASE_PROVIDE_ALL_THE_INFORMATION))
+            }
+
 
             if (isSuccessful) {
                 emit(ResponseState.Success(isSuccessful))
@@ -81,7 +87,6 @@ class AuthRepositoryImpl @Inject constructor(
         var isSuccessful = false
         try {
             if(auth.currentUser?.uid != null) {
-                user.userId = auth.currentUser?.uid!!
                 usersCollection.document(user.email).set(user.toMap()).addOnCompleteListener {
                     if(it.isSuccessful) {
                         isSuccessful = true

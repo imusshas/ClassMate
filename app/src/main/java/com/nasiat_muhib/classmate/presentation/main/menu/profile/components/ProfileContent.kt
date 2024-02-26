@@ -20,7 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.nasiat_muhib.classmate.components.AutoCompleteField
+import com.nasiat_muhib.classmate.components.AutoCompleteTextField
+import com.nasiat_muhib.classmate.core.Constants
 import com.nasiat_muhib.classmate.core.Constants.BLOOD_GROUP_TITLE
+import com.nasiat_muhib.classmate.core.Constants.CLASS_REPRESENTATIVE
 import com.nasiat_muhib.classmate.core.Constants.DEPARTMENT_TITLE
 import com.nasiat_muhib.classmate.core.Constants.DONE_BUTTON
 import com.nasiat_muhib.classmate.core.Constants.EDIT_PROFILE_BUTTON
@@ -30,8 +34,11 @@ import com.nasiat_muhib.classmate.core.Constants.GO_BACK_BUTTON
 import com.nasiat_muhib.classmate.core.Constants.LAST_NAME_TITLE
 import com.nasiat_muhib.classmate.core.Constants.PASSWORD_TITLE
 import com.nasiat_muhib.classmate.core.Constants.PHONE_NO_TITLE
+import com.nasiat_muhib.classmate.core.Constants.ROLE
 import com.nasiat_muhib.classmate.core.Constants.ROLE_TITLE
 import com.nasiat_muhib.classmate.core.Constants.SESSION_TITLE
+import com.nasiat_muhib.classmate.core.Constants.STUDENT
+import com.nasiat_muhib.classmate.core.Constants.TEACHER
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.presentation.main.menu.profile.ProfileViewModel
 
@@ -41,6 +48,8 @@ fun ProfileContent(
     user: User,
     navigateBackToMenuScreen: () -> Unit
 ) {
+
+    val roles = listOf(TEACHER, CLASS_REPRESENTATIVE, STUDENT)
 
     var firstName by rememberSaveable { mutableStateOf("") }
     var lastName by rememberSaveable { mutableStateOf("") }
@@ -81,7 +90,11 @@ fun ProfileContent(
                 isEditable = isEditable
             )
             /*TODO: Implement a dropdown box*/
-            UserInfo(title = ROLE_TITLE, info = user.role, onInfoChange = {}, isEditable = isEditable)
+            if(isEditable) {
+                UserRoleInfo(title = ROLE_TITLE, infoList = roles, info =role , onInfoChange = {role = it}, isEditable = true)
+            } else {
+                UserInfo(title = ROLE_TITLE, info = user.role, onInfoChange = {}, isEditable = false)
+            }
             UserInfo(
                 title = DEPARTMENT_TITLE,
                 info = if(isEditable) department else user.department,

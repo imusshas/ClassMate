@@ -2,34 +2,28 @@ package com.nasiat_muhib.classmate.data.repository
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
 import com.nasiat_muhib.classmate.core.Constants.BLOOD_GROUP
+import com.nasiat_muhib.classmate.core.Constants.CREATED_COURSE
 import com.nasiat_muhib.classmate.core.Constants.DEPARTMENT
-import com.nasiat_muhib.classmate.core.Constants.EMAIL
-import com.nasiat_muhib.classmate.core.Constants.ENROLLED
+import com.nasiat_muhib.classmate.core.Constants.ENROLLED_COURSE
 import com.nasiat_muhib.classmate.core.Constants.FIRST_NAME
 import com.nasiat_muhib.classmate.core.Constants.LAST_NAME
-import com.nasiat_muhib.classmate.core.Constants.PASSWORD
 import com.nasiat_muhib.classmate.core.Constants.PHONE_NO
-import com.nasiat_muhib.classmate.core.Constants.REQUESTED
+import com.nasiat_muhib.classmate.core.Constants.REQUESTED_COURSE
 import com.nasiat_muhib.classmate.core.Constants.ROLE
 import com.nasiat_muhib.classmate.core.Constants.SESSION
 import com.nasiat_muhib.classmate.core.Constants.TAG
+import com.nasiat_muhib.classmate.core.Constants.UNABLE_TO_GET_USER
 import com.nasiat_muhib.classmate.core.Constants.USERS_COLLECTION
 import com.nasiat_muhib.classmate.core.Constants.USER_DOES_NOT_EXIST
+import com.nasiat_muhib.classmate.core.DocumentSnapshotToObjectFunctions
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.model.ResponseState
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
-import okhttp3.internal.notifyAll
-import okhttp3.internal.wait
 import javax.inject.Inject
 import kotlin.Exception
 
@@ -64,12 +58,12 @@ class UserRepositoryImpl @Inject constructor(
                     Log.d(TAG, "lastname Update: $isSuccessful")
                 }
 
-//                if(user.role.isNotEmpty()) {
-//                    isSuccessful = false
-//                    userDocument.update(mapOf(ROLE to user.role)).addOnSuccessListener {
-//                        isSuccessful = true
-//                    }
-//                }
+                if(user.role.isNotEmpty()) {
+                    isSuccessful = false
+                    userDocument.update(mapOf(ROLE to user.role)).addOnSuccessListener {
+                        isSuccessful = true
+                    }
+                }
 
                 if (user.department.isNotEmpty()) {
                     isSuccessful = false
@@ -103,6 +97,87 @@ class UserRepositoryImpl @Inject constructor(
                     }
                 }
 
+                if (user.enrolledCourse.isNotEmpty()) {
+
+                    val enrolled: List<String> = if(snapshot[ENROLLED_COURSE] is List<*> && snapshot[ENROLLED_COURSE] != null) snapshot[ENROLLED_COURSE] as List<String> else mutableListOf()
+                    val mutableList = mutableListOf<String>()
+
+                    enrolled.forEach {
+                        mutableList.add(it)
+                    }
+
+                    enrolled.forEach { enroll ->
+                        user.enrolledCourse.forEach {
+                            if(it == enroll) {
+                                mutableList.remove(it)
+                            }
+                        }
+                    }
+
+                    user.enrolledCourse.forEach {
+                        mutableList.add(it)
+                    }
+
+                    isSuccessful = false
+                    userDocument.update(mapOf(ENROLLED_COURSE to mutableList)).addOnSuccessListener {
+                        isSuccessful = true
+                    }
+                }
+
+                if (user.requestedCourse.isNotEmpty()) {
+
+                    val requested: List<String> = if(snapshot[REQUESTED_COURSE] is List<*> && snapshot[REQUESTED_COURSE] != null) snapshot[REQUESTED_COURSE] as List<String> else mutableListOf()
+                    val mutableList = mutableListOf<String>()
+
+                    requested.forEach {
+                        mutableList.add(it)
+                    }
+
+                    requested.forEach { request ->
+                            user.requestedCourse.forEach {
+                            if(it == request) {
+                                mutableList.remove(it)
+                            }
+                        }
+                    }
+
+                    user.requestedCourse.forEach {
+                        mutableList.add(it)
+                    }
+
+                    isSuccessful = false
+                    userDocument.update(mapOf(REQUESTED_COURSE to mutableList)).addOnSuccessListener {
+                        isSuccessful = true
+                    }
+                }
+
+                if (user.createdCourse.isNotEmpty()) {
+
+                    val created: List<String> = if(snapshot[CREATED_COURSE] is List<*> && snapshot[CREATED_COURSE] != null) snapshot[CREATED_COURSE] as List<String> else mutableListOf()
+                    val mutableList = mutableListOf<String>()
+
+                    created.forEach {
+                        mutableList.add(it)
+                    }
+
+                    created.forEach { create ->
+                        user.createdCourse.forEach {
+                            if(it == create) {
+                                mutableList.remove(it)
+                            }
+                        }
+                    }
+
+                    user.createdCourse.forEach {
+                        mutableList.add(it)
+                    }
+
+                    isSuccessful = false
+                    userDocument.update(mapOf(CREATED_COURSE to mutableList)).addOnSuccessListener {
+                        isSuccessful = true
+                    }
+                }
+
             } else {
                 response = ResponseState.Failure(USER_DOES_NOT_EXIST)
             }
@@ -130,35 +205,13 @@ class UserRepositoryImpl @Inject constructor(
         val snapshotListener =
             usersCollection.document(email).addSnapshotListener { snapshot, error ->
                 if (snapshot != null) {
-                    val firstName: String = snapshot[FIRST_NAME].toString()
-                    val lastName: String = snapshot[LAST_NAME].toString()
-                    val role: String = snapshot[ROLE].toString()
-                    val department: String = snapshot[DEPARTMENT].toString()
-                    val session: String = snapshot[SESSION].toString()
-                    val bloodGroup: String = snapshot[BLOOD_GROUP].toString()
-                    val phoneNo: String = snapshot[PHONE_NO].toString()
-                    val userEmail: String = snapshot[EMAIL].toString()
-                    val userPassword: String = snapshot[PASSWORD].toString()
-                    val enrolledCourses: List<String> = snapshot[ENROLLED] as List<String>
-                    val requestedCourses: List<String> = snapshot[REQUESTED] as List<String>
+                    response = try {
+                        val user = DocumentSnapshotToObjectFunctions.getUserFromDocumentSnapshot(snapshot)
+                        ResponseState.Success(user)
+                    } catch (e: Exception) {
+                        ResponseState.Failure("$UNABLE_TO_GET_USER: ${e.localizedMessage}")
+                    }
 
-//                    Log.d(
-//                        TAG,
-//                        "variables: $firstName, $lastName, $role, $department, $bloodGroup, $phoneNo, $userEmail, $userPassword"
-//                    )
-
-                    val user = User(
-                        firstName = firstName,
-                        lastName = lastName,
-                        role = role,
-                        department = department,
-                        session = session,
-                        bloodGroup = bloodGroup,
-                        phoneNo = phoneNo,
-                        email = userEmail,
-                        password = userPassword
-                    )
-                    response = ResponseState.Success(user)
                 } else if (error != null) {
                     response = ResponseState.Failure(error.message.toString())
                 }

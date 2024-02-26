@@ -4,31 +4,31 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
+import com.nasiat_muhib.classmate.components.AutoCompleteField
+import com.nasiat_muhib.classmate.core.Constants
 import com.nasiat_muhib.classmate.core.Constants.TAG
+import com.nasiat_muhib.classmate.core.DocumentSnapshotToObjectFunctions
+import com.nasiat_muhib.classmate.data.model.ClassDetails
+import com.nasiat_muhib.classmate.domain.model.ResponseState
 import com.nasiat_muhib.classmate.navigation.ClassMateApp
 import com.nasiat_muhib.classmate.ui.theme.ClassMateTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -39,6 +39,9 @@ class MainActivity : ComponentActivity() {
             ClassMateTheme {
                 ClassMateApp()
 //                Demo()
+
+//                AutoComplete()
+
             }
         }
     }
@@ -47,20 +50,49 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Demo() {
-    val fruits = listOf(
-        "Mango",
-        "Apple",
-        "Banana"
+
+    val classDetails = listOf(
+        ClassDetails("Monday", "10:00 AM", "Sylhet Science City", true),
+        ClassDetails("Tuesday", "11:00 AM", "G1", false),
+        ClassDetails("Sunday", "11:00 AM", "G2", true),
     )
 
-    val document = Firebase.firestore.collection("demo").document("demo")
+// Replace with your document reference
+    val firestoreRef = Firebase.firestore
+    firestoreRef.collection("demo").document("details").get().addOnSuccessListener { classDetailsSnapshot ->
+        if(classDetailsSnapshot.exists()) {
+            val details = DocumentSnapshotToObjectFunctions.getClassDetailsFromDocumentSnapshot(
+                classDetailsSnapshot
+            )
+            val mutableDetails = mutableListOf<ClassDetails>()
+            details.forEach {
+                mutableDetails.add(it)
+            }
 
-    document.set(mapOf("fruits" to fruits))
+            details.forEach { detail ->
+                classDetails.forEach {
+                    if(it.weekDay == detail.weekDay && it.time == detail.time) {
+                        mutableDetails.remove(detail)
+                    }
+                }
+            }
 
-    document.addSnapshotListener { value, error ->
+            classDetails.forEach {
+                mutableDetails.add(it)
+            }
 
-        Log.d(TAG, "Demo: ${value?.data?.values}")
-        val data = value?.get("fruits")!! as List<*>
-        Log.d(TAG, "Data: $data")
+            firestoreRef.collection("demo").document("details").update(
+                DocumentSnapshotToObjectFunctions.getMapFromClassDetails(mutableDetails)
+            )
+                .addOnSuccessListener {
+                    Log.d(TAG, "Success: $mutableDetails")
+                }.addOnFailureListener {
+                    Log.d(TAG, "Failure: ${it.localizedMessage}")
+                }
+        } else {
+            Log.d(TAG, "Failure: Does not exist")
+        }
+    }.addOnFailureListener {
+        Log.d(TAG, "Failure: ${it.localizedMessage}")
     }
 }

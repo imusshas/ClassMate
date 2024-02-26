@@ -23,6 +23,7 @@ fun NormalField(
         onValueChange = onValueChange,
         label = { Text(text = label) },
         keyboardOptions = KeyboardOptions(imeAction = imeAction),
+        singleLine = true,
         modifier = modifier
     )
 }

@@ -29,7 +29,7 @@ class ProfileViewModel @Inject constructor(
     private val userRepo: UserRepository
 ): ViewModel() {
 
-    private var _userState = MutableStateFlow<ResponseState<User>>(ResponseState.Success(User()))
+    private val _userState = MutableStateFlow<ResponseState<User>>(ResponseState.Success(User()))
     val userState = _userState.asStateFlow()
 
     init {

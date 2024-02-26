@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DividerDefaults
@@ -28,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.nasiat_muhib.classmate.components.AutoCompleteField
 import com.nasiat_muhib.classmate.components.CustomDialog
 import com.nasiat_muhib.classmate.components.EmailField
 import com.nasiat_muhib.classmate.components.NormalField
@@ -37,6 +40,8 @@ import com.nasiat_muhib.classmate.core.Constants.CLASS_REPRESENTATIVE
 import com.nasiat_muhib.classmate.core.Constants.CONFIRM_BUTTON
 import com.nasiat_muhib.classmate.core.Constants.FIRSTNAME_LABEL
 import com.nasiat_muhib.classmate.core.Constants.LASTNAME_LABEL
+import com.nasiat_muhib.classmate.core.Constants.ROLE
+import com.nasiat_muhib.classmate.core.Constants.ROLE_LABEL
 import com.nasiat_muhib.classmate.core.Constants.SELECT_ROLE
 import com.nasiat_muhib.classmate.core.Constants.SIGN_IN_BUTTON
 import com.nasiat_muhib.classmate.core.Constants.SIGN_UP_BUTTON
@@ -54,13 +59,12 @@ fun SignUpContent(
 ) {
     val roles = listOf(TEACHER, CLASS_REPRESENTATIVE, STUDENT)
 
-    var role by rememberSaveable { mutableStateOf(roles[0]) }
+    var role by rememberSaveable { mutableStateOf("") }
     var firstName by rememberSaveable { mutableStateOf("") }
     var lastName by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
-    var showRoleDialog by rememberSaveable { mutableStateOf(true) }
 
 
 
@@ -68,7 +72,8 @@ fun SignUpContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 48.dp),
+            .padding(horizontal = 24.dp, vertical = 48.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(48.dp)
     ) {
@@ -78,7 +83,8 @@ fun SignUpContent(
 
 
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -102,6 +108,14 @@ fun SignUpContent(
                     modifier = Modifier.weight(1f)
                 )
             }
+
+            AutoCompleteField(
+                itemsList = roles,
+                selectedItem = role,
+                onItemChange = {role = it},
+                label = ROLE_LABEL,
+                imeAction = ImeAction.Next
+            )
             EmailField(
                 email = email,
                 onEmailChange = { email = it },
@@ -150,34 +164,4 @@ fun SignUpContent(
 
     }
 
-    if (showRoleDialog) {
-        CustomDialog(hasCancelButton = false, onDismissRequest = { /*TODO*/ }) {
-            Text(text = SELECT_ROLE)
-            Spacer(modifier = Modifier.height(4.dp))
-            Divider(color = Color.Red, thickness = 1.dp)
-            Spacer(modifier = Modifier.height(32.dp))
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                roles.forEach { currentRole ->
-                    Text(
-                        text = currentRole,
-                        modifier = Modifier
-                            .background(if (role == currentRole) BackgroundRed else Color.Transparent)
-                            .padding(16.dp)
-                            .clip(RoundedCornerShape(5))
-                            .clickable { role = currentRole }
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(32.dp))
-            Button(onClick = { showRoleDialog = false }) {
-                Text(text = CONFIRM_BUTTON)
-            }
-
-        }
-    }
 }
