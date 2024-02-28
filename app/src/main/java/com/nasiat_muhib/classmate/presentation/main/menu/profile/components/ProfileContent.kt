@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.presentation.main.menu.profile.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,8 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,9 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.nasiat_muhib.classmate.components.AutoCompleteField
-import com.nasiat_muhib.classmate.components.AutoCompleteTextField
-import com.nasiat_muhib.classmate.core.Constants
 import com.nasiat_muhib.classmate.core.Constants.BLOOD_GROUP_TITLE
 import com.nasiat_muhib.classmate.core.Constants.CLASS_REPRESENTATIVE
 import com.nasiat_muhib.classmate.core.Constants.DEPARTMENT_TITLE
@@ -34,13 +34,14 @@ import com.nasiat_muhib.classmate.core.Constants.GO_BACK_BUTTON
 import com.nasiat_muhib.classmate.core.Constants.LAST_NAME_TITLE
 import com.nasiat_muhib.classmate.core.Constants.PASSWORD_TITLE
 import com.nasiat_muhib.classmate.core.Constants.PHONE_NO_TITLE
-import com.nasiat_muhib.classmate.core.Constants.ROLE
 import com.nasiat_muhib.classmate.core.Constants.ROLE_TITLE
 import com.nasiat_muhib.classmate.core.Constants.SESSION_TITLE
 import com.nasiat_muhib.classmate.core.Constants.STUDENT
+import com.nasiat_muhib.classmate.core.Constants.TAG
 import com.nasiat_muhib.classmate.core.Constants.TEACHER
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.presentation.main.menu.profile.ProfileViewModel
+import com.nasiat_muhib.classmate.ui.theme.ButtonBoldStyle
 
 @Composable
 fun ProfileContent(
@@ -53,7 +54,7 @@ fun ProfileContent(
 
     var firstName by rememberSaveable { mutableStateOf("") }
     var lastName by rememberSaveable { mutableStateOf("") }
-    var role by rememberSaveable { mutableStateOf("") }
+    var role by rememberSaveable { mutableStateOf(roles[0]) }
     var department by rememberSaveable { mutableStateOf("") }
     var session by rememberSaveable { mutableStateOf("") }
     var bloodGroup by rememberSaveable { mutableStateOf("") }
@@ -79,45 +80,55 @@ fun ProfileContent(
         ) {
             UserInfo(
                 title = FIRST_NAME_TITLE,
-                info = if(isEditable) firstName else user.firstName,
-                onInfoChange = {firstName = it},
+                info = if (isEditable) firstName else user.firstName,
+                onInfoChange = { firstName = it },
                 isEditable = isEditable
             )
             UserInfo(
                 title = LAST_NAME_TITLE,
-                info = if(isEditable) lastName else user.lastName,
-                onInfoChange = {lastName = it},
+                info = if (isEditable) lastName else user.lastName,
+                onInfoChange = { lastName = it },
                 isEditable = isEditable
             )
             /*TODO: Implement a dropdown box*/
-            if(isEditable) {
-                UserRoleInfo(title = ROLE_TITLE, infoList = roles, info =role , onInfoChange = {role = it}, isEditable = true)
+            if (isEditable && user.role != TEACHER) {
+                UserRoleInfo(
+                    title = ROLE_TITLE,
+                    infoList = roles,
+                    info = role,
+                    onInfoChange = { role = it }
+                )
             } else {
-                UserInfo(title = ROLE_TITLE, info = user.role, onInfoChange = {}, isEditable = false)
+                UserInfo(
+                    title = ROLE_TITLE,
+                    info = user.role,
+                    onInfoChange = { },
+                    isEditable = false
+                )
             }
             UserInfo(
                 title = DEPARTMENT_TITLE,
-                info = if(isEditable) department else user.department,
-                onInfoChange = {department = it},
+                info = if (isEditable) department else user.department,
+                onInfoChange = { department = it },
                 isEditable = isEditable
             )
             UserInfo(
                 title = SESSION_TITLE,
-                info = if(isEditable) session else user.session,
-                onInfoChange = {session = it},
+                info = if (isEditable) session else user.session,
+                onInfoChange = { session = it },
                 isEditable = isEditable
             )
             UserInfo(
                 title = BLOOD_GROUP_TITLE,
-                info = if(isEditable) bloodGroup else user.bloodGroup,
-                onInfoChange = {bloodGroup = it},
+                info = if (isEditable) bloodGroup else user.bloodGroup,
+                onInfoChange = { bloodGroup = it },
                 isEditable = isEditable,
                 imeAction = ImeAction.Done
             )
             UserInfo(
                 title = PHONE_NO_TITLE,
-                info = if(isEditable) phoneNo else user.phoneNo,
-                onInfoChange = {phoneNo = it},
+                info = if (isEditable) phoneNo else user.phoneNo,
+                onInfoChange = { phoneNo = it },
                 isEditable = isEditable
             )
             UserInfo(title = EMAIL_TITLE, info = user.email, onInfoChange = {}, isEditable = false)
@@ -129,34 +140,48 @@ fun ProfileContent(
             )
         }
 
-        Row (modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth()) {
             Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.Center) {
-                Button(onClick = {
-                    if(isEditable) {
-                        val userData = User(
-                            firstName = firstName,
-                            lastName = lastName,
-                            role = user.role,
-                            department = department,
-                            session = session,
-                            bloodGroup = bloodGroup,
-                            phoneNo = phoneNo,
-                            email = user.email,
-                            password = user.password
-                        )
-                        if(firstName.isNotEmpty() && lastName.isNotEmpty() && department.isNotEmpty() && session.isNotEmpty() && bloodGroup.isNotEmpty() && phoneNo.isNotEmpty()) {
-                            profileViewModel.updateUser(user.email, userData)
+                ElevatedButton(
+                    onClick = {
+                        if (isEditable) {
+                            val userData = User(
+                                firstName = firstName,
+                                lastName = lastName,
+                                role = role,
+                                department = department,
+                                session = session,
+                                bloodGroup = bloodGroup,
+                                phoneNo = phoneNo,
+                                email = user.email,
+                                password = user.password
+                            )
+                            if (
+                                firstName.isNotEmpty() ||
+                                lastName.isNotEmpty() ||
+                                role != user.role ||
+                                department.isNotEmpty() ||
+                                session.isNotEmpty() ||
+                                bloodGroup.isNotEmpty() ||
+                                phoneNo.isNotEmpty()
+                            ) {
+                                Log.d(TAG, "ProfileContent: $role")
+                                profileViewModel.updateUser(user.email, userData)
+                            } else {
+                                Log.d(TAG, "ProfileContent: $userData")
+                            }
                         }
-                    }
-                    isEditable = !isEditable
-                }) {
-                    Text(text = if (isEditable) DONE_BUTTON else EDIT_PROFILE_BUTTON)
+                        isEditable = !isEditable
+                    },
+                    shape = RoundedCornerShape(15)
+                ) {
+                    Text(text = if (isEditable) DONE_BUTTON else EDIT_PROFILE_BUTTON, style = ButtonBoldStyle)
                 }
             }
 
             Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.Center) {
-                OutlinedButton(onClick = navigateBackToMenuScreen) {
-                    Text(text = GO_BACK_BUTTON)
+                OutlinedButton(onClick = navigateBackToMenuScreen, shape = RoundedCornerShape(15)) {
+                    Text(text = GO_BACK_BUTTON, style = ButtonBoldStyle)
                 }
             }
         }

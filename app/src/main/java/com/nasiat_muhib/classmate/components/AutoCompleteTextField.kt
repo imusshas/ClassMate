@@ -39,7 +39,6 @@ fun AutoCompleteTextField(
     onItemChange: (String) -> Unit,
     imeAction: ImeAction,
     modifier: Modifier = Modifier,
-    label: String = "",
     enabled: Boolean = true
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -52,14 +51,10 @@ fun AutoCompleteTextField(
             value = selectedItem,
             onValueChange = {
                 expanded = true
-                onItemChange.invoke(it)
+                onItemChange.invoke(selectedItem)
             },
             enabled = enabled,
-            label = {
-                if(label.isNotEmpty()){
-                    Text(text = label)
-                }
-            },
+            readOnly = true,
             trailingIcon = {
                 IconButton(onClick = { expanded = !expanded }) {
                     Icon(
@@ -83,14 +78,11 @@ fun AutoCompleteTextField(
                         .heightIn(max = 150.dp)
                         .fillMaxWidth()
                 ) {
-                    if(selectedItem.isNotEmpty()) {
-                        items(
-                            items = itemsList.filter { containedItem ->
-                                containedItem.lowercase(Locale.ROOT).contains(selectedItem.lowercase(
-                                    Locale.ROOT))
-                            }.sorted()
-                        ) {
-                            Row (modifier = Modifier
+                    items(
+                        items = itemsList.sorted()
+                    ) {
+                        Row(
+                            modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp)
                                 .padding(8.dp)
@@ -98,27 +90,9 @@ fun AutoCompleteTextField(
                                     onItemChange.invoke(it)
                                     expanded = false
                                 },
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = it)
-                            }
-                        }
-                    } else {
-                        items(
-                            items = itemsList.sorted()
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row (modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp)
-                                .padding(8.dp)
-                                .clickable {
-                                    onItemChange.invoke(it)
-                                    expanded = false
-                                },
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = it)
-                            }
+                            Text(text = it)
                         }
                     }
                 }

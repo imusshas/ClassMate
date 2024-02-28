@@ -42,14 +42,12 @@ class RepositoryModule {
     fun providesCourseRepository(): CourseRepository =
         CourseRepositoryImpl(
             firestoreRef = Firebase.firestore,
-            auth = Firebase.auth
         )
 
     @Singleton
     @Provides
     fun providesClassDetailsRepository(): ClassDetailsRepository =
         ClassDetailsRepositoryImpl(
-            auth = Firebase.auth,
             firestoreRef = Firebase.firestore
         )
 }

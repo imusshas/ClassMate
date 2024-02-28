@@ -12,15 +12,20 @@ import com.nasiat_muhib.classmate.core.Constants.SESSION
 import com.nasiat_muhib.classmate.core.Constants.BLOOD_GROUP
 import com.nasiat_muhib.classmate.core.Constants.CODE
 import com.nasiat_muhib.classmate.core.Constants.CREATED_COURSE
+import com.nasiat_muhib.classmate.core.Constants.CREATOR
 import com.nasiat_muhib.classmate.core.Constants.PHONE_NO
 import com.nasiat_muhib.classmate.core.Constants.EMAIL
 import com.nasiat_muhib.classmate.core.Constants.PASSWORD
 import com.nasiat_muhib.classmate.core.Constants.ENROLLED_COURSE
 import com.nasiat_muhib.classmate.core.Constants.ENROLLED_STUDENTS
-import com.nasiat_muhib.classmate.core.Constants.PLACE
+import com.nasiat_muhib.classmate.core.Constants.HOUR
+import com.nasiat_muhib.classmate.core.Constants.MINUTE
+import com.nasiat_muhib.classmate.core.Constants.CLASSROOM
 import com.nasiat_muhib.classmate.core.Constants.REQUESTED_COURSE
+import com.nasiat_muhib.classmate.core.Constants.SHIFT
 import com.nasiat_muhib.classmate.core.Constants.TAG
-import com.nasiat_muhib.classmate.core.Constants.TIME
+import com.nasiat_muhib.classmate.core.Constants.TEACHER
+import com.nasiat_muhib.classmate.core.Constants.TITLE
 import com.nasiat_muhib.classmate.core.Constants.WEEK_DAY
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
@@ -69,10 +74,9 @@ object DocumentSnapshotToObjectFunctions {
     fun getCourseFromDocumentSnapshot(courseSnapshot: DocumentSnapshot): Course {
 
         val code: String = courseSnapshot[CODE].toString()
-        val title: String = courseSnapshot[Constants.TITLE].toString()
-        val creator: String = courseSnapshot[Constants.CREATOR].toString()
-        val teacher: String = courseSnapshot[Constants.TEACHER].toString()
-        val password: String = courseSnapshot[PASSWORD].toString()
+        val title: String = courseSnapshot[TITLE].toString()
+        val creator: String = courseSnapshot[CREATOR].toString()
+        val teacher: String = courseSnapshot[TEACHER].toString()
         val enrolledStudents: List<String> = if (courseSnapshot[ENROLLED_STUDENTS] != null) courseSnapshot[ENROLLED_STUDENTS] as List<String> else emptyList()
 
         return Course(
@@ -80,7 +84,6 @@ object DocumentSnapshotToObjectFunctions {
             title = title,
             creator = creator,
             teacher = teacher,
-            password = password,
             enrolledStudents = enrolledStudents
         )
     }
@@ -92,11 +95,13 @@ object DocumentSnapshotToObjectFunctions {
             if (details is Map<*, *>) {
                 val map: Map<String, Any> = details as Map<String, Any>
                 val weekDay: String = map[WEEK_DAY] as String
-                val time: String = map[TIME] as String
-                val place: String = map[PLACE] as String
+                val hour: Int = map[HOUR] as Int
+                val minute: Int = map[MINUTE] as Int
+                val shift: String = map[SHIFT] as String
+                val place: String = map[CLASSROOM] as String
                 val isActive: Boolean = map[ACTIVE_STATUS] as Boolean
 
-                val classDetails = ClassDetails(weekDay = weekDay, time = time, place = place, isActive = isActive)
+                val classDetails = ClassDetails(weekDay = weekDay, hour = hour, minute = minute, shift = shift, classroom = place, isActive = isActive)
                 classDetailsList.add(classDetails)
             }
         }
@@ -104,7 +109,7 @@ object DocumentSnapshotToObjectFunctions {
         return classDetailsList
     }
 
-    fun getMapFromClassDetails(classDetailsList: List<ClassDetails>): Map<String, Any> {
+    fun getMapFromClassDetailsList(classDetailsList: List<ClassDetails>): Map<String, Any> {
         val map: Map<String, Any> = classDetailsList.mapIndexed { index, classDetails ->
             index.toString() to classDetails.toMap()
         }.toMap()

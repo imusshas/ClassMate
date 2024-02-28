@@ -3,6 +3,7 @@ package com.nasiat_muhib.classmate.data.repository
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.nasiat_muhib.classmate.core.Constants.BLOOD_GROUP
+import com.nasiat_muhib.classmate.core.Constants.CLASS_REPRESENTATIVE
 import com.nasiat_muhib.classmate.core.Constants.CREATED_COURSE
 import com.nasiat_muhib.classmate.core.Constants.DEPARTMENT
 import com.nasiat_muhib.classmate.core.Constants.ENROLLED_COURSE
@@ -12,11 +13,14 @@ import com.nasiat_muhib.classmate.core.Constants.PHONE_NO
 import com.nasiat_muhib.classmate.core.Constants.REQUESTED_COURSE
 import com.nasiat_muhib.classmate.core.Constants.ROLE
 import com.nasiat_muhib.classmate.core.Constants.SESSION
+import com.nasiat_muhib.classmate.core.Constants.STUDENT
 import com.nasiat_muhib.classmate.core.Constants.TAG
+import com.nasiat_muhib.classmate.core.Constants.TEACHER
 import com.nasiat_muhib.classmate.core.Constants.UNABLE_TO_GET_USER
 import com.nasiat_muhib.classmate.core.Constants.USERS_COLLECTION
 import com.nasiat_muhib.classmate.core.Constants.USER_DOES_NOT_EXIST
 import com.nasiat_muhib.classmate.core.DocumentSnapshotToObjectFunctions
+import com.nasiat_muhib.classmate.core.DocumentSnapshotToObjectFunctions.getUserFromDocumentSnapshot
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.model.ResponseState
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
@@ -58,7 +62,7 @@ class UserRepositoryImpl @Inject constructor(
                     Log.d(TAG, "lastname Update: $isSuccessful")
                 }
 
-                if(user.role.isNotEmpty()) {
+                if (user.role.isNotEmpty()) {
                     isSuccessful = false
                     userDocument.update(mapOf(ROLE to user.role)).addOnSuccessListener {
                         isSuccessful = true
@@ -99,7 +103,8 @@ class UserRepositoryImpl @Inject constructor(
 
                 if (user.enrolledCourse.isNotEmpty()) {
 
-                    val enrolled: List<String> = if(snapshot[ENROLLED_COURSE] is List<*> && snapshot[ENROLLED_COURSE] != null) snapshot[ENROLLED_COURSE] as List<String> else mutableListOf()
+                    val enrolled: List<String> =
+                        if (snapshot[ENROLLED_COURSE] is List<*> && snapshot[ENROLLED_COURSE] != null) snapshot[ENROLLED_COURSE] as List<String> else mutableListOf()
                     val mutableList = mutableListOf<String>()
 
                     enrolled.forEach {
@@ -108,7 +113,7 @@ class UserRepositoryImpl @Inject constructor(
 
                     enrolled.forEach { enroll ->
                         user.enrolledCourse.forEach {
-                            if(it == enroll) {
+                            if (it == enroll) {
                                 mutableList.remove(it)
                             }
                         }
@@ -119,14 +124,16 @@ class UserRepositoryImpl @Inject constructor(
                     }
 
                     isSuccessful = false
-                    userDocument.update(mapOf(ENROLLED_COURSE to mutableList)).addOnSuccessListener {
-                        isSuccessful = true
-                    }
+                    userDocument.update(mapOf(ENROLLED_COURSE to mutableList))
+                        .addOnSuccessListener {
+                            isSuccessful = true
+                        }
                 }
 
                 if (user.requestedCourse.isNotEmpty()) {
 
-                    val requested: List<String> = if(snapshot[REQUESTED_COURSE] is List<*> && snapshot[REQUESTED_COURSE] != null) snapshot[REQUESTED_COURSE] as List<String> else mutableListOf()
+                    val requested: List<String> =
+                        if (snapshot[REQUESTED_COURSE] is List<*> && snapshot[REQUESTED_COURSE] != null) snapshot[REQUESTED_COURSE] as List<String> else mutableListOf()
                     val mutableList = mutableListOf<String>()
 
                     requested.forEach {
@@ -134,8 +141,8 @@ class UserRepositoryImpl @Inject constructor(
                     }
 
                     requested.forEach { request ->
-                            user.requestedCourse.forEach {
-                            if(it == request) {
+                        user.requestedCourse.forEach {
+                            if (it == request) {
                                 mutableList.remove(it)
                             }
                         }
@@ -146,14 +153,16 @@ class UserRepositoryImpl @Inject constructor(
                     }
 
                     isSuccessful = false
-                    userDocument.update(mapOf(REQUESTED_COURSE to mutableList)).addOnSuccessListener {
-                        isSuccessful = true
-                    }
+                    userDocument.update(mapOf(REQUESTED_COURSE to mutableList))
+                        .addOnSuccessListener {
+                            isSuccessful = true
+                        }
                 }
 
                 if (user.createdCourse.isNotEmpty()) {
 
-                    val created: List<String> = if(snapshot[CREATED_COURSE] is List<*> && snapshot[CREATED_COURSE] != null) snapshot[CREATED_COURSE] as List<String> else mutableListOf()
+                    val created: List<String> =
+                        if (snapshot[CREATED_COURSE] is List<*> && snapshot[CREATED_COURSE] != null) snapshot[CREATED_COURSE] as List<String> else mutableListOf()
                     val mutableList = mutableListOf<String>()
 
                     created.forEach {
@@ -162,7 +171,7 @@ class UserRepositoryImpl @Inject constructor(
 
                     created.forEach { create ->
                         user.createdCourse.forEach {
-                            if(it == create) {
+                            if (it == create) {
                                 mutableList.remove(it)
                             }
                         }
@@ -206,7 +215,8 @@ class UserRepositoryImpl @Inject constructor(
             usersCollection.document(email).addSnapshotListener { snapshot, error ->
                 if (snapshot != null) {
                     response = try {
-                        val user = DocumentSnapshotToObjectFunctions.getUserFromDocumentSnapshot(snapshot)
+                        val user = getUserFromDocumentSnapshot(snapshot)
+                        Log.d(TAG, "getUser: $user")
                         ResponseState.Success(user)
                     } catch (e: Exception) {
                         ResponseState.Failure("$UNABLE_TO_GET_USER: ${e.localizedMessage}")

@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,8 +17,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.nasiat_muhib.classmate.components.NormalField
 import com.nasiat_muhib.classmate.core.Constants.COURSE_CODE_LABEL
-import com.nasiat_muhib.classmate.core.Constants.COURSE_PASSWORD_LABEL
 import com.nasiat_muhib.classmate.core.Constants.ENROLL_BUTTON
+import com.nasiat_muhib.classmate.ui.theme.ButtonBoldStyle
+import com.nasiat_muhib.classmate.ui.theme.MediumButtonShape
 
 @Composable
 fun EnrollCourseContent() {
@@ -37,11 +38,10 @@ fun EnrollCourseContent() {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             NormalField(value = code, onValueChange = {code = it}, label = COURSE_CODE_LABEL, imeAction = ImeAction.Next)
-            NormalField(value = password, onValueChange = {password = it}, label = COURSE_PASSWORD_LABEL, imeAction = ImeAction.Done)
         }
         
-        Button(onClick = { /*TODO*/ }) {
-            Text(text = ENROLL_BUTTON)
+        ElevatedButton(onClick = { /*TODO*/ }, shape = MediumButtonShape) {
+            Text(text = ENROLL_BUTTON, style = ButtonBoldStyle)
         }
     }
 }

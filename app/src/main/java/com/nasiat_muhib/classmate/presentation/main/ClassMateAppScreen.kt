@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -34,13 +35,13 @@ fun ClassMateAppScreen(tab: TabItem, navigateToTab: (TabItem) -> Unit) {
                         modifier = Modifier
                             .padding(24.dp),
                         tint = if (tabItem == tab) {
-                            Color.Red
+                            MaterialTheme.colorScheme.primary
                         } else {
-                            Color.Black
+                            MaterialTheme.colorScheme.onSurface
                         }
                     )
                     if(tab == tabItem) {
-                        HorizontalDivider(thickness = 1.dp, color = Color.Red)
+                        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }

@@ -1,7 +1,6 @@
 package com.nasiat_muhib.classmate.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -22,6 +22,9 @@ import androidx.compose.ui.window.DialogProperties
 fun CustomDialog(
     hasCancelButton: Boolean = true,
     onDismissRequest: () -> Unit,
+    fraction: Float = 0.8f,
+    upSpacerHeight: Dp = 32.dp,
+    downSpacerHeight: Dp = 32.dp,
     content: @Composable () -> Unit
 ) {
 
@@ -35,16 +38,16 @@ fun CustomDialog(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth(fraction)
                 .padding(horizontal = 16.dp)
                 .clip(RoundedCornerShape(15.dp))
                 .shadow(15.dp, RoundedCornerShape(15.dp))
                 .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(upSpacerHeight))
             content.invoke()
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(downSpacerHeight))
         }
     }
 }

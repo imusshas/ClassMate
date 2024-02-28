@@ -1,6 +1,5 @@
 package com.nasiat_muhib.classmate.domain.repository
 
-import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.model.ResponseState
 import kotlinx.coroutines.flow.Flow
@@ -14,6 +13,4 @@ interface CourseRepository {
     fun deleteCourse(course: Course): Flow<ResponseState<Course>>
 
     fun getCourse(courseCode: String): Flow<ResponseState<Course>>
-
-    fun getCreatedCourseList(email: String): Flow<ResponseState<List<Course>>>
 }

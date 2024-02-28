@@ -16,23 +16,25 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.nasiat_muhib.classmate.components.EmailField
-import com.nasiat_muhib.classmate.components.NormalField
 import com.nasiat_muhib.classmate.components.PasswordField
 import com.nasiat_muhib.classmate.core.Constants.FORGOT_PASSWORD
 import com.nasiat_muhib.classmate.core.Constants.NEW_IN_CLASSMATE
 import com.nasiat_muhib.classmate.core.Constants.SIGN_IN_BUTTON
 import com.nasiat_muhib.classmate.core.Constants.SIGN_UP_BUTTON
 import com.nasiat_muhib.classmate.presentation.auth.components.Logo
+import com.nasiat_muhib.classmate.ui.theme.ButtonBoldStyle
+import com.nasiat_muhib.classmate.ui.theme.MediumButtonShape
 
 @Composable
 fun SignInContent(
     signIn: (String, String) -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToForgotPasswordScreen: () -> Unit,
-    navigateToSignUpScreen:() -> Unit
+    navigateToSignUpScreen: () -> Unit
 ) {
 
     var email by rememberSaveable { mutableStateOf("") }
@@ -66,15 +68,21 @@ fun SignInContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            ElevatedButton(onClick = {
-                signIn.invoke(email, password)
-                navigateToHomeScreen.invoke()
-            }) {
-                Text(text = SIGN_IN_BUTTON)
+            ElevatedButton(
+                onClick = {
+                    signIn.invoke(email, password)
+                    navigateToHomeScreen.invoke()
+                },
+                shape = MediumButtonShape,
+            ) {
+                Text(
+                    text = SIGN_IN_BUTTON,
+                    style = ButtonBoldStyle,
+                )
             }
 
             TextButton(onClick = navigateToForgotPasswordScreen) {
-                Text(text = FORGOT_PASSWORD)
+                Text(text = FORGOT_PASSWORD, style = ButtonBoldStyle)
             }
         }
 
@@ -84,8 +92,14 @@ fun SignInContent(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(text = NEW_IN_CLASSMATE)
-            OutlinedButton(onClick = navigateToSignUpScreen) {
-                Text(text = SIGN_UP_BUTTON)
+            OutlinedButton(
+                onClick = navigateToSignUpScreen,
+                shape = MediumButtonShape,
+            ) {
+                Text(
+                    text = SIGN_UP_BUTTON,
+                    fontWeight = FontWeight.Bold,
+                )
             }
 
         }

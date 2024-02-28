@@ -13,7 +13,6 @@ import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,6 +20,7 @@ import javax.inject.Inject
 class CreateSemesterViewModel @Inject constructor(
     private val courseRepo: CourseRepository,
     private val classDetailsRepo: ClassDetailsRepository,
+    private val userRepo: UserRepository,
     private val auth: FirebaseAuth
 ) : ViewModel() {
 
@@ -28,20 +28,25 @@ class CreateSemesterViewModel @Inject constructor(
         MutableStateFlow<ResponseState<Course>>(ResponseState.Success(Course()))
     val courseState = _courseState.asStateFlow()
 
-    private val _createdCourseListState = MutableStateFlow<ResponseState<List<Course>>>(ResponseState.Success(listOf()))
-    val createdCourseListState = _createdCourseListState.asStateFlow()
 
     private val _classDetailsState =
         MutableStateFlow<ResponseState<List<ClassDetails>>>(ResponseState.Success(listOf()))
     val classDetailsState = _classDetailsState.asStateFlow()
 
+    private val _userState = MutableStateFlow<ResponseState<User>>(ResponseState.Success(User()))
+    val userState = _userState.asStateFlow()
+
     init {
         viewModelScope.launch {
             if (auth.currentUser != null) {
-                courseRepo.getCreatedCourseList(auth.currentUser?.email!!).collect {
-                    _createdCourseListState.value = it
-                }
+                getUser(auth.currentUser?.email!!)
             }
+        }
+    }
+
+    private fun getUser(email: String) = viewModelScope.launch {
+        userRepo.getUser(email).collect {
+            _userState.value = it
         }
     }
 
@@ -59,6 +64,12 @@ class CreateSemesterViewModel @Inject constructor(
 
     fun getCourse(courseCode: String) = viewModelScope.launch {
         courseRepo.getCourse(courseCode).collect {
+            _courseState.value = it
+        }
+    }
+
+    fun deleteCourse(course: Course) = viewModelScope.launch {
+        courseRepo.deleteCourse(course).collect {
             _courseState.value = it
         }
     }

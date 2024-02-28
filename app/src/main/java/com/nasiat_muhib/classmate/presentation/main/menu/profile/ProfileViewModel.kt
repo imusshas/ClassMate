@@ -47,7 +47,7 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
+    private fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
         userRepo.getUser(email).collect {
             _userState.value = it
         }

@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.nasiat_muhib.classmate.ui.theme.ButtonBoldStyle
 
 @Composable
 fun TitleBox(
@@ -21,7 +22,8 @@ fun TitleBox(
     ) {
         Text(
             text = title,
-            color = titleColor
+            color = titleColor,
+            style = ButtonBoldStyle
         )
     }
 }

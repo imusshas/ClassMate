@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import com.nasiat_muhib.classmate.core.Constants.TAG
+import com.nasiat_muhib.classmate.core.Constants.UNABLE_TO_SIGN_IN
+import com.nasiat_muhib.classmate.core.Constants.UNABLE_TO_SIGN_UP
 import kotlin.Exception
 
 
@@ -34,8 +36,6 @@ class AuthRepositoryImpl @Inject constructor(
             if(user.firstName.isNotEmpty() && user.lastName.isNotEmpty() && user.role.isNotEmpty() && user.email.isNotEmpty() && user.password.isNotEmpty()) {
                 auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener {
                     if (it != null) {
-                        isSuccessful = true
-                        Log.d(TAG, "signUp: Successful")
                         isSuccessful = createUser(user)
                     } else {
                         Log.d(TAG, "signUp: Failed")
@@ -47,11 +47,13 @@ class AuthRepositoryImpl @Inject constructor(
 
 
             if (isSuccessful) {
+                Log.d(TAG, "signUp: Successful")
                 emit(ResponseState.Success(isSuccessful))
             }
 
         } catch (e: Exception) {
-            emit(ResponseState.Failure(e.message.toString()))
+            emit(ResponseState.Failure(UNABLE_TO_SIGN_UP))
+            Log.d(TAG, "signUp: ${e.localizedMessage}")
         }
     }
 
@@ -69,7 +71,8 @@ class AuthRepositoryImpl @Inject constructor(
                     emit(ResponseState.Success(isSuccessful))
                 }
             } catch (e: Exception) {
-                emit(ResponseState.Failure(e.message.toString()))
+                emit(ResponseState.Failure(UNABLE_TO_SIGN_IN))
+                Log.d(TAG, "signIn: ${e.localizedMessage}")
             }
         }
 
@@ -98,7 +101,7 @@ class AuthRepositoryImpl @Inject constructor(
                 Log.d(TAG, "createUser: Failed")
             }
         } catch (e: Exception) {
-            Log.d(TAG, "createUser: ${e.message}")
+            Log.d(TAG, "createUser: ${e.localizedMessage}")
             isSuccessful = false
         }
         return isSuccessful

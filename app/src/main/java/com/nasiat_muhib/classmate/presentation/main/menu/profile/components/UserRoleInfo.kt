@@ -18,7 +18,6 @@ fun UserRoleInfo(
     infoList: List<String>,
     info: String,
     onInfoChange: (String) -> Unit,
-    isEditable: Boolean,
     modifier: Modifier = Modifier,
     imeAction: ImeAction = ImeAction.Next
 ) {
@@ -32,7 +31,6 @@ fun UserRoleInfo(
             itemsList = infoList,
             selectedItem = info,
             onItemChange = onInfoChange,
-            enabled = isEditable,
             imeAction = imeAction,
             modifier = Modifier.weight(2.25f)
         )

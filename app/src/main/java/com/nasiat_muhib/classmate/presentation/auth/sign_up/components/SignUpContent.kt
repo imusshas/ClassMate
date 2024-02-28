@@ -1,21 +1,14 @@
 package com.nasiat_muhib.classmate.presentation.auth.sign_up.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
-import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -26,30 +19,26 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.nasiat_muhib.classmate.components.AutoCompleteField
-import com.nasiat_muhib.classmate.components.CustomDialog
 import com.nasiat_muhib.classmate.components.EmailField
 import com.nasiat_muhib.classmate.components.NormalField
 import com.nasiat_muhib.classmate.components.PasswordField
 import com.nasiat_muhib.classmate.core.Constants.ALREADY_USER
 import com.nasiat_muhib.classmate.core.Constants.CLASS_REPRESENTATIVE
-import com.nasiat_muhib.classmate.core.Constants.CONFIRM_BUTTON
 import com.nasiat_muhib.classmate.core.Constants.FIRSTNAME_LABEL
 import com.nasiat_muhib.classmate.core.Constants.LASTNAME_LABEL
-import com.nasiat_muhib.classmate.core.Constants.ROLE
 import com.nasiat_muhib.classmate.core.Constants.ROLE_LABEL
-import com.nasiat_muhib.classmate.core.Constants.SELECT_ROLE
 import com.nasiat_muhib.classmate.core.Constants.SIGN_IN_BUTTON
 import com.nasiat_muhib.classmate.core.Constants.SIGN_UP_BUTTON
 import com.nasiat_muhib.classmate.core.Constants.STUDENT
+import com.nasiat_muhib.classmate.core.Constants.TAG
 import com.nasiat_muhib.classmate.core.Constants.TEACHER
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.presentation.auth.components.Logo
-import com.nasiat_muhib.classmate.ui.theme.BackgroundRed
+import com.nasiat_muhib.classmate.ui.theme.ButtonBoldStyle
+import com.nasiat_muhib.classmate.ui.theme.MediumButtonShape
 
 @Composable
 fun SignUpContent(
@@ -59,14 +48,11 @@ fun SignUpContent(
 ) {
     val roles = listOf(TEACHER, CLASS_REPRESENTATIVE, STUDENT)
 
-    var role by rememberSaveable { mutableStateOf("") }
+    var role by rememberSaveable { mutableStateOf(roles[0]) }
     var firstName by rememberSaveable { mutableStateOf("") }
     var lastName by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
-
-
-
 
 
     Column(
@@ -79,8 +65,6 @@ fun SignUpContent(
     ) {
 
         Logo()
-
-
 
         Column(
             modifier = Modifier
@@ -112,10 +96,11 @@ fun SignUpContent(
             AutoCompleteField(
                 itemsList = roles,
                 selectedItem = role,
-                onItemChange = {role = it},
+                onItemChange = { role = it },
                 label = ROLE_LABEL,
                 imeAction = ImeAction.Next
             )
+
             EmailField(
                 email = email,
                 onEmailChange = { email = it },
@@ -135,18 +120,22 @@ fun SignUpContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            ElevatedButton(onClick = {
-                val user = User(
-                    email = email,
-                    firstName = firstName,
-                    lastName = lastName,
-                    password = password,
-                    role = role
-                )
-                signUp.invoke(email, password, user)
-                navigateToHomeScreen.invoke()
-            }) {
-                Text(text = SIGN_UP_BUTTON)
+            ElevatedButton(
+                onClick = {
+                    val user = User(
+                        email = email,
+                        firstName = firstName,
+                        lastName = lastName,
+                        password = password,
+                        role = role
+                    )
+                    signUp.invoke(email, password, user)
+                    Log.d(TAG, "SignUpContent: $role")
+                    navigateToHomeScreen.invoke()
+                },
+                shape = MediumButtonShape
+            ) {
+                Text(text = SIGN_UP_BUTTON, style = ButtonBoldStyle)
             }
         }
 
@@ -156,12 +145,11 @@ fun SignUpContent(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(text = ALREADY_USER)
-            OutlinedButton(onClick = navigateToSignInScreen) {
-                Text(text = SIGN_IN_BUTTON)
+            OutlinedButton(onClick = navigateToSignInScreen, shape = MediumButtonShape) {
+                Text(text = SIGN_IN_BUTTON, style = ButtonBoldStyle)
             }
 
         }
 
     }
-
 }

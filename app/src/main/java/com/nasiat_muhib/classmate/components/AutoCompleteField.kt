@@ -50,10 +50,11 @@ fun AutoCompleteField(
             value = selectedItem,
             onValueChange = {
                 expanded = true
-                onItemChange.invoke(it)
+                onItemChange.invoke(selectedItem)
             },
+            readOnly = true,
             label = {
-                    Text(text = label)
+                Text(text = label)
             },
             trailingIcon = {
                 IconButton(onClick = { expanded = !expanded }) {
@@ -70,7 +71,7 @@ fun AutoCompleteField(
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
-        
+
         AnimatedVisibility(visible = expanded) {
             Card(modifier = Modifier.fillMaxWidth()) {
                 LazyColumn(
@@ -78,13 +79,11 @@ fun AutoCompleteField(
                         .heightIn(max = 150.dp)
                         .fillMaxWidth()
                 ) {
-                    if(selectedItem.isNotEmpty()) {
-                        items(
-                            items = itemsList.filter { containedItem ->
-                                containedItem.lowercase(Locale.ROOT).contains(selectedItem.lowercase(Locale.ROOT))
-                            }.sorted()
-                        ) {
-                            Row (modifier = Modifier
+                    items(
+                        items = itemsList.sorted()
+                    ) {
+                        Row(
+                            modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp)
                                 .padding(8.dp)
@@ -92,29 +91,12 @@ fun AutoCompleteField(
                                     onItemChange.invoke(it)
                                     expanded = false
                                 },
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = it)
-                            }
-                        }
-                    } else {
-                        items(
-                            items = itemsList.sorted()
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row (modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp)
-                                .padding(8.dp)
-                                .clickable {
-                                    onItemChange.invoke(it)
-                                    expanded = false
-                                },
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = it)
-                            }
+                            Text(text = it)
                         }
                     }
+
                 }
             }
         }
