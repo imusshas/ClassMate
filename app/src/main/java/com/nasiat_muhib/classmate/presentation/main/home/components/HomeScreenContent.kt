@@ -47,7 +47,7 @@ fun HomeScreenContent(
 
     var hour by rememberSaveable { mutableStateOf(currentHour.toString()) }
     var minute by rememberSaveable { mutableStateOf(dateTime.minute.toString()) }
-    var shift by rememberSaveable { mutableStateOf(if(dateTime.hour > 12) "Pm" else "Am") }
+    var shift by rememberSaveable { mutableStateOf(if(dateTime.hour > 11) "Pm" else "Am") }
 
 
 

@@ -85,7 +85,7 @@ fun CreateCourseComponent(
     var weekDay by rememberSaveable { mutableStateOf(DAYS_OF_WEEK[0]) }
     var hour by rememberSaveable { mutableStateOf(currentHour.toString()) }
     var minute by rememberSaveable { mutableStateOf(time.minute.toString()) }
-    var shift by rememberSaveable { mutableStateOf(if(time.hour > 12) PM else AM) }
+    var shift by rememberSaveable { mutableStateOf(if(time.hour > 11) PM else AM) }
 
 
     val classDetailsList = rememberSaveable { mutableSetOf<ClassDetails>() }
