@@ -55,7 +55,6 @@ fun ProfileContent(
     var firstName by rememberSaveable { mutableStateOf("") }
     var lastName by rememberSaveable { mutableStateOf("") }
     var role by rememberSaveable { mutableStateOf("") }
-    role = user.role
     var department by rememberSaveable { mutableStateOf("") }
     var session by rememberSaveable { mutableStateOf("") }
     var bloodGroup by rememberSaveable { mutableStateOf("") }
@@ -96,7 +95,7 @@ fun ProfileContent(
                 UserRoleInfo(
                     title = ROLE_TITLE,
                     infoList = roles,
-                    info = role,
+                    info = role.ifEmpty { user.role },
                     onInfoChange = { role = it }
                 )
             } else {
