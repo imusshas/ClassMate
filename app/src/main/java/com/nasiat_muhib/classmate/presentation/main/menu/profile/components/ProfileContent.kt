@@ -50,11 +50,12 @@ fun ProfileContent(
     navigateBackToMenuScreen: () -> Unit
 ) {
 
-    val roles = listOf(TEACHER, CLASS_REPRESENTATIVE, STUDENT)
+    val roles = listOf(CLASS_REPRESENTATIVE, STUDENT)
 
     var firstName by rememberSaveable { mutableStateOf("") }
     var lastName by rememberSaveable { mutableStateOf("") }
-    var role by rememberSaveable { mutableStateOf(roles[0]) }
+    var role by rememberSaveable { mutableStateOf("") }
+    role = user.role
     var department by rememberSaveable { mutableStateOf("") }
     var session by rememberSaveable { mutableStateOf("") }
     var bloodGroup by rememberSaveable { mutableStateOf("") }

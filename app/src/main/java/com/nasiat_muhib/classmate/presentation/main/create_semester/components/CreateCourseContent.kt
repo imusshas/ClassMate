@@ -31,7 +31,6 @@ fun CreateCourseContent(
     onCreateCourseClick: () -> Unit
 ) {
 
-
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -70,7 +69,4 @@ fun CreateCourseContent(
             Text(text = "Create Course Content")
         }
     }
-
-
-
 }

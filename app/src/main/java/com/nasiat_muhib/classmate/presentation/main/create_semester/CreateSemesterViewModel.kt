@@ -36,10 +36,26 @@ class CreateSemesterViewModel @Inject constructor(
     private val _userState = MutableStateFlow<ResponseState<User>>(ResponseState.Success(User()))
     val userState = _userState.asStateFlow()
 
+
+    private val _createdCoursesListState = MutableStateFlow<List<Course>>(listOf())
+    val createdCoursesListState = _createdCoursesListState.asStateFlow()
+
+    private val _enrolledCoursesListState = MutableStateFlow<List<Course>>(listOf())
+    val enrolledCoursesListState = _enrolledCoursesListState.asStateFlow()
+
+    private val _requestedCoursesListState = MutableStateFlow<List<Course>>(listOf())
+    val requestedCoursesListState = _requestedCoursesListState.asStateFlow()
+
     init {
         viewModelScope.launch {
             if (auth.currentUser != null) {
                 getUser(auth.currentUser?.email!!)
+            }
+
+            _userState.value.data?.let { user ->
+                user.enrolledCourse.forEach { courseCode ->
+                    getCourse(courseCode)
+                }
             }
         }
     }
