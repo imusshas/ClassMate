@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -36,6 +36,8 @@ fun SignUpScreen(
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
 
+    val signUpState = authViewModel.signUpState.collectAsState()
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -48,25 +50,31 @@ fun SignUpScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            CustomOutlinedField(labelValue = FIRST_NAME_LABEL, onValueChange = {
-                firstName ->
-                authViewModel.event(UIEvent.FirstNameChanged(firstName))
-            })
-            CustomOutlinedField(labelValue = LAST_NAME_LABEL, onValueChange = {lastName ->
-                authViewModel.event(UIEvent.LastNameChanged(lastName))
-            })
+            CustomOutlinedField(labelValue = FIRST_NAME_LABEL, onValueChange = { firstName ->
+                authViewModel.onEvent(UIEvent.FirstNameChanged(firstName))
+            }, errorStatus = signUpState.value.firstNameError)
+            CustomOutlinedField(labelValue = LAST_NAME_LABEL, onValueChange = { lastName ->
+                authViewModel.onEvent(UIEvent.LastNameChanged(lastName))
+            }, errorStatus = signUpState.value.lastNameError)
             // TODO: Implement Role Label
             CustomOutlinedField(labelValue = EMAIL_LABEL,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-                onValueChange = {email ->
-                    authViewModel.event(UIEvent.EmailChanged(email))
-                }
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
+                ),
+                onValueChange = { email ->
+                    authViewModel.onEvent(UIEvent.EmailChanged(email))
+                },
+                errorStatus = signUpState.value.emailError
             )
-            CustomPasswordField(labelValue = PASSWORD_LABEL, onPasswordChange = {password ->
-                authViewModel.event(UIEvent.PasswordChanged(password))
-            })
+            CustomPasswordField(labelValue = PASSWORD_LABEL, onPasswordChange = { password ->
+                authViewModel.onEvent(UIEvent.PasswordChanged(password))
+            }, errorStatus = signUpState.value.passwordError)
 
-            CustomElevatedButton(text = SIGN_UP_BUTTON, onClick = { /*TODO*/ })
+            CustomElevatedButton(text = SIGN_UP_BUTTON, onClick = {
+                /*TODO*/
+                authViewModel.onEvent(UIEvent.SignUpButtonClicked)
+            })
         }
 
 

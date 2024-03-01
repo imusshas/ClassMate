@@ -29,7 +29,8 @@ fun CustomOutlinedField(
     shape: Shape = MediumRounded,
     readOnly: Boolean = false,
     horizontalPadding: Dp = MediumSpace,
-    verticalPadding: Dp = ZeroSpace
+    verticalPadding: Dp = ZeroSpace,
+    errorStatus: Boolean = false
 ) {
     val textValue = remember { mutableStateOf("") }
 
@@ -50,6 +51,7 @@ fun CustomOutlinedField(
         singleLine = singeLine,
         maxLines = maxLines,
         shape = shape,
-        readOnly = readOnly
+        readOnly = readOnly,
+        isError = !errorStatus
     )
 }

@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -34,6 +34,9 @@ import com.nasiat_muhib.classmate.strings.SIGN_UP_BUTTON
 fun SignInScreen(
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
+
+    val signUpState = authViewModel.signUpState.collectAsState()
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -48,14 +51,18 @@ fun SignInScreen(
         ) {
             CustomOutlinedField(
                 labelValue = EMAIL_LABEL,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-                onValueChange = {email ->
-                    authViewModel.event(UIEvent.EmailChanged(email))
-                }
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
+                ),
+                onValueChange = { email ->
+                    authViewModel.onEvent(UIEvent.EmailChanged(email))
+                },
+                errorStatus = signUpState.value.emailError
             )
-            CustomPasswordField(labelValue = PASSWORD_LABEL, onPasswordChange = {password ->
-                authViewModel.event(UIEvent.PasswordChanged(password))
-            })
+            CustomPasswordField(labelValue = PASSWORD_LABEL, onPasswordChange = { password ->
+                authViewModel.onEvent(UIEvent.PasswordChanged(password))
+            }, errorStatus = signUpState.value.passwordError)
 
             CustomElevatedButton(text = SIGN_IN_BUTTON, onClick = { /*TODO*/ })
             CustomClickableText(text = FORGOT_PASSWORD_BUTTON, onClick = {
@@ -70,9 +77,12 @@ fun SignInScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(text = NEW_IN_CLASSMATE_HARDCODED)
-            CustomElevatedButton(text = SIGN_UP_BUTTON, onClick = {
-                ClassMateAppRouter.navigateTo(Screen.SignUpScreen)
-            })
+            CustomElevatedButton(
+                text = SIGN_UP_BUTTON,
+                onClick = {
+                    ClassMateAppRouter.navigateTo(Screen.SignUpScreen)
+                }
+            )
         }
     }
 }

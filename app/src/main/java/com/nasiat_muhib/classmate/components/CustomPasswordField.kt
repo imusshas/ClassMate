@@ -37,7 +37,8 @@ fun CustomPasswordField(
     shape: Shape = MediumRounded,
     readOnly: Boolean = false,
     horizontalPadding: Dp = MediumSpace,
-    verticalPadding: Dp = ZeroSpace
+    verticalPadding: Dp = ZeroSpace,
+    errorStatus: Boolean = false
 ) {
 
     val localFocusManager = LocalFocusManager.current
@@ -74,6 +75,7 @@ fun CustomPasswordField(
         },
         shape = shape,
         visualTransformation = if (passwordVisibility.value) VisualTransformation.None else PasswordVisualTransformation(),
-        readOnly = readOnly
+        readOnly = readOnly,
+        isError = !errorStatus
     )
 }
