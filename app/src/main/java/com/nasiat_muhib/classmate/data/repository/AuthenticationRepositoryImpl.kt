@@ -74,6 +74,10 @@ class AuthenticationRepositoryImpl @Inject constructor(
         Log.d(TAG, "signOut: ${it.localizedMessage}")
     }
 
+    override fun resetPassword(): Flow<DataState<Boolean>> {
+        TODO("Not yet implemented")
+    }
+
 
     private suspend fun signInToFirebase(email: String, password: String): Boolean {
         var isSuccessful = false

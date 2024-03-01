@@ -1,5 +1,7 @@
 package com.nasiat_muhib.classmate.domain.rules
 
+import android.util.Patterns
+
 object AuthValidator {
 
     fun validateFirstName(firstName: String): ValidationResult {
@@ -18,7 +20,8 @@ object AuthValidator {
 
     fun validateEmail(email: String): ValidationResult {
         var message: String? = null
-        if(email.isEmpty()) message = "Email can't be empty"
+        if(email.isBlank()) message = "Email can't be blank"
+        else if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()) message = "Invalid Email"
 
         return ValidationResult(message)
     }
@@ -28,7 +31,7 @@ object AuthValidator {
         val number = Regex("[0-9]")
         val smallChar = Regex("[a-z]")
         val capitalChar = Regex("[A-Z]")
-        if(password.isEmpty()) message = "Password can't be empty"
+        if(password.isBlank()) message = "Password can't be blank"
         else if(password.length < 8) message = "Password must contain at least 8 characters"
         else if(!number.containsMatchIn(password)) message = "Password must contain one number"
         else if(!smallChar.containsMatchIn(password) && !capitalChar.containsMatchIn(password)) message = "Password must contain one character"

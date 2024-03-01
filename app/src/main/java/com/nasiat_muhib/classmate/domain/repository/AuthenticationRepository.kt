@@ -8,4 +8,6 @@ interface AuthenticationRepository {
     fun signIn(email: String, password: String): Flow<DataState<Boolean>>
     fun signUp(email: String, password: String, user: User): Flow<DataState<Boolean>>
     fun signOut(): Flow<DataState<Boolean>>
+
+    fun resetPassword(): Flow<DataState<Boolean>>
 }
