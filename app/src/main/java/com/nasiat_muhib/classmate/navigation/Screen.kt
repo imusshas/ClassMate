@@ -7,6 +7,8 @@ sealed class Screen {
     object SignInScreen: Screen()
     object SignUpScreen: Screen()
     object ForgotPasswordScreen: Screen()
+
+    object HomeScreen: Screen()
 }
 
 object ClassMateAppRouter {

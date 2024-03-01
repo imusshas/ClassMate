@@ -1,10 +1,12 @@
 package com.nasiat_muhib.classmate.presentation.auth.sign_in
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -18,9 +20,11 @@ import com.nasiat_muhib.classmate.components.CustomClickableText
 import com.nasiat_muhib.classmate.components.CustomElevatedButton
 import com.nasiat_muhib.classmate.components.CustomOutlinedField
 import com.nasiat_muhib.classmate.components.CustomPasswordField
+import com.nasiat_muhib.classmate.components.ErrorScreen
+import com.nasiat_muhib.classmate.components.LoadingScreen
 import com.nasiat_muhib.classmate.components.Logo
-import com.nasiat_muhib.classmate.data.viewmodel.AuthViewModel
-import com.nasiat_muhib.classmate.domain.event.UIEvent
+import com.nasiat_muhib.classmate.domain.event.SignInUIEvent
+import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.strings.EMAIL_LABEL
@@ -32,57 +36,72 @@ import com.nasiat_muhib.classmate.strings.SIGN_UP_BUTTON
 
 @Composable
 fun SignInScreen(
-    authViewModel: AuthViewModel = hiltViewModel()
+    signInViewModel: SignInViewModel = hiltViewModel()
 ) {
 
-    val signUpState = authViewModel.signUpState.collectAsState()
+    val signInState = signInViewModel.signInUIState.collectAsState()
+    val signInDataState = signInViewModel.signInDataState.collectAsState()
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-        Logo()
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            CustomOutlinedField(
-                labelValue = EMAIL_LABEL,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                ),
-                onValueChange = { email ->
-                    authViewModel.onEvent(UIEvent.EmailChanged(email))
-                },
-                errorStatus = signUpState.value.emailError
-            )
-            CustomPasswordField(labelValue = PASSWORD_LABEL, onPasswordChange = { password ->
-                authViewModel.onEvent(UIEvent.PasswordChanged(password))
-            }, errorStatus = signUpState.value.passwordError)
-
-            CustomElevatedButton(text = SIGN_IN_BUTTON, onClick = { /*TODO*/ })
-            CustomClickableText(text = FORGOT_PASSWORD_BUTTON, onClick = {
-                ClassMateAppRouter.navigateTo(Screen.ForgotPasswordScreen)
-            })
+    when(signInDataState.value) {
+        is DataState.Error ->  {
+            ErrorScreen(error = signInDataState.value.error!!)
         }
+        DataState.Loading ->  {
+            LoadingScreen()
+        }
+        is DataState.Success ->  {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Logo()
 
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    CustomOutlinedField(
+                        labelValue = EMAIL_LABEL,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        ),
+                        onValueChange = { email ->
+                            signInViewModel.onEvent(
+                                SignInUIEvent.EmailChanged(email)
+                            )
+                        },
+                        errorMessage = signInState.value.emailError
+                    )
+                    CustomPasswordField(labelValue = PASSWORD_LABEL, onPasswordChange = { password ->
+                        signInViewModel.onEvent(SignInUIEvent.PasswordChanged(password))
+                    }, errorMessage = signInState.value.passwordError)
 
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(text = NEW_IN_CLASSMATE_HARDCODED)
-            CustomElevatedButton(
-                text = SIGN_UP_BUTTON,
-                onClick = {
-                    ClassMateAppRouter.navigateTo(Screen.SignUpScreen)
+                    CustomElevatedButton(text = SIGN_IN_BUTTON, onClick = {
+                        signInViewModel.onEvent(SignInUIEvent.SignInButtonClicked)
+                    })
+                    CustomClickableText(text = FORGOT_PASSWORD_BUTTON, onClick = {
+                        ClassMateAppRouter.navigateTo(Screen.ForgotPasswordScreen)
+                    })
                 }
-            )
+
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(text = NEW_IN_CLASSMATE_HARDCODED)
+                    CustomElevatedButton(
+                        text = SIGN_UP_BUTTON,
+                        onClick = {
+                            ClassMateAppRouter.navigateTo(Screen.SignUpScreen)
+                        }
+                    )
+                }
+            }
         }
     }
 }

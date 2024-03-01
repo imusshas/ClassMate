@@ -16,8 +16,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.nasiat_muhib.classmate.components.CustomElevatedButton
 import com.nasiat_muhib.classmate.components.CustomOutlinedField
 import com.nasiat_muhib.classmate.components.Logo
-import com.nasiat_muhib.classmate.data.viewmodel.AuthViewModel
-import com.nasiat_muhib.classmate.domain.event.UIEvent
+import com.nasiat_muhib.classmate.presentation.auth.sign_up.SignUpViewModel
+import com.nasiat_muhib.classmate.domain.event.SignUpUIEvent
 import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.navigation.SystemBackButtonHandler
@@ -26,10 +26,10 @@ import com.nasiat_muhib.classmate.strings.REQUEST_OTP
 
 @Composable
 fun ForgotPasswordScreen(
-    authViewModel: AuthViewModel = hiltViewModel()
+    signUpViewModel: SignUpViewModel = hiltViewModel()
 ) {
 
-    val signUpState = authViewModel.signUpState.collectAsState()
+    val signUpState = signUpViewModel.signUpState.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -50,9 +50,9 @@ fun ForgotPasswordScreen(
                     imeAction = ImeAction.Next
                 ),
                 onValueChange = { email ->
-                    authViewModel.onEvent(UIEvent.EmailChanged(email))
+                    signUpViewModel.onEvent(SignUpUIEvent.EmailChanged(email))
                 },
-                errorStatus = signUpState.value.emailError
+                errorMessage = signUpState.value.emailError
             )
             CustomElevatedButton(text = REQUEST_OTP, onClick = { /*TODO*/ })
         }

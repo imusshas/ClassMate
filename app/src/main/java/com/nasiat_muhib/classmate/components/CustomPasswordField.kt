@@ -1,5 +1,7 @@
 package com.nasiat_muhib.classmate.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
@@ -9,6 +11,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +27,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import com.nasiat_muhib.classmate.strings.HIDE_PASSWORD
 import com.nasiat_muhib.classmate.strings.SHOW_PASSWORD
+import com.nasiat_muhib.classmate.ui.theme.ExtraExtraSmallSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.ZeroSpace
@@ -36,9 +40,11 @@ fun CustomPasswordField(
     imeAction: ImeAction = ImeAction.Done,
     shape: Shape = MediumRounded,
     readOnly: Boolean = false,
-    horizontalPadding: Dp = MediumSpace,
-    verticalPadding: Dp = ZeroSpace,
-    errorStatus: Boolean = false
+    startPadding: Dp = MediumSpace,
+    endPadding: Dp = MediumSpace,
+    topPadding: Dp = ZeroSpace,
+    bottomPadding: Dp = ZeroSpace,
+    errorMessage: String? = null
 ) {
 
     val localFocusManager = LocalFocusManager.current
@@ -46,36 +52,52 @@ fun CustomPasswordField(
 
     val passwordVisibility = remember { mutableStateOf(false) }
 
-    OutlinedTextField(
-        value = password.value,
-        onValueChange = {
-            password.value = it
-            onPasswordChange(it)
-        },
-        label = { Text(text = labelValue) },
-        trailingIcon = {
-            IconButton(onClick = { passwordVisibility.value = !passwordVisibility.value }) {
-                Icon(
-                    imageVector = if (passwordVisibility.value) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                    contentDescription = if (passwordVisibility.value) HIDE_PASSWORD else SHOW_PASSWORD,
-                )
-            }
-        },
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontalPadding, verticalPadding),
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Password,
-            imeAction = imeAction
-        ),
-        singleLine = true,
-        maxLines = 1,
-        keyboardActions = KeyboardActions {
-            localFocusManager.clearFocus()
-        },
-        shape = shape,
-        visualTransformation = if (passwordVisibility.value) VisualTransformation.None else PasswordVisualTransformation(),
-        readOnly = readOnly,
-        isError = !errorStatus
-    )
+            .padding(
+                start =  startPadding, top = topPadding, end = endPadding, bottom = bottomPadding
+            ),
+        verticalArrangement = Arrangement.spacedBy(ExtraExtraSmallSpace)
+    ) {
+        OutlinedTextField(
+            value = password.value,
+            onValueChange = {
+                password.value = it
+                onPasswordChange(it)
+            },
+            label = { Text(text = labelValue) },
+            trailingIcon = {
+                IconButton(onClick = { passwordVisibility.value = !passwordVisibility.value }) {
+                    Icon(
+                        imageVector = if (passwordVisibility.value) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        contentDescription = if (passwordVisibility.value) HIDE_PASSWORD else SHOW_PASSWORD,
+                    )
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = imeAction
+            ),
+            singleLine = true,
+            maxLines = 1,
+            keyboardActions = KeyboardActions {
+                localFocusManager.clearFocus()
+            },
+            shape = shape,
+            visualTransformation = if (passwordVisibility.value) VisualTransformation.None else PasswordVisualTransformation(),
+            readOnly = readOnly,
+            isError = errorMessage != null
+        )
+
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+    }
 }

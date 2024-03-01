@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import com.nasiat_muhib.classmate.presentation.auth.forgot_password.ForgotPasswordScreen
 import com.nasiat_muhib.classmate.presentation.auth.sign_in.SignInScreen
 import com.nasiat_muhib.classmate.presentation.auth.sign_up.SignUpScreen
+import com.nasiat_muhib.classmate.presentation.main.home.HomeScreen
 
 @Composable
 fun ClassMateSecondVersion() {
@@ -24,6 +25,10 @@ fun ClassMateSecondVersion() {
 
                 Screen.ForgotPasswordScreen -> {
                     ForgotPasswordScreen()
+                }
+
+                Screen.HomeScreen -> {
+                    HomeScreen()
                 }
             }
         }
