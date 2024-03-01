@@ -34,16 +34,3 @@ val Typography = Typography(
     )
     */
 )
-
-val ButtonBoldStyle = TextStyle(
-        fontWeight = FontWeight.Bold
-)
-
-val PickersStyle = TextStyle(
-        fontSize = 32.sp,
-        textAlign = TextAlign.Center
-)
-
-val PickersTitleStyle = TextStyle(
-        fontWeight = FontWeight.ExtraBold
-)

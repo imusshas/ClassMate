@@ -1,31 +1,89 @@
 package com.nasiat_muhib.classmate.presentation.auth.sign_up
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.nasiat_muhib.classmate.components.LoadingScreen
-import com.nasiat_muhib.classmate.domain.model.ResponseState
-import com.nasiat_muhib.classmate.presentation.auth.sign_up.components.SignUpContent
-import com.nasiat_muhib.classmate.utils.CustomToast
+import com.nasiat_muhib.classmate.components.CustomElevatedButton
+import com.nasiat_muhib.classmate.components.CustomOutlinedField
+import com.nasiat_muhib.classmate.components.CustomPasswordField
+import com.nasiat_muhib.classmate.components.Logo
+import com.nasiat_muhib.classmate.data.viewmodel.AuthViewModel
+import com.nasiat_muhib.classmate.domain.event.UIEvent
+import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
+import com.nasiat_muhib.classmate.navigation.Screen
+import com.nasiat_muhib.classmate.navigation.SystemBackButtonHandler
+import com.nasiat_muhib.classmate.strings.ALREADY_A_USER_HARDCODED
+import com.nasiat_muhib.classmate.strings.EMAIL_LABEL
+import com.nasiat_muhib.classmate.strings.FIRST_NAME_LABEL
+import com.nasiat_muhib.classmate.strings.LAST_NAME_LABEL
+import com.nasiat_muhib.classmate.strings.PASSWORD_LABEL
+import com.nasiat_muhib.classmate.strings.SIGN_IN_BUTTON
+import com.nasiat_muhib.classmate.strings.SIGN_UP_BUTTON
 
 @Composable
 fun SignUpScreen(
-    viewModel: SignUpViewModel = hiltViewModel(),
-    navigateToHomeScreen: () -> Unit,
-    navigateToSignInScreen: () -> Unit,
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.signUpState.collectAsState()
 
-    when(uiState) {
-        ResponseState.Loading -> LoadingScreen()
-        is ResponseState.Failure -> uiState.error?.let { CustomToast(message = it) }
-        is ResponseState.Success -> SignUpContent(
-            signUp = {email, password, user ->
-                     viewModel.signUp(email, password, user)
-            },
-            navigateToHomeScreen = navigateToHomeScreen,
-            navigateToSignInScreen = navigateToSignInScreen
-        )
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Logo()
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            CustomOutlinedField(labelValue = FIRST_NAME_LABEL, onValueChange = {
+                firstName ->
+                authViewModel.event(UIEvent.FirstNameChanged(firstName))
+            })
+            CustomOutlinedField(labelValue = LAST_NAME_LABEL, onValueChange = {lastName ->
+                authViewModel.event(UIEvent.LastNameChanged(lastName))
+            })
+            // TODO: Implement Role Label
+            CustomOutlinedField(labelValue = EMAIL_LABEL,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+                onValueChange = {email ->
+                    authViewModel.event(UIEvent.EmailChanged(email))
+                }
+            )
+            CustomPasswordField(labelValue = PASSWORD_LABEL, onPasswordChange = {password ->
+                authViewModel.event(UIEvent.PasswordChanged(password))
+            })
+
+            CustomElevatedButton(text = SIGN_UP_BUTTON, onClick = { /*TODO*/ })
+        }
+
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(text = ALREADY_A_USER_HARDCODED)
+            CustomElevatedButton(text = SIGN_IN_BUTTON, onClick = {
+                ClassMateAppRouter.navigateTo(Screen.SignInScreen)
+            })
+
+        }
+    }
+
+    SystemBackButtonHandler {
+        ClassMateAppRouter.navigateTo(Screen.SignInScreen)
     }
 }
