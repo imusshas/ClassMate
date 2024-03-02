@@ -10,6 +10,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.nasiat_muhib.classmate.ui.theme.ButtonStyle
 import com.nasiat_muhib.classmate.ui.theme.MediumRounded
 
 @Composable
@@ -28,9 +29,7 @@ fun CustomElevatedButton(
         enabled = enabled
     ) {
         Text(
-            text = text, style = TextStyle(
-                fontWeight = FontWeight.Bold
-            ),
+            text = text, style = ButtonStyle,
             textAlign = TextAlign.Center
         )
     }

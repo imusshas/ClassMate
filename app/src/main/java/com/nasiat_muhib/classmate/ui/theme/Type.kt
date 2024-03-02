@@ -1,6 +1,7 @@
 package com.nasiat_muhib.classmate.ui.theme
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -33,4 +34,22 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
+)
+
+val ButtonStyle = TextStyle (
+        fontWeight = FontWeight.Bold
+)
+
+val TitleStyle = TextStyle (
+        fontWeight = FontWeight.Bold
+)
+
+val PickerStyle = TextStyle (
+        fontSize = 32.sp,
+        textAlign = TextAlign.Center,
+)
+
+val SmallPickerStyle = TextStyle (
+        fontSize = 18.sp,
+        textAlign = TextAlign.Center,
 )

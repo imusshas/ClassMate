@@ -8,8 +8,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.nasiat_muhib.classmate.core.Constants.ROLES
-//import com.nasiat_muhib.classmate.navigation.ClassMateApp
 import com.nasiat_muhib.classmate.navigation.ClassMateSecondVersion
 import com.nasiat_muhib.classmate.ui.theme.ClassMateTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,6 +24,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     ClassMateSecondVersion()
+//                    CustomPickerField(onValueChange = {})
                 }
             }
         }

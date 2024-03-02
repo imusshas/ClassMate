@@ -12,3 +12,5 @@ val ExtraExtraSmallSpace = 2.dp
 val ZeroSpace = 0.dp
 val MaximumHeight = 150.dp
 val NormalHeight = 48.dp
+val LargeHeight = 80.dp
+val SmallHeight = 36.dp
