@@ -2,6 +2,8 @@ package com.nasiat_muhib.classmate.navigation
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 sealed class Screen {
     object SignInScreen: Screen()
@@ -12,7 +14,11 @@ sealed class Screen {
 }
 
 object ClassMateAppRouter {
-    var currentScreen: MutableState<Screen> = mutableStateOf(Screen.SignInScreen)
+    private val currentUser = Firebase.auth.currentUser
+    var currentScreen: MutableState<Screen> = mutableStateOf(
+        if(currentUser!= null) Screen.HomeScreen
+        else Screen.SignInScreen
+    )
 
     fun navigateTo(destination: Screen) {
         currentScreen.value = destination
