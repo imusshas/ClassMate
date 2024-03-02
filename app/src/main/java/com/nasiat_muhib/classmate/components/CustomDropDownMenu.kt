@@ -28,6 +28,7 @@ import com.nasiat_muhib.classmate.ui.theme.ExtraSmallSpace
 import com.nasiat_muhib.classmate.ui.theme.MaximumHeight
 import com.nasiat_muhib.classmate.ui.theme.MediumRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
+import com.nasiat_muhib.classmate.ui.theme.NormalHeight
 import com.nasiat_muhib.classmate.ui.theme.SmallBorder
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,7 +46,8 @@ fun CustomDropDownMenu(
 
     ExposedDropdownMenuBox(
         expanded = isExpanded,
-        onExpandedChange = { isExpanded = !isExpanded }
+        onExpandedChange = { isExpanded = !isExpanded },
+        modifier = Modifier.fillMaxWidth()
     ) {
 
         Column(
@@ -98,7 +100,7 @@ fun CustomDropDownMenu(
                             item = it
                             onItemChange(it)
                         },
-//                        modifier = Modifier.height(NormalHeight),
+                        modifier = Modifier.height(NormalHeight),
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                     )
                 }

@@ -10,6 +10,7 @@ import com.nasiat_muhib.classmate.presentation.auth.forgot_password.ForgotPasswo
 import com.nasiat_muhib.classmate.presentation.auth.sign_in.SignInScreen
 import com.nasiat_muhib.classmate.presentation.auth.sign_up.SignUpScreen
 import com.nasiat_muhib.classmate.presentation.main.create_semester.CreateSemesterScreen
+import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateCourse
 import com.nasiat_muhib.classmate.presentation.main.home.HomeScreen
 
 @Composable
@@ -34,6 +35,10 @@ fun ClassMateSecondVersion() {
 
                 Screen.CreateSemesterScreen -> {
                     CreateSemesterScreen()
+                }
+
+                Screen.CreateCourse -> {
+                    CreateCourse()
                 }
             }
         }

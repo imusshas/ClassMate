@@ -5,12 +5,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,10 +40,12 @@ fun CustomDatePicker(
     endPadding: Dp = SmallSpace,
 ) {
 
+    val localFocusManager = LocalFocusManager.current
+
     val date = LocalDate.now()
     val day: String = date.dayOfMonth.toString()
 
-    val month: String = date.month.toString().substring(0,3)
+    val month: String = date.month.toString().substring(0, 3)
     val year: String = date.year.toString()
     Column(
         modifier = Modifier
@@ -53,7 +57,11 @@ fun CustomDatePicker(
                 bottom = bottomPadding
             )
     ) {
-        Text(text = DATE, color = MaterialTheme.colorScheme.primary, fontSize = SmallPickerStyle.fontSize)
+        Text(
+            text = DATE,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = SmallPickerStyle.fontSize
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
@@ -63,7 +71,7 @@ fun CustomDatePicker(
                 horizontalArrangement = Arrangement.spacedBy(ExtraSmallSpace),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CustomBasicTextField(value = day, onValueChange = onDayChange)
+                CustomBasicTextField(value = day, onValueChange = { onDayChange(it) })
                 Text(
                     text = FORWARD_SLASH,
                     style = PickerStyle,
@@ -71,7 +79,7 @@ fun CustomDatePicker(
                 )
                 CustomBasicTextField(
                     value = month,
-                    onValueChange = onMonthChange,
+                    onValueChange = { onMonthChange(it) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
@@ -82,7 +90,17 @@ fun CustomDatePicker(
                     style = PickerStyle,
                     color = MaterialTheme.colorScheme.primary
                 )
-                CustomBasicTextField(value = year, onValueChange = onYearChange)
+                CustomBasicTextField(
+                    value = year,
+                    onValueChange = { onYearChange(it) },
+                    keyboardActions = KeyboardActions {
+                        localFocusManager.clearFocus()
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    )
+                )
             }
 
         }

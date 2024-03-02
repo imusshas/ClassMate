@@ -13,6 +13,8 @@ sealed class Screen {
     object HomeScreen: Screen()
 
     object CreateSemesterScreen: Screen()
+
+    object CreateCourse: Screen()
 }
 
 object ClassMateAppRouter {

@@ -178,6 +178,6 @@ class AuthenticationRepositoryImpl @Inject constructor(
     }
 
     companion object {
-        const val TAG = "AuthenticationRepositoryImpl"
+        private const val TAG = "AuthenticationRepositoryImpl"
     }
 }

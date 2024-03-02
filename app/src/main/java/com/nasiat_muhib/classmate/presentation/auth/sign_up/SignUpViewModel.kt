@@ -78,7 +78,6 @@ class SignUpViewModel @Inject constructor(
                 lastName = signUpUIState.value.lastName,
                 role = signUpUIState.value.role,
                 email = signUpUIState.value.email,
-                password = signUpUIState.value.password,
             )
 
             authRepo.signUp(signUpUIState.value.email, signUpUIState.value.password, user).collectLatest {

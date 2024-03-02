@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +24,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -35,6 +40,7 @@ import com.nasiat_muhib.classmate.ui.theme.LargeRounded
 import com.nasiat_muhib.classmate.ui.theme.LargeSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.PickerStyle
+import com.nasiat_muhib.classmate.ui.theme.SmallBorder
 import com.nasiat_muhib.classmate.ui.theme.SmallHeight
 import com.nasiat_muhib.classmate.ui.theme.SmallPickerStyle
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
@@ -49,13 +55,15 @@ fun CustomTimePicker(
     onShiftClick: (String) -> Unit,
     topPadding: Dp = ZeroSpace,
     bottomPadding: Dp = ZeroSpace,
-    startPadding: Dp = SmallSpace,
-    endPadding: Dp = SmallSpace,
+    startPadding: Dp = MediumSpace,
+    endPadding: Dp = MediumSpace,
 ) {
+
+    val localFocusManager = LocalFocusManager.current
 
     val time = LocalTime.now()
     val shift = time.hour < 12
-    val currentHour = if(time.hour > 12) time.hour - 12 else if (time.hour == 0) 12 else time.hour
+    val currentHour = if (time.hour > 12) time.hour - 12 else if (time.hour == 0) 12 else time.hour
     val hour = currentHour.toString()
     val minute = time.minute.toString()
 
@@ -79,7 +87,11 @@ fun CustomTimePicker(
                 bottom = bottomPadding
             )
     ) {
-        Text(text = TIME, color = MaterialTheme.colorScheme.primary, fontSize = SmallPickerStyle.fontSize)
+        Text(
+            text = TIME,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = SmallPickerStyle.fontSize
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
@@ -89,13 +101,23 @@ fun CustomTimePicker(
                 horizontalArrangement = Arrangement.spacedBy(ExtraSmallSpace),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CustomBasicTextField(value = hour, onValueChange = onHourChange)
+                CustomBasicTextField(value = hour, onValueChange = { onHourChange(it) })
                 Text(
                     text = COLON,
                     style = PickerStyle,
                     color = MaterialTheme.colorScheme.primary
                 )
-                CustomBasicTextField(value = minute, onValueChange = onMinuteChange)
+                CustomBasicTextField(
+                    value = minute,
+                    onValueChange = { onMinuteChange(it) },
+                    keyboardActions = KeyboardActions {
+                        localFocusManager.clearFocus()
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    )
+                )
             }
 
             Spacer(modifier = Modifier.width(MediumSpace))
@@ -103,29 +125,33 @@ fun CustomTimePicker(
                 modifier = Modifier.height(LargeHeight),
                 verticalArrangement = Arrangement.spacedBy(ExtraSmallSpace)
             ) {
-                Box(modifier = Modifier
-                    .clip(LargeRounded)
-                    .size(SmallHeight)
-                    .background(amContainerColor)
-                    .border(1.dp, amContentColor, LargeRounded)
-                    .clickable {
-                        isAmSelected.value = true
-                        onShiftClick(AM)
-                    },
+                Box(
+                    modifier = Modifier
+                        .clip(LargeRounded)
+                        .size(SmallHeight)
+                        .background(amContainerColor)
+                        .border(SmallBorder, amContentColor, LargeRounded)
+                        .clickable {
+                            localFocusManager.clearFocus()
+                            isAmSelected.value = true
+                            onShiftClick(AM)
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(text = AM, style = SmallPickerStyle, color = amContentColor)
                 }
 
-                Box(modifier = Modifier
-                    .clip(LargeRounded)
-                    .size(SmallHeight)
-                    .border(1.dp, pmContentColor, LargeRounded)
-                    .background(pmContainerColor)
-                    .clickable {
-                        isAmSelected.value = false
-                        onShiftClick(PM)
-                    },
+                Box(
+                    modifier = Modifier
+                        .clip(LargeRounded)
+                        .size(SmallHeight)
+                        .border(SmallBorder, pmContentColor, LargeRounded)
+                        .background(pmContainerColor)
+                        .clickable {
+                            localFocusManager.clearFocus()
+                            isAmSelected.value = false
+                            onShiftClick(PM)
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(text = PM, style = SmallPickerStyle, color = pmContentColor)
