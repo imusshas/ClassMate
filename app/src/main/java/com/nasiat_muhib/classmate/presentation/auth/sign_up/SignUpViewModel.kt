@@ -11,7 +11,6 @@ import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.domain.state.SignUpUIState
 import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import com.nasiat_muhib.classmate.navigation.Screen
-import com.nasiat_muhib.classmate.presentation.auth.sign_in.SignInViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,8 +24,8 @@ class SignUpViewModel @Inject constructor(
     private val authRepo: AuthenticationRepository
 ) : ViewModel() {
 
-    private val _signUpState = MutableStateFlow(SignUpUIState())
-    val signUpState = _signUpState.asStateFlow()
+    private val _signUpUIState = MutableStateFlow(SignUpUIState())
+    val signUpUIState = _signUpUIState.asStateFlow()
 
     private val _signUpDataState = MutableStateFlow<DataState<Boolean>>(DataState.Success(true)) // TODO: Try DataSource.Loading()
     val signUpDataState = _signUpDataState.asStateFlow()
@@ -41,23 +40,23 @@ class SignUpViewModel @Inject constructor(
     fun onEvent(event: SignUpUIEvent) {
         when (event) {
             is SignUpUIEvent.FirstNameChanged -> {
-                _signUpState.value = _signUpState.value.copy(firstName = event.firstName)
+                _signUpUIState.value = _signUpUIState.value.copy(firstName = event.firstName)
             }
 
             is SignUpUIEvent.LastNameChanged -> {
-                _signUpState.value = _signUpState.value.copy(lastName = event.lastName)
+                _signUpUIState.value = _signUpUIState.value.copy(lastName = event.lastName)
             }
 
             is SignUpUIEvent.RoleChanged -> {
-                _signUpState.value = _signUpState.value.copy(role = event.role)
+                _signUpUIState.value = _signUpUIState.value.copy(role = event.role)
             }
 
             is SignUpUIEvent.EmailChanged -> {
-                _signUpState.value = _signUpState.value.copy(email = event.email)
+                _signUpUIState.value = _signUpUIState.value.copy(email = event.email)
             }
 
             is SignUpUIEvent.PasswordChanged -> {
-                _signUpState.value = _signUpState.value.copy(password = event.password)
+                _signUpUIState.value = _signUpUIState.value.copy(password = event.password)
             }
 
             SignUpUIEvent.SignUpButtonClicked ->  {
@@ -70,21 +69,22 @@ class SignUpViewModel @Inject constructor(
 
     private fun signUp() = viewModelScope.launch (Dispatchers.IO) {
         _signUpInProgress.value = true
-        Log.d(TAG, "signUp: ${signUpState.value}")
+        Log.d(TAG, "signUp: ${signUpUIState.value}")
 //        Log.d(TAG, "signIn: ${allValidationPassed.value}")
         validateSignUpDataWithRules()
         if(allValidationPassed.value) {
             val user = User (
-                firstName = signUpState.value.firstName,
-                lastName = signUpState.value.lastName,
-                role = signUpState.value.role,
-                email = signUpState.value.email,
-                password = signUpState.value.password,
+                firstName = signUpUIState.value.firstName,
+                lastName = signUpUIState.value.lastName,
+                role = signUpUIState.value.role,
+                email = signUpUIState.value.email,
+                password = signUpUIState.value.password,
             )
 
-            authRepo.signUp(signUpState.value.email, signUpState.value.password, user).collectLatest {
+            authRepo.signUp(signUpUIState.value.email, signUpUIState.value.password, user).collectLatest {
                 _signUpDataState.value = it
             }
+
             if (signUpDataState.value == DataState.Success(true)) {
                 ClassMateAppRouter.navigateTo(Screen.HomeScreen)
             }
@@ -93,13 +93,13 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun validateSignUpDataWithRules() {
-        val firstNameResult = AuthValidator.validateFirstName(signUpState.value.firstName)
-        val lastNameResult = AuthValidator.validateLastName(signUpState.value.lastName)
-        val emailResult = AuthValidator.validateEmail(signUpState.value.email)
-        val passwordResult = AuthValidator.validatePassword(signUpState.value.password)
+        val firstNameResult = AuthValidator.validateFirstName(signUpUIState.value.firstName)
+        val lastNameResult = AuthValidator.validateLastName(signUpUIState.value.lastName)
+        val emailResult = AuthValidator.validateEmail(signUpUIState.value.email)
+        val passwordResult = AuthValidator.validatePassword(signUpUIState.value.password)
 
 
-        _signUpState.value = _signUpState.value.copy(
+        _signUpUIState.value = _signUpUIState.value.copy(
             firstNameError = firstNameResult.message,
             lastNameError = lastNameResult.message,
             emailError = emailResult.message,

@@ -74,8 +74,20 @@ class AuthenticationRepositoryImpl @Inject constructor(
         Log.d(TAG, "signOut: ${it.localizedMessage}")
     }
 
-    override fun resetPassword(): Flow<DataState<Boolean>> {
-        TODO("Not yet implemented")
+    override fun resetPassword(email: String): Flow<DataState<Boolean>> = flow {
+        emit(DataState.Loading)
+
+        val response = sendResetPasswordLinkFromFirebase(email)
+        Log.d(TAG, "resetPassword: response: $response")
+
+        if(response) {
+            emit(DataState.Success(true))
+        } else {
+            emit(DataState.Error("Unable to send email."))
+        }
+    }.catch {
+        emit(DataState.Error("Unable to send email."))
+        Log.d(TAG, "resetPassword: ${it.localizedMessage}")
     }
 
 
@@ -129,6 +141,20 @@ class AuthenticationRepositoryImpl @Inject constructor(
             }.await()
 
         Log.d(TAG, "createUserToFirebase: isSuccessful outside: $isSuccessful, email: $email")
+
+        return isSuccessful
+    }
+
+    private suspend fun sendResetPasswordLinkFromFirebase(email: String): Boolean {
+        var isSuccessful = false
+
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener {
+                isSuccessful = it.isSuccessful
+                Log.d(TAG, "sendResetPasswordLinkFromFirebase: ${it.isSuccessful}")
+        }.addOnFailureListener {
+            Log.d(TAG, "sendResetPasswordLinkFromFirebase: ${it.localizedMessage}")
+        }.await()
 
         return isSuccessful
     }

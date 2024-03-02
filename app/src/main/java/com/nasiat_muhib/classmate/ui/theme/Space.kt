@@ -2,6 +2,7 @@ package com.nasiat_muhib.classmate.ui.theme
 
 import androidx.compose.ui.unit.dp
 
+val ExtraExtraLargeSpace = 48.dp
 val ExtraLargeSpace = 32.dp
 val LargeSpace = 24.dp
 val MediumSpace = 16.dp

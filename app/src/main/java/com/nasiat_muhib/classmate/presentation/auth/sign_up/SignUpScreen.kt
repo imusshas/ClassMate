@@ -36,7 +36,6 @@ import com.nasiat_muhib.classmate.strings.PASSWORD_LABEL
 import com.nasiat_muhib.classmate.strings.ROLE_HARDCODED
 import com.nasiat_muhib.classmate.strings.SIGN_IN_BUTTON
 import com.nasiat_muhib.classmate.strings.SIGN_UP_BUTTON
-import com.nasiat_muhib.classmate.ui.theme.ExtraExtraSmallSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.ZeroSpace
 
@@ -45,7 +44,7 @@ fun SignUpScreen(
     signUpViewModel: SignUpViewModel = hiltViewModel()
 ) {
 
-    val signUpState = signUpViewModel.signUpState.collectAsState()
+    val signUpState = signUpViewModel.signUpUIState.collectAsState()
     val signUpInProgress = signUpViewModel.signUpInProgress.collectAsState()
 
     Column(

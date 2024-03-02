@@ -34,9 +34,6 @@ private val auth: FirebaseAuth,
     private val _allValidationPassed = MutableStateFlow(false)
     private val allValidationPassed = _allValidationPassed.asStateFlow()
 
-    private val _signInInProgress = MutableStateFlow(false)
-    val signInInProgress = _signInInProgress.asStateFlow()
-
     fun onEvent(event: SignInUIEvent) {
         when (event) {
 
@@ -56,10 +53,9 @@ private val auth: FirebaseAuth,
 
 
     private fun signIn() = viewModelScope.launch(Dispatchers.IO) {
-        _signInInProgress.value = true
         Log.d(TAG, "signIn: ${signInUIState.value}")
         validateSignInUIDataWithRules()
-        Log.d(TAG, "signIn: ${allValidationPassed.value}")
+//        Log.d(TAG, "signIn: ${allValidationPassed.value}")
         if(allValidationPassed.value) {
             authRepo.signIn(signInUIState.value.email, signInUIState.value.password).collectLatest {
                 _signInDataState.value = it
@@ -68,7 +64,7 @@ private val auth: FirebaseAuth,
                 ClassMateAppRouter.navigateTo(Screen.HomeScreen)
             }
         }
-        _signInInProgress.value = false
+
     }
 
     private fun validateSignInUIDataWithRules() {
