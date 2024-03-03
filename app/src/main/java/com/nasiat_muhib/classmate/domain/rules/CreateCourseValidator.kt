@@ -23,6 +23,15 @@ object CreateCourseValidator {
         return CreateCourseValidationResult(message)
     }
 
+    fun validateCourseDepartment(courseDepartment: String): CreateCourseValidationResult {
+        var message: String? = null
+        if (courseDepartment.isBlank()) message = "Department can't be empty"
+        else if (courseDepartment.length != 3) message = "Department must be of three characters"
+        else if (courseDepartment !in "A".."Z") message = "Department should be of capital letters only"
+
+        return CreateCourseValidationResult(message)
+    }
+
     fun validateCourseCredit(courseCredit: String): CreateCourseValidationResult {
         var message: String? = null
 
@@ -64,8 +73,6 @@ object CreateCourseValidator {
     fun validateSection(section: String): CreateCourseValidationResult {
         var message: String? = null
         if (section.isBlank()) message = "Section can't be empty"
-        if(section !in "A".."Z") message = "Section must be in capital letter"
-        if(section.length != 1) message = "Section must contain only one letter"
 
         return CreateCourseValidationResult(message)
     }

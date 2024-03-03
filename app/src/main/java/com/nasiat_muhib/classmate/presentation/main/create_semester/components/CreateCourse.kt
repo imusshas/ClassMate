@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
@@ -20,19 +21,27 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nasiat_muhib.classmate.components.CustomDropDownMenu
 import com.nasiat_muhib.classmate.components.CustomElevatedButton
 import com.nasiat_muhib.classmate.components.CustomOutlinedField
+import com.nasiat_muhib.classmate.core.Constants
+import com.nasiat_muhib.classmate.core.Constants.SEMESTERS
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.domain.event.CreateCourseUIEvent
+import com.nasiat_muhib.classmate.domain.event.SignUpUIEvent
 import com.nasiat_muhib.classmate.strings.COURSE_CODE_LABEL
 import com.nasiat_muhib.classmate.strings.COURSE_CREDIT_LABEL
+import com.nasiat_muhib.classmate.strings.COURSE_DEPARTMENT_LABEL
 import com.nasiat_muhib.classmate.strings.COURSE_TEACHER_EMAIL_LABEL
 import com.nasiat_muhib.classmate.strings.COURSE_TITLE_LABEL
 import com.nasiat_muhib.classmate.strings.CREATE_CLASS_BUTTON
+import com.nasiat_muhib.classmate.strings.ROLE_HARDCODED
+import com.nasiat_muhib.classmate.strings.SEMESTER_HARD_CODED
 import com.nasiat_muhib.classmate.ui.theme.ExtraExtraLargeSpace
 import com.nasiat_muhib.classmate.ui.theme.LargeSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
+import com.nasiat_muhib.classmate.ui.theme.ZeroSpace
 
 @Composable
 fun CreateCourse(
@@ -69,17 +78,47 @@ fun CreateCourse(
                 createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CourseTitleChanged(courseTitle))},
             errorMessage = createCourseUIState.courseTitleError
         )
-        CustomOutlinedField(
-            labelValue = COURSE_CREDIT_LABEL,
-            onValueChange = { courseCredit ->
-                createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CourseCreditChanged(courseCredit))
-            },
-            errorMessage = createCourseUIState.courseCreditError,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Next
+        Row (
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            CustomOutlinedField(
+                labelValue = COURSE_DEPARTMENT_LABEL,
+                onValueChange = { courseDepartment ->
+                                createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CourseDepartmentChanged(courseDepartment))
+                },
+                errorMessage = createCourseUIState.courseDepartmentError,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = ZeroSpace)
             )
-        )
+            CustomOutlinedField(
+                labelValue = COURSE_CREDIT_LABEL,
+                onValueChange = { courseCredit ->
+                    createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CourseCreditChanged(courseCredit))
+                },
+                errorMessage = createCourseUIState.courseCreditError,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = ZeroSpace),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                )
+            )
+        }
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = SEMESTER_HARD_CODED, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = MediumSpace)
+            )
+            CustomDropDownMenu(
+                itemList = SEMESTERS,
+                onItemChange = { semester ->
+//                    signUpViewModel.onEvent(SignUpUIEvent.RoleChanged(role))
+                }
+            )
+        }
         CustomOutlinedField(
             labelValue = COURSE_TEACHER_EMAIL_LABEL,
             onValueChange = {courseTeacherEmail ->

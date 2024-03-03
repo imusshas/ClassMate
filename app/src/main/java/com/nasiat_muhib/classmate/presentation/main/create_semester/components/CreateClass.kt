@@ -54,9 +54,9 @@ fun CreateClass(
                 .padding(vertical = ExtraLargeSpace),
             verticalArrangement = Arrangement.spacedBy(SmallSpace)
         ) {
-            CustomDropDownMenu(itemList = WEEK_DAYS, onItemChange ={ weekDay ->
 
-
+            CustomDropDownMenu(itemList = WEEK_DAYS, onItemChange = { weekDay ->
+                createCourseViewModel.onCreateClass(CreateClassUIEvent.WeekDayChanged(weekDay))
             })
             CustomOutlinedField(labelValue = CLASSROOM_LABEL, onValueChange = { classroom ->
                 createCourseViewModel.onCreateClass(CreateClassUIEvent.ClassRoomChanged(classroom))
@@ -64,30 +64,24 @@ fun CreateClass(
             CustomOutlinedField(labelValue = SECTION_LABEL, onValueChange = { section ->
                 createCourseViewModel.onCreateClass(CreateClassUIEvent.SectionChanged(section))
 
-            })
+            }, errorMessage = createClassUIState.sectionError)
             CustomTimePicker(
                 title = START_TIME,
                 onHourChange = { startHour ->
                     createCourseViewModel.onCreateClass(
-                        CreateClassUIEvent.StartHourChanged(
-                            startHour
-                        )
+                        CreateClassUIEvent.StartHourChanged(startHour)
                     )
 //                    Log.d(TAG, "CreateClass: startHour: $startHour")
                 },
                 onMinuteChange = { startMinute ->
                     createCourseViewModel.onCreateClass(
-                        CreateClassUIEvent.StartMinuteChanged(
-                            startMinute
-                        )
+                        CreateClassUIEvent.StartMinuteChanged(startMinute)
                     )
 //                    Log.d(TAG, "CreateClass: startMinute: $startMinute")
                 },
                 onShiftClick = { startShift ->
                     createCourseViewModel.onCreateClass(
-                        CreateClassUIEvent.StartShiftChanged(
-                            startShift
-                        )
+                        CreateClassUIEvent.StartShiftChanged(startShift)
                     )
 //                    Log.d(TAG, "CreateClass: startShift: $startShift")
                 }
@@ -100,9 +94,7 @@ fun CreateClass(
                 },
                 onMinuteChange = { endMinute ->
                     createCourseViewModel.onCreateClass(
-                        CreateClassUIEvent.EndMinuteChanged(
-                            endMinute
-                        )
+                        CreateClassUIEvent.EndMinuteChanged(endMinute)
                     )
 //                    Log.d(TAG, "CreateClass: endMinute: $endMinute")
                 },
@@ -142,7 +134,7 @@ fun CreateClass(
                 CustomClickableText(
                     text = CREATE_BUTTON,
                     onClick = {
-                              createCourseViewModel.onCreateClass(CreateClassUIEvent.CreateButtonClick)
+                        createCourseViewModel.onCreateClass(CreateClassUIEvent.CreateButtonClick)
                     },
                     style = ClickableTextStyle.copy(
                         textDecoration = TextDecoration.None,

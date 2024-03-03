@@ -1,7 +1,10 @@
 package com.nasiat_muhib.classmate.domain.state
 
+import com.nasiat_muhib.classmate.core.Constants.WEEK_DAYS
+import com.nasiat_muhib.classmate.strings.WEEKDAY
+
 data class CreateClassUIState(
-    val weekDay: String = "",
+    val weekDay: String = WEEK_DAYS[0],
     val classroom: String = "",
     val section: String = "",
     val startHour: Int = 0,

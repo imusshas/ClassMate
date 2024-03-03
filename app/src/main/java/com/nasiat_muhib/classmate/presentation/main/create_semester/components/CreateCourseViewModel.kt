@@ -40,7 +40,7 @@ class CreateCourseViewModel @Inject constructor(
     val classDetailsDataList = _classDetailsDataList.asStateFlow()
 
     private val _classDetailsListValidationPassed = MutableStateFlow(false)
-    val classDetailsListValidationPassed = _classDetailsListValidationPassed.asStateFlow()
+    private val classDetailsListValidationPassed = _classDetailsListValidationPassed.asStateFlow()
 
 
     // Create Course
@@ -60,6 +60,16 @@ class CreateCourseViewModel @Inject constructor(
                     )
             }
 
+            is CreateCourseUIEvent.CourseDepartmentChanged -> {
+                _createCourseUIState.value =
+                    _createCourseUIState.value.copy(courseDepartment = event.courseDepartment)
+            }
+
+            is CreateCourseUIEvent.CourseSemesterChanged -> {
+                _createCourseUIState.value =
+                    _createCourseUIState.value.copy(courseSemester = event.courseSemester)
+            }
+
             is CreateCourseUIEvent.CourseTeacherEmailChanged -> {
                 _createCourseUIState.value =
                     _createCourseUIState.value.copy(courseTeacherEmail = event.courseTeacherEmail)
@@ -77,8 +87,8 @@ class CreateCourseViewModel @Inject constructor(
 
             CreateCourseUIEvent.CreateClassButtonClick -> {
                 createCourse()
+//                Log.d(TAG, "onCreateCourse: ${createCourseUIState.value}")
             }
-
         }
     }
 
@@ -87,7 +97,7 @@ class CreateCourseViewModel @Inject constructor(
         if (allCreateCourseValidationPassed.value) {
             _createClassDialogState.value = true
             validateClassDetailsListDataWithRules()
-            if(classDetailsListValidationPassed.value) {
+            if (classDetailsListValidationPassed.value) {
                 /* TODO: Call Create Course function here */
             }
         }
@@ -102,6 +112,8 @@ class CreateCourseViewModel @Inject constructor(
             CreateCourseValidator.validateCourseCode(createCourseUIState.value.courseCode)
         val courseCreditResult =
             CreateCourseValidator.validateCourseCredit(credit)
+        val courseDepartmentResult =
+            CreateCourseValidator.validateCourseDepartment(createCourseUIState.value.courseDepartment)
         val courseTitleResult =
             CreateCourseValidator.validateCourseTitle(createCourseUIState.value.courseTitle)
         val courseTeacherEmailResult =
@@ -109,6 +121,7 @@ class CreateCourseViewModel @Inject constructor(
 
         _createCourseUIState.value = _createCourseUIState.value.copy(
             courseCodeError = courseCodeResult.message,
+            courseDepartmentError = courseDepartmentResult.message,
             courseCreditError = courseCreditResult.message,
             courseTitleError = courseTitleResult.message,
             courseTeacherEmailError = courseTeacherEmailResult.message,
@@ -117,7 +130,11 @@ class CreateCourseViewModel @Inject constructor(
 //        Log.d(TAG, "validateCreateCourseUIDataWithRules: ${createCourseUIState.value}")
 
         _allCreateCourseValidationPassed.value =
-            courseCodeResult.message == null && courseTitleResult.message == null && courseCreditResult.message == null && courseTeacherEmailResult.message == null
+            courseCodeResult.message == null &&
+                    courseDepartmentResult.message == null &&
+                    courseTitleResult.message == null &&
+                    courseCreditResult.message == null &&
+                    courseTeacherEmailResult.message == null
     }
 
     private fun validateClassDetailsListDataWithRules() {
@@ -158,7 +175,6 @@ class CreateCourseViewModel @Inject constructor(
                 )
 //                Log.d(TAG, "onCreateClass: endMinute ${createClassUIState.value.endMinute}")
             }
-
             is CreateClassUIEvent.EndShiftChanged -> {
                 _createClassUIState.value = _createClassUIState.value.copy(
                     endShift = event.endShift
@@ -172,6 +188,7 @@ class CreateCourseViewModel @Inject constructor(
                 )
 //                Log.d(TAG, "onCreateClass: section ${createClassUIState.value.section}")
             }
+
 
             is CreateClassUIEvent.StartHourChanged -> {
                 val hour: Int = if (event.startHour.isBlank()) -1 else event.startHour.toInt()
@@ -196,19 +213,23 @@ class CreateCourseViewModel @Inject constructor(
 //                Log.d(TAG, "onCreateClass: startShift ${createClassUIState.value.startShift}")
             }
 
+            is CreateClassUIEvent.WeekDayChanged -> {
+                _createClassUIState.value = _createClassUIState.value.copy(
+                    weekDay = event.weekDay
+                )
+            }
+
             CreateClassUIEvent.CancelButtonClick -> {
                 _createClassDialogState.value = false
             }
 
             CreateClassUIEvent.CreateButtonClick -> {
+                validateCreateClassUIDataWithRules()
 //                Log.d(TAG, "onCreateClass: ${createClassUIState.value}")
                 createClass()
-            }
-
-            is CreateClassUIEvent.WeekDayChanged -> {
-                _createClassUIState.value = _createClassUIState.value.copy(
-                    weekDay = event.weekDay
-                )
+                if(allCreateClassValidationPassed.value) {
+                    _createClassDialogState.value = false
+                }
             }
         }
     }
@@ -218,6 +239,7 @@ class CreateCourseViewModel @Inject constructor(
         if (allCreateClassValidationPassed.value) {
             _createClassDialogState.value = false
             val details = ClassDetails(
+                weekDay = _createClassUIState.value.weekDay,
                 classroom = _createClassUIState.value.classroom,
                 section = _createClassUIState.value.section,
                 startHour = _createClassUIState.value.startHour,
