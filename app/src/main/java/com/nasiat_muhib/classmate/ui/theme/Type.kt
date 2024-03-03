@@ -12,51 +12,57 @@ import androidx.compose.ui.unit.sp
 
 // Set of Material typography styles to start with
 val Typography = Typography(
-        bodyLarge = TextStyle(
-                fontFamily = FontFamily.Default,
-                fontWeight = FontWeight.Normal,
-                fontSize = 16.sp,
-                lineHeight = 24.sp,
-                letterSpacing = 0.5.sp
-        )
-        /* Other default text styles to override
-    titleLarge = TextStyle(
+    bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
-    ),
-    labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     )
-    */
+    /* Other default text styles to override
+titleLarge = TextStyle(
+    fontFamily = FontFamily.Default,
+    fontWeight = FontWeight.Normal,
+    fontSize = 22.sp,
+    lineHeight = 28.sp,
+    letterSpacing = 0.sp
+),
+labelSmall = TextStyle(
+    fontFamily = FontFamily.Default,
+    fontWeight = FontWeight.Medium,
+    fontSize = 11.sp,
+    lineHeight = 16.sp,
+    letterSpacing = 0.5.sp
+)
+*/
 )
 
-val ButtonStyle = TextStyle (
-        fontWeight = FontWeight.Bold
+val ButtonStyle = TextStyle(
+    fontWeight = FontWeight.Bold
 )
 
-val TitleStyle = TextStyle (
-        fontWeight = FontWeight.Bold
+val TitleStyle = TextStyle(
+    fontWeight = FontWeight.Bold
 )
 
-val PickerStyle = TextStyle (
-        fontSize = 32.sp,
-        textAlign = TextAlign.Center,
+val PickerStyle = TextStyle(
+    fontSize = 32.sp,
+    textAlign = TextAlign.Center,
 )
 
-val SmallPickerStyle = TextStyle (
-        fontSize = 18.sp,
-        textAlign = TextAlign.Center,
+val SmallPickerStyle = TextStyle(
+    fontSize = 18.sp,
+    textAlign = TextAlign.Center,
 )
 
 val ClickableTextStyle = SpanStyle(
-        fontWeight = FontWeight.W200,
-        textDecoration = TextDecoration.Underline,
-        color = Color.Unspecified,
+    fontWeight = FontWeight.W200,
+    textDecoration = TextDecoration.Underline,
+    color = Color.Unspecified,
+)
+
+val SomeStyle = TextStyle(
+    textAlign = TextAlign.Center,
+    fontSize = 14.sp,
+    fontWeight = FontWeight.Medium
 )

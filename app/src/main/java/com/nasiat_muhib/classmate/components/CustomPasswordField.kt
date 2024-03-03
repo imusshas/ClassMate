@@ -25,8 +25,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
-import com.nasiat_muhib.classmate.strings.HIDE_PASSWORD
-import com.nasiat_muhib.classmate.strings.SHOW_PASSWORD
+import com.nasiat_muhib.classmate.strings.HIDE_PASSWORD_ICON
+import com.nasiat_muhib.classmate.strings.SHOW_PASSWORD_ICON
 import com.nasiat_muhib.classmate.ui.theme.ExtraExtraSmallSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
@@ -71,7 +71,7 @@ fun CustomPasswordField(
                 IconButton(onClick = { passwordVisibility.value = !passwordVisibility.value }) {
                     Icon(
                         imageVector = if (passwordVisibility.value) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                        contentDescription = if (passwordVisibility.value) HIDE_PASSWORD else SHOW_PASSWORD,
+                        contentDescription = if (passwordVisibility.value) HIDE_PASSWORD_ICON else SHOW_PASSWORD_ICON,
                     )
                 }
             },

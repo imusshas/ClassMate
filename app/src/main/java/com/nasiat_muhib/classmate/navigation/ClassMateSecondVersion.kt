@@ -40,6 +40,10 @@ fun ClassMateSecondVersion() {
                 Screen.CreateCourse -> {
                     CreateCourse()
                 }
+
+                Screen.EnrollCourseScreen -> TODO()
+                Screen.MenuScreen -> TODO()
+                Screen.NotificationScreen -> TODO()
             }
         }
     }

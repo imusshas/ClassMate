@@ -42,8 +42,8 @@ object GetModelFromDocument {
         val phoneNo = if(snapshot[PHONE_NO] != null ) snapshot[PHONE_NO] as String else ""
         val email = if(snapshot[EMAIL] != null ) snapshot[EMAIL] as String else ""
         
-        val user = User(firstName, lastName, role, department, session, bloodGroup, phoneNo, email, createdCourses, enrolledCourses, requestedCourses)
-        Log.d(TAG, "getUserFromFirestoreDocument: $user")
+//        val user = User(firstName, lastName, role, department, session, bloodGroup, phoneNo, email, createdCourses, enrolledCourses, requestedCourses)
+//        Log.d(TAG, "getUserFromFirestoreDocument: $user")
 
         return User(
             firstName = firstName,

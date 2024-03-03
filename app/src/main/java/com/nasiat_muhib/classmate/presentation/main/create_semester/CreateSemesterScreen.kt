@@ -1,6 +1,6 @@
 package com.nasiat_muhib.classmate.presentation.main.create_semester
 
-import android.annotation.SuppressLint
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,17 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nasiat_muhib.classmate.components.CustomDatePicker
-import com.nasiat_muhib.classmate.components.CustomElevatedButton
-import com.nasiat_muhib.classmate.components.CustomTimePicker
-import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
-import com.nasiat_muhib.classmate.navigation.Screen
+import com.nasiat_muhib.classmate.domain.event.CreateSemesterUIEvent
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
-import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateSemesterViewModel
-import com.nasiat_muhib.classmate.strings.ADD
+import com.nasiat_muhib.classmate.strings.ADD_ICON
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CreateSemesterScreen(
     createSemesterViewModel: CreateSemesterViewModel = viewModel()
@@ -37,12 +31,14 @@ fun CreateSemesterScreen(
         topBar = { ClassMateTabRow(tab = TabItem.CreateSemester) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /*TODO*/ },
+                onClick = {
+                          createSemesterViewModel.onCreateSemesterEvent(CreateSemesterUIEvent.CreateSemesterFABClick)
+                },
                 containerColor = MaterialTheme.colorScheme.background
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
-                    contentDescription = ADD,
+                    contentDescription = ADD_ICON,
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
@@ -56,15 +52,8 @@ fun CreateSemesterScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CustomTimePicker({}, {}, {})
-            CustomDatePicker(onDayChange = {}, onMonthChange = {}, onYearChange = {})
-            CustomElevatedButton(text = "Increment", onClick = {
-                /*TODO*/
-            })
-
-            CustomElevatedButton(text = "Create Course", onClick = {
-                ClassMateAppRouter.navigateTo(Screen.CreateCourse)
-            })
+            // TODO: Add Routine
+           // TODO: Add Already Created Courses
         }
     }
 }

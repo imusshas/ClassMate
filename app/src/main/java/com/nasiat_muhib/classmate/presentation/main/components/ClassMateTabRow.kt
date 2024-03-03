@@ -12,17 +12,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
+import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.navigation.TabItem
 
 @Composable
-fun ClassMateTabRow(tab: TabItem) {
+fun ClassMateTabRow(
+    tab: TabItem
+) {
 
     Row(modifier = Modifier.fillMaxWidth()) {
         TabItem.entries.forEach { tabItem ->
             Tab(
                 selected = tab == tabItem,
                 onClick = {
-
+                          when(tabItem) {
+                              TabItem.Home -> ClassMateAppRouter.navigateTo(Screen.HomeScreen)
+                              TabItem.CreateSemester -> ClassMateAppRouter.navigateTo(Screen.CreateSemesterScreen)
+                              TabItem.EnrollCourse -> ClassMateAppRouter.navigateTo(Screen.EnrollCourseScreen)
+                              TabItem.Notification -> ClassMateAppRouter.navigateTo(Screen.NotificationScreen)
+                              TabItem.Menu -> ClassMateAppRouter.navigateTo(Screen.MenuScreen)
+                          }
                 },
                 modifier = Modifier.weight(1f)
             ) {

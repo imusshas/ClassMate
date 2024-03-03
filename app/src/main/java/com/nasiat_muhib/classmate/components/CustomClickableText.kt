@@ -25,6 +25,6 @@ fun CustomClickableText(
 
     ClickableText(
         text = annotatedText,
-        onClick = onClick,
+        onClick = { onClick(it) },
     )
 }

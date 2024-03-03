@@ -15,18 +15,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.nasiat_muhib.classmate.domain.event.CreateClassUIEvent
+import com.nasiat_muhib.classmate.domain.event.CreateCourseUIEvent
+import com.nasiat_muhib.classmate.domain.state.CreateClassUIState
 import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import com.nasiat_muhib.classmate.navigation.Screen
-import com.nasiat_muhib.classmate.strings.CREATE
+import com.nasiat_muhib.classmate.strings.CREATE_ICON
 import com.nasiat_muhib.classmate.strings.CREATE_COURSE
-import com.nasiat_muhib.classmate.strings.GO_BACK
+import com.nasiat_muhib.classmate.strings.GO_BACK_ICON
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
 import com.nasiat_muhib.classmate.ui.theme.TitleStyle
 
 @Composable
 fun CreateCourseTopBar(
-    
+    createCourseViewModel: CreateCourseViewModel
 ) {
     Row (
         modifier = Modifier
@@ -39,17 +43,17 @@ fun CreateCourseTopBar(
     ){
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-            contentDescription = GO_BACK,
+            contentDescription = GO_BACK_ICON,
             modifier = Modifier
                 .clickable {
-                    ClassMateAppRouter.navigateTo(Screen.CreateSemesterScreen)
+                    createCourseViewModel.onCreateCourse(CreateCourseUIEvent.BackButtonClick)
                 }
         )
         Text(text = CREATE_COURSE, style = TitleStyle)
 
         Icon(
             imageVector = Icons.Default.Check,
-            contentDescription = CREATE,
+            contentDescription = CREATE_ICON,
             modifier = Modifier.clickable {
 
             }
@@ -60,5 +64,5 @@ fun CreateCourseTopBar(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun CreateSemesterTopBarPreview() {
-    CreateCourseTopBar()
+    CreateCourseTopBar(hiltViewModel())
 }

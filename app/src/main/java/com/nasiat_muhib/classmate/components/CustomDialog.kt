@@ -50,24 +50,6 @@ fun CustomDialog(
                     .fillMaxWidth(),
             ) {
                 content()
-                Spacer(modifier = Modifier.height(ExtraExtraLargeSpace))
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = MediumSpace),
-                    horizontalArrangement = Arrangement.End
-                ){
-                    CustomClickableText(text = "Cancel", onClick = {}, style = ClickableTextStyle.copy(
-                        textDecoration = TextDecoration.None,
-                        fontWeight = FontWeight.Normal
-                    ))
-                    Spacer(modifier = Modifier.width(SmallSpace))
-                    CustomClickableText(text = "Ok", onClick = {}, style = ClickableTextStyle.copy(
-                        textDecoration = TextDecoration.None,
-                        fontWeight = FontWeight.Normal
-                    ))
-                }
-                Spacer(modifier = Modifier.height(ExtraLargeSpace))
             }
         }
     }

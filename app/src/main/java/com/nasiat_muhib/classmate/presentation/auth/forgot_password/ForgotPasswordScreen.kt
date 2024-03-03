@@ -21,12 +21,11 @@ import com.nasiat_muhib.classmate.components.CustomElevatedButton
 import com.nasiat_muhib.classmate.components.CustomOutlinedField
 import com.nasiat_muhib.classmate.components.Logo
 import com.nasiat_muhib.classmate.domain.event.ForgotPasswordUIEvent
-import com.nasiat_muhib.classmate.domain.event.SignUpUIEvent
 import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.navigation.SystemBackButtonHandler
 import com.nasiat_muhib.classmate.strings.EMAIL_LABEL
-import com.nasiat_muhib.classmate.strings.RESET_PASSWORD
+import com.nasiat_muhib.classmate.strings.RESET_PASSWORD_BUTTON
 import com.nasiat_muhib.classmate.ui.theme.ExtraExtraLargeSpace
 
 @Composable
@@ -64,7 +63,7 @@ fun ForgotPasswordScreen(
                 },
                 errorMessage = forgotPasswordUIState.value.emailError
             )
-            CustomElevatedButton(text = RESET_PASSWORD, onClick = {
+            CustomElevatedButton(text = RESET_PASSWORD_BUTTON, onClick = {
                 forgotPasswordViewModel.onEvent(ForgotPasswordUIEvent.ForgotPasswordButtonClick)
             })
         }

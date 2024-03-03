@@ -27,7 +27,7 @@ data class User(
 ) {
     fun toMap(): Map<String, Any> =  mapOf(
         FIRST_NAME to firstName,
-        LAST_NAME to firstName,
+        LAST_NAME to lastName,
         ROLE to role,
         DEPARTMENT to department,
         BLOOD_GROUP to bloodGroup,
