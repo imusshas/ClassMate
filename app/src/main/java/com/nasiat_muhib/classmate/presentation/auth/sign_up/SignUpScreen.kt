@@ -29,6 +29,7 @@ import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.navigation.SystemBackButtonHandler
 import com.nasiat_muhib.classmate.strings.ALREADY_A_USER_HARDCODED
+import com.nasiat_muhib.classmate.strings.COURSE_DEPARTMENT_LABEL
 import com.nasiat_muhib.classmate.strings.EMAIL_LABEL
 import com.nasiat_muhib.classmate.strings.FIRST_NAME_LABEL
 import com.nasiat_muhib.classmate.strings.LAST_NAME_LABEL
@@ -101,6 +102,14 @@ fun SignUpScreen(
                     }
                 )
             }
+
+            CustomOutlinedField(
+                labelValue = COURSE_DEPARTMENT_LABEL,
+                onValueChange = {department ->
+                    signUpViewModel.onEvent(SignUpUIEvent.DepartmentChanged(department))
+                },
+                errorMessage = signUpState.value.departmentError
+            )
             CustomOutlinedField(
                 labelValue = EMAIL_LABEL,
                 keyboardOptions = KeyboardOptions(
@@ -117,7 +126,6 @@ fun SignUpScreen(
             }, errorMessage = signUpState.value.passwordError)
 
             CustomElevatedButton(text = SIGN_UP_BUTTON, onClick = {
-                /*TODO*/
                 signUpViewModel.onEvent(SignUpUIEvent.SignUpButtonClicked)
             })
         }

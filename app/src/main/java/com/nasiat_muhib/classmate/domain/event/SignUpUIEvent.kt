@@ -6,6 +6,7 @@ sealed class SignUpUIEvent {
 
     data class RoleChanged(val role: String): SignUpUIEvent()
     data class EmailChanged(val email: String): SignUpUIEvent()
+    data class DepartmentChanged(val department: String): SignUpUIEvent()
     data class PasswordChanged(val password: String): SignUpUIEvent()
 
     object SignUpButtonClicked: SignUpUIEvent()

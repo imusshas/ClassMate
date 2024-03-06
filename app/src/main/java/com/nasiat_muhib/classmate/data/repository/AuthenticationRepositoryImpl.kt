@@ -1,7 +1,5 @@
 package com.nasiat_muhib.classmate.data.repository
 
-import android.os.Parcel
-import android.os.Parcelable
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -80,7 +78,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
         val response = sendResetPasswordLinkFromFirebase(email)
         Log.d(TAG, "resetPassword: response: $response")
 
-        if(response) {
+        if (response) {
             emit(DataState.Success(true))
         } else {
             emit(DataState.Error("Unable to send email."))
@@ -113,7 +111,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    isSuccessful =  true
+                    isSuccessful = true
                 }
 //                Log.d(TAG, "signUpToFirebase: ${it.isSuccessful}")
             }.addOnFailureListener {
@@ -152,9 +150,9 @@ class AuthenticationRepositoryImpl @Inject constructor(
             .addOnCompleteListener {
                 isSuccessful = it.isSuccessful
                 Log.d(TAG, "sendResetPasswordLinkFromFirebase: ${it.isSuccessful}")
-        }.addOnFailureListener {
-            Log.d(TAG, "sendResetPasswordLinkFromFirebase: ${it.localizedMessage}")
-        }.await()
+            }.addOnFailureListener {
+                Log.d(TAG, "sendResetPasswordLinkFromFirebase: ${it.localizedMessage}")
+            }.await()
 
         return isSuccessful
     }

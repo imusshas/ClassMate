@@ -9,6 +9,7 @@ const val START_SHIFT = "start_shift"
 const val END_HOUR = "end_hour"
 const val END_MINUTE = "end_minute"
 const val END_SHIFT = "end_shift"
+const val ACTIVE_STATUS = "active_status"
 
 // WeekDays
 const val SUNDAY = "Sun"

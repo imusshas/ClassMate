@@ -23,15 +23,6 @@ object CreateCourseValidator {
         return CreateCourseValidationResult(message)
     }
 
-    fun validateCourseDepartment(courseDepartment: String): CreateCourseValidationResult {
-        var message: String? = null
-        if (courseDepartment.isBlank()) message = "Department can't be empty"
-        else if (courseDepartment.length != 3) message = "Department must be of three characters"
-        else if (courseDepartment !in "A".."Z") message = "Department should be of capital letters only"
-
-        return CreateCourseValidationResult(message)
-    }
-
     fun validateCourseCredit(courseCredit: String): CreateCourseValidationResult {
         var message: String? = null
 
@@ -50,16 +41,15 @@ object CreateCourseValidator {
 
     fun validateCourseTeacherEmail(courseTeacherEmail: String): CreateCourseValidationResult {
         var message: String? = null
-        if (courseTeacherEmail.isBlank()) message = "Email can't be empty"
-        else if (!Patterns.EMAIL_ADDRESS.matcher(courseTeacherEmail).matches()) message =
-            "Invalid Email"
+        if (courseTeacherEmail.isBlank()) message = "Please Select A Teacher"
 
         return CreateCourseValidationResult(message)
     }
 
     fun validateClassDetails(classDetailsList: List<ClassDetails>): CreateCourseValidationResult {
         var message: String? = null
-        if(classDetailsList.isEmpty()) message = "Please create at least one class"
+        if (classDetailsList.isEmpty()) message = "There should be at least one class"
+
         return CreateCourseValidationResult(message)
     }
 

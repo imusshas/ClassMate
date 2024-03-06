@@ -1,10 +1,9 @@
 package com.nasiat_muhib.classmate.data.model
 
 import com.nasiat_muhib.classmate.strings.BLOOD_GROUP
-import com.nasiat_muhib.classmate.strings.CREATED_COURSES
+import com.nasiat_muhib.classmate.strings.COURSES
 import com.nasiat_muhib.classmate.strings.DEPARTMENT
 import com.nasiat_muhib.classmate.strings.EMAIL
-import com.nasiat_muhib.classmate.strings.ENROLLED_COURSES
 import com.nasiat_muhib.classmate.strings.FIRST_NAME
 import com.nasiat_muhib.classmate.strings.LAST_NAME
 import com.nasiat_muhib.classmate.strings.PHONE_NO
@@ -21,8 +20,7 @@ data class User(
     val bloodGroup: String = "",
     val phoneNo: String = "",
     val email: String = "",
-    val createdCourses: List<String> = emptyList(),
-    val enrolledCourses: List<String> = emptyList(),
+    val courses: List<String> = emptyList(),
     val requestedCourses: List<String> = emptyList()
 ) {
     fun toMap(): Map<String, Any> =  mapOf(
@@ -34,8 +32,20 @@ data class User(
         SESSION to session,
         PHONE_NO to phoneNo,
         EMAIL to email,
-        REQUESTED_COURSES to createdCourses,
-        CREATED_COURSES to enrolledCourses,
-        ENROLLED_COURSES to requestedCourses,
+        COURSES to courses,
+        REQUESTED_COURSES to requestedCourses
     )
+
+    fun doesMatchSearchQuery(query: String): Boolean {
+        val matchingCombinations = listOf(
+            "$firstName$lastName",
+            firstName,
+            lastName,
+            "$firstName $lastName",
+            "${firstName.first()}${lastName.first()}",
+            "${firstName.first()} ${lastName.first()}"
+        )
+
+        return matchingCombinations.any { it.contains(query, ignoreCase = true) }
+    }
 }

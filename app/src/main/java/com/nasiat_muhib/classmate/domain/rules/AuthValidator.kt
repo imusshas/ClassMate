@@ -18,6 +18,15 @@ object AuthValidator {
         return AuthValidationResult(message)
     }
 
+    fun validateDepartment(department: String): CreateCourseValidator.CreateCourseValidationResult {
+        var message: String? = null
+        if (department.isBlank()) message = "Department can't be empty"
+        else if (department.length != 3) message = "Department must be of three characters"
+        else if (department !in "A".."Z") message = "Department should be of capital letters only"
+
+        return CreateCourseValidator.CreateCourseValidationResult(message)
+    }
+
     fun validateEmail(email: String): AuthValidationResult {
         var message: String? = null
         if(email.isBlank()) message = "Email can't be empty"

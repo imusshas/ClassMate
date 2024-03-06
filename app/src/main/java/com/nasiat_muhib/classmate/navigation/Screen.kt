@@ -17,6 +17,8 @@ sealed class Screen {
     data object MenuScreen: Screen()
     data object CreateCourse: Screen()
 
+    data object SearchTeacher: Screen()
+
 }
 
 object ClassMateAppRouter {

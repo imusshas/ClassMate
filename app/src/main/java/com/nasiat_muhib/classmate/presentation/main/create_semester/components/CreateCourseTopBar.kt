@@ -55,7 +55,7 @@ fun CreateCourseTopBar(
             imageVector = Icons.Default.Check,
             contentDescription = CREATE_ICON,
             modifier = Modifier.clickable {
-
+                createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CreateClick)
             }
         )
     }

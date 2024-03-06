@@ -26,6 +26,7 @@ fun CustomOutlinedField(
     labelValue: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    value: String = "",
     keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
     keyboardActions: KeyboardActions = KeyboardActions(),
     singeLine: Boolean = true,
@@ -38,7 +39,7 @@ fun CustomOutlinedField(
     bottomPadding: Dp = ZeroSpace,
     errorMessage: String? = null
 ) {
-    val textValue = remember { mutableStateOf("") }
+    val textValue = remember { mutableStateOf(value) }
 
     Column(
         modifier = modifier.fillMaxWidth().padding(

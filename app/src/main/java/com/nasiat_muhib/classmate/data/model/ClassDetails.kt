@@ -1,6 +1,7 @@
 package com.nasiat_muhib.classmate.data.model
 
 import com.nasiat_muhib.classmate.core.Constants.WEEK_DAYS
+import com.nasiat_muhib.classmate.strings.ACTIVE_STATUS
 import com.nasiat_muhib.classmate.strings.CLASSROOM
 import com.nasiat_muhib.classmate.strings.END_HOUR
 import com.nasiat_muhib.classmate.strings.END_MINUTE
@@ -21,6 +22,7 @@ data class ClassDetails(
     val endHour: Int = -1,
     val endMinute: Int = -1,
     val endShift: String = "",
+    val isActive: Boolean = true
 ) {
     fun toMap(): Map<String, Any> = mapOf(
         WEEKDAY to weekDay,
@@ -32,5 +34,6 @@ data class ClassDetails(
         END_HOUR to endHour,
         END_MINUTE to endMinute,
         END_SHIFT to endShift,
+        ACTIVE_STATUS to isActive
     )
 }

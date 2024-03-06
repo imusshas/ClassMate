@@ -60,10 +60,13 @@ class SignUpViewModel @Inject constructor(
             }
 
             SignUpUIEvent.SignUpButtonClicked ->  {
+                Log.d(TAG, "onEvent: sign up button clicked")
                 signUp()
             }
 
-
+            is SignUpUIEvent.DepartmentChanged -> {
+                _signUpUIState.value = _signUpUIState.value.copy(department = event.department)
+            }
         }
     }
 
@@ -77,10 +80,12 @@ class SignUpViewModel @Inject constructor(
                 firstName = signUpUIState.value.firstName,
                 lastName = signUpUIState.value.lastName,
                 role = signUpUIState.value.role,
+                department = signUpUIState.value.department,
                 email = signUpUIState.value.email,
             )
 
             authRepo.signUp(signUpUIState.value.email, signUpUIState.value.password, user).collectLatest {
+                Log.d(TAG, "signUp: $user")
                 _signUpDataState.value = it
             }
 
@@ -94,6 +99,7 @@ class SignUpViewModel @Inject constructor(
     private fun validateSignUpDataWithRules() {
         val firstNameResult = AuthValidator.validateFirstName(signUpUIState.value.firstName)
         val lastNameResult = AuthValidator.validateLastName(signUpUIState.value.lastName)
+        val departmentResult = AuthValidator.validateDepartment(signUpUIState.value.department)
         val emailResult = AuthValidator.validateEmail(signUpUIState.value.email)
         val passwordResult = AuthValidator.validatePassword(signUpUIState.value.password)
 
@@ -101,12 +107,14 @@ class SignUpViewModel @Inject constructor(
         _signUpUIState.value = _signUpUIState.value.copy(
             firstNameError = firstNameResult.message,
             lastNameError = lastNameResult.message,
+            departmentError = departmentResult.message,
             emailError = emailResult.message,
             passwordError = passwordResult.message
         )
 
         Log.d(TAG, "validateSignUpDataWithRules: $firstNameResult, $lastNameResult, $emailResult, $passwordResult")
-        _allValidationPassed.value = firstNameResult.message == null && lastNameResult.message == null && emailResult.message == null && passwordResult.message == null
+        _allValidationPassed.value =
+            firstNameResult.message == null && lastNameResult.message == null && emailResult.message == null && passwordResult.message == null && departmentResult.message == null
     }
 
     fun signOut() = viewModelScope.launch(Dispatchers.IO) {

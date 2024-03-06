@@ -11,7 +11,9 @@ import com.nasiat_muhib.classmate.presentation.auth.sign_in.SignInScreen
 import com.nasiat_muhib.classmate.presentation.auth.sign_up.SignUpScreen
 import com.nasiat_muhib.classmate.presentation.main.create_semester.CreateSemesterScreen
 import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateCourse
+import com.nasiat_muhib.classmate.presentation.main.enroll_course.EnrollCourseScreen
 import com.nasiat_muhib.classmate.presentation.main.home.HomeScreen
+import com.nasiat_muhib.classmate.presentation.search.SearchUI
 
 @Composable
 fun ClassMateSecondVersion() {
@@ -41,9 +43,14 @@ fun ClassMateSecondVersion() {
                     CreateCourse()
                 }
 
-                Screen.EnrollCourseScreen -> TODO()
+                Screen.EnrollCourseScreen -> {
+                    EnrollCourseScreen()
+                }
                 Screen.MenuScreen -> TODO()
                 Screen.NotificationScreen -> TODO()
+                Screen.SearchTeacher -> {
+                    SearchUI()
+                }
             }
         }
     }

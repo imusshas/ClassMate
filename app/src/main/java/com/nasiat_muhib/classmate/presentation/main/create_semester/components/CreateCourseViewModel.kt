@@ -2,28 +2,42 @@ package com.nasiat_muhib.classmate.presentation.main.create_semester.components
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.nasiat_muhib.classmate.data.model.ClassDetails
+import com.nasiat_muhib.classmate.data.model.Course
+import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.CreateClassUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateCourseUIEvent
+import com.nasiat_muhib.classmate.domain.repository.CourseRepository
+import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import com.nasiat_muhib.classmate.domain.rules.CreateCourseValidator
 import com.nasiat_muhib.classmate.domain.state.CreateClassUIState
 import com.nasiat_muhib.classmate.domain.state.CreateCourseUIState
+import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import com.nasiat_muhib.classmate.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.forEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CreateCourseViewModel @Inject constructor(
-    /* TODO: create course repo & inject here */
+    private val courseRepo: CourseRepository,
+    private val userRepo: UserRepository
 ) : ViewModel() {
 
 
+    // Create Course UI State
     private val _createCourseUIState = MutableStateFlow(CreateCourseUIState())
     val createCourseUIState = _createCourseUIState.asStateFlow()
 
+    // Create Class UI State
     private val _createClassUIState = MutableStateFlow(CreateClassUIState())
     val createClassUIState = _createClassUIState.asStateFlow()
 
@@ -36,6 +50,7 @@ class CreateCourseViewModel @Inject constructor(
     private val _createClassDialogState = MutableStateFlow(false)
     val createCourseDialogState = _createClassDialogState.asStateFlow()
 
+    // Class Details List Data State
     private val _classDetailsDataList = MutableStateFlow<MutableSet<ClassDetails>>(mutableSetOf())
     val classDetailsDataList = _classDetailsDataList.asStateFlow()
 
@@ -43,6 +58,23 @@ class CreateCourseViewModel @Inject constructor(
     private val classDetailsListValidationPassed = _classDetailsListValidationPassed.asStateFlow()
 
 
+    private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
+    val userState = _userState.asStateFlow()
+
+    init {
+        val currentUser = userRepo.currentUser
+        Log.d(TAG, "init: email: ${currentUser.email}")
+        if (currentUser.email != null) {
+            getUser(currentUser.email!!)
+        }
+    }
+
+    private fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
+        userRepo.getUser(email).collectLatest {
+            _userState.value = it
+            Log.d(TAG, "getUser: $it")
+        }
+    }
     // Create Course
     fun onCreateCourse(event: CreateCourseUIEvent) {
 
@@ -60,19 +92,9 @@ class CreateCourseViewModel @Inject constructor(
                     )
             }
 
-            is CreateCourseUIEvent.CourseDepartmentChanged -> {
-                _createCourseUIState.value =
-                    _createCourseUIState.value.copy(courseDepartment = event.courseDepartment)
-            }
-
             is CreateCourseUIEvent.CourseSemesterChanged -> {
                 _createCourseUIState.value =
                     _createCourseUIState.value.copy(courseSemester = event.courseSemester)
-            }
-
-            is CreateCourseUIEvent.CourseTeacherEmailChanged -> {
-                _createCourseUIState.value =
-                    _createCourseUIState.value.copy(courseTeacherEmail = event.courseTeacherEmail)
             }
 
             is CreateCourseUIEvent.CourseTitleChanged -> {
@@ -87,20 +109,62 @@ class CreateCourseViewModel @Inject constructor(
 
             CreateCourseUIEvent.CreateClassButtonClick -> {
                 createCourse()
-//                Log.d(TAG, "onCreateCourse: ${createCourseUIState.value}")
+            }
+
+
+            is CreateCourseUIEvent.SearchUISelectButtonClick -> {
+                _createCourseUIState.value =
+                    _createCourseUIState.value.copy(
+                        courseTeacherEmail = event.courseTeacherEmail
+                    )
+                ClassMateAppRouter.navigateTo(Screen.CreateCourse)
+            }
+
+            is CreateCourseUIEvent.SearchTeacherButtonClick -> {
+                ClassMateAppRouter.navigateTo(Screen.SearchTeacher)
+            }
+
+            is CreateCourseUIEvent.CreateClick -> {
+                onCreate()
             }
         }
     }
 
-    private fun createCourse() {
+    private fun createCourse() = viewModelScope.launch(Dispatchers.IO) {
         validateCreateCourseUIDataWithRules()
         if (allCreateCourseValidationPassed.value) {
             _createClassDialogState.value = true
-            validateClassDetailsListDataWithRules()
-            if (classDetailsListValidationPassed.value) {
-                /* TODO: Call Create Course function here */
+        }
+    }
+
+    private fun onCreate() = viewModelScope.launch(Dispatchers.IO) {
+        validateClassDetailsListDataWithRules()
+        if (allCreateCourseValidationPassed.value && allCreateClassValidationPassed.value && classDetailsListValidationPassed.value) {
+
+
+            userState.value.data?.let { user ->
+                val courseClasses = mutableListOf<String>()
+                classDetailsDataList.value.forEachIndexed { index, _ ->
+                    courseClasses.add("class${index + 1}")
+                }
+                val course = Course(
+                    courseCreator = user.email,
+                    courseDepartment = user.department,
+                    courseCode = createCourseUIState.value.courseCode,
+                    courseTitle = createCourseUIState.value.courseTitle,
+                    courseTeacher = createCourseUIState.value.courseTeacherEmail,
+                    courseCredit = createCourseUIState.value.courseCredit,
+                    courseSemester = createCourseUIState.value.courseSemester,
+                    courseClasses = courseClasses
+                )
+                Log.d(TAG, "onCreate: $course")
+                courseRepo.createCourse(course, classDetailsDataList.value).collectLatest {
+                    Log.d(TAG, "onCreate: courseRepo: course: ${it.first.data}")
+                }
             }
         }
+
+//        Log.d(TAG, "onCreate: createCourse: ${allCreateCourseValidationPassed.value}: createClass: ${allCreateCourseValidationPassed.value}: classDetails: ${classDetailsListValidationPassed.value}")
     }
 
     private fun validateCreateCourseUIDataWithRules() {
@@ -112,8 +176,6 @@ class CreateCourseViewModel @Inject constructor(
             CreateCourseValidator.validateCourseCode(createCourseUIState.value.courseCode)
         val courseCreditResult =
             CreateCourseValidator.validateCourseCredit(credit)
-        val courseDepartmentResult =
-            CreateCourseValidator.validateCourseDepartment(createCourseUIState.value.courseDepartment)
         val courseTitleResult =
             CreateCourseValidator.validateCourseTitle(createCourseUIState.value.courseTitle)
         val courseTeacherEmailResult =
@@ -121,7 +183,6 @@ class CreateCourseViewModel @Inject constructor(
 
         _createCourseUIState.value = _createCourseUIState.value.copy(
             courseCodeError = courseCodeResult.message,
-            courseDepartmentError = courseDepartmentResult.message,
             courseCreditError = courseCreditResult.message,
             courseTitleError = courseTitleResult.message,
             courseTeacherEmailError = courseTeacherEmailResult.message,
@@ -131,7 +192,6 @@ class CreateCourseViewModel @Inject constructor(
 
         _allCreateCourseValidationPassed.value =
             courseCodeResult.message == null &&
-                    courseDepartmentResult.message == null &&
                     courseTitleResult.message == null &&
                     courseCreditResult.message == null &&
                     courseTeacherEmailResult.message == null

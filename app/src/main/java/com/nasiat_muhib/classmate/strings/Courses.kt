@@ -7,6 +7,8 @@ const val COURSE_CODE = "code"
 const val COURSE_TITLE = "title"
 const val COURSE_CREDIT = "credit"
 const val COURSE_TEACHER = "teacher"
+const val COURSE_CLASSES = "classes"
+const val ENROLLED_STUDENTS = "enrolled_students"
 
 // Semesters
 const val FIRST_YEAR_FIRST_SEMESTER = "1/1"

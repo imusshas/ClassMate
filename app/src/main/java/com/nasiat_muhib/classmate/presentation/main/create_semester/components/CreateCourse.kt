@@ -8,8 +8,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,6 +40,7 @@ import com.nasiat_muhib.classmate.strings.COURSE_TEACHER_EMAIL_LABEL
 import com.nasiat_muhib.classmate.strings.COURSE_TITLE_LABEL
 import com.nasiat_muhib.classmate.strings.CREATE_CLASS_BUTTON
 import com.nasiat_muhib.classmate.strings.ROLE_HARDCODED
+import com.nasiat_muhib.classmate.strings.SEARCH_COURSE_TEACHER_BUTTON
 import com.nasiat_muhib.classmate.strings.SEMESTER_HARD_CODED
 import com.nasiat_muhib.classmate.ui.theme.ExtraExtraLargeSpace
 import com.nasiat_muhib.classmate.ui.theme.LargeSpace
@@ -51,7 +56,6 @@ fun CreateCourse(
     val createCourseUIState by createCourseViewModel.createCourseUIState.collectAsState()
     val classDetailsList by createCourseViewModel.classDetailsDataList.collectAsState()
 
-    val localFocusManager = LocalFocusManager.current
     val createClassDialogState by createCourseViewModel.createCourseDialogState.collectAsState()
 
     Column(
@@ -62,6 +66,7 @@ fun CreateCourse(
         CreateCourseTopBar(createCourseViewModel)
 
         CustomOutlinedField(
+            value = createCourseUIState.courseCode,
             labelValue = COURSE_CODE_LABEL,
             onValueChange = { courseCode ->
                 createCourseViewModel.onCreateCourse(
@@ -73,6 +78,7 @@ fun CreateCourse(
             errorMessage = createCourseUIState.courseCodeError
         )
         CustomOutlinedField(
+            value = createCourseUIState.courseTitle,
             labelValue = COURSE_TITLE_LABEL,
             onValueChange = {courseTitle ->
                 createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CourseTitleChanged(courseTitle))},
@@ -82,24 +88,14 @@ fun CreateCourse(
             modifier = Modifier.fillMaxWidth()
         ) {
             CustomOutlinedField(
-                labelValue = COURSE_DEPARTMENT_LABEL,
-                onValueChange = { courseDepartment ->
-                                createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CourseDepartmentChanged(courseDepartment))
-                },
-                errorMessage = createCourseUIState.courseDepartmentError,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = ZeroSpace)
-            )
-            CustomOutlinedField(
+                value = createCourseUIState.courseCredit.toString(),
                 labelValue = COURSE_CREDIT_LABEL,
                 onValueChange = { courseCredit ->
                     createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CourseCreditChanged(courseCredit))
                 },
                 errorMessage = createCourseUIState.courseCreditError,
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(start = ZeroSpace),
+                    .weight(1f),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
@@ -115,22 +111,20 @@ fun CreateCourse(
             CustomDropDownMenu(
                 itemList = SEMESTERS,
                 onItemChange = { semester ->
-//                    signUpViewModel.onEvent(SignUpUIEvent.RoleChanged(role))
+                    createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CourseSemesterChanged(semester))
                 }
             )
         }
-        CustomOutlinedField(
-            labelValue = COURSE_TEACHER_EMAIL_LABEL,
-            onValueChange = {courseTeacherEmail ->
-                createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CourseTeacherEmailChanged(courseTeacherEmail))},
-            errorMessage = createCourseUIState.courseTeacherEmailError,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions {
-                localFocusManager.clearFocus()
-            }
+
+        Spacer(modifier = Modifier.height(MediumSpace))
+
+        // Search Teacher Button
+        CustomElevatedButton(
+            text = if (createCourseUIState.courseTeacherEmailError == null) SEARCH_COURSE_TEACHER_BUTTON else createCourseUIState.courseTeacherEmailError!!,
+            onClick = {
+                createCourseViewModel.onCreateCourse(CreateCourseUIEvent.SearchTeacherButtonClick)
+            },
+            contentColor = if (createCourseUIState.courseTeacherEmailError == null) ButtonDefaults.elevatedButtonColors().contentColor else MaterialTheme.colorScheme.error,
         )
 
         Spacer(modifier = Modifier.height(ExtraExtraLargeSpace))
@@ -154,6 +148,20 @@ fun CreateCourse(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ClassDetailsTitle()
+            if (createCourseUIState.createClassError != null) {
+                Text(
+                    text = createCourseUIState.createClassError!!,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+//            LazyColumn(
+//                modifier = Modifier.fillMaxWidth().padding(horizontal = MediumSpace)
+//            ) {
+//                items(classDetailsList.size) {index ->
+//
+//                }
+//            }
             classDetailsList.forEach {details ->
                 EditClassDetails(classDetails = details)
             }
