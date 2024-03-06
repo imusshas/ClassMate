@@ -15,6 +15,7 @@ import com.nasiat_muhib.classmate.strings.COURSE_CLASSES
 import com.nasiat_muhib.classmate.strings.REQUESTED_COURSES
 import com.nasiat_muhib.classmate.strings.USERS_COLLECTION
 import com.nasiat_muhib.classmate.strings.WEEKDAY
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
@@ -88,6 +89,11 @@ class CourseRepositoryImpl @Inject constructor(
                             }
                         }
                     }
+
+                    if (isSuccessful) {
+                        val creatorDocRef = usersCollection.document(course.courseCreator)
+                        isSuccessful = getAndUpdateArrayToFirebase(creatorDocRef, COURSES, courseId)
+                    }
                 }
             }
         }
@@ -96,7 +102,7 @@ class CourseRepositoryImpl @Inject constructor(
         if (isSuccessful) {
             emit(Pair(DataState.Success(course), DataState.Success(classDetailsSet)))
         } else {
-            emit(Pair(DataState.Error(""), DataState.Error("")))
+            emit(Pair(DataState.Error("Unable to create course"), DataState.Error("Unable to create class details")))
         }
 
     }
@@ -106,14 +112,21 @@ class CourseRepositoryImpl @Inject constructor(
 
             var data: DataState<Course> = DataState.Loading
 
-            coursesCollection.document(courseId)
+            val snapshotListener = coursesCollection.document(courseId)
                 .addSnapshotListener { value, error ->
                     if (value != null) {
                         val course = getCourseFromFirestoreDocument(value)
-
+                        data = DataState.Success(course)
+                    } else if (error != null) {
+                        data = error.localizedMessage?.let { DataState.Error(it) }!!
                     }
+
+                    trySend(data).isSuccess
                 }
 
+            awaitClose {
+                snapshotListener.remove()
+            }
         }
 
     override fun updateCourse(): Flow<DataState<Course>> {

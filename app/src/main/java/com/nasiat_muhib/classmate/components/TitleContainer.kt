@@ -20,7 +20,7 @@ import com.nasiat_muhib.classmate.ui.theme.SomeStyle
 
 @Composable
 fun TitleContainer(
-    content: @Composable () -> Unit
+    title: String,
 ) {
     ElevatedCard(
         modifier = Modifier
@@ -33,6 +33,12 @@ fun TitleContainer(
             contentColor = MaterialTheme.colorScheme.primaryContainer
         )
     ) {
-        content()
+        Row (
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = title, style = SomeStyle)
+        }
     }
 }

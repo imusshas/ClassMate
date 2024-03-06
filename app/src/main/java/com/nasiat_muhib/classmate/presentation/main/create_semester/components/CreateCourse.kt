@@ -28,6 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nasiat_muhib.classmate.components.CustomDropDownMenu
 import com.nasiat_muhib.classmate.components.CustomElevatedButton
 import com.nasiat_muhib.classmate.components.CustomOutlinedField
+import com.nasiat_muhib.classmate.components.TitleContainer
 import com.nasiat_muhib.classmate.core.Constants
 import com.nasiat_muhib.classmate.core.Constants.SEMESTERS
 import com.nasiat_muhib.classmate.data.model.ClassDetails
@@ -38,6 +39,7 @@ import com.nasiat_muhib.classmate.strings.COURSE_CREDIT_LABEL
 import com.nasiat_muhib.classmate.strings.COURSE_DEPARTMENT_LABEL
 import com.nasiat_muhib.classmate.strings.COURSE_TEACHER_EMAIL_LABEL
 import com.nasiat_muhib.classmate.strings.COURSE_TITLE_LABEL
+import com.nasiat_muhib.classmate.strings.CREATED_CLASSES
 import com.nasiat_muhib.classmate.strings.CREATE_CLASS_BUTTON
 import com.nasiat_muhib.classmate.strings.ROLE_HARDCODED
 import com.nasiat_muhib.classmate.strings.SEARCH_COURSE_TEACHER_BUTTON
@@ -147,7 +149,7 @@ fun CreateCourse(
             verticalArrangement = Arrangement.spacedBy(SmallSpace),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ClassDetailsTitle()
+            TitleContainer(title = CREATED_CLASSES)
             if (createCourseUIState.createClassError != null) {
                 Text(
                     text = createCourseUIState.createClassError!!,
