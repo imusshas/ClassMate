@@ -91,7 +91,7 @@ object CreateCourseValidator {
 
     fun validateDuration(
         courseCode: String,
-        courseCredit: Float,
+        courseCredit: Double,
         startHour: Int,
         startMinute: Int,
         startShift: String,

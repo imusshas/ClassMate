@@ -24,7 +24,7 @@ sealed class Screen {
 object ClassMateAppRouter {
     private val currentUser = Firebase.auth.currentUser
     var currentScreen: MutableState<Screen> = mutableStateOf(
-        if(currentUser!= null) Screen.HomeScreen
+        if(currentUser != null) Screen.HomeScreen
         else Screen.SignInScreen
     )
 

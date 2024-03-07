@@ -149,7 +149,9 @@ fun CreateCourse(
             verticalArrangement = Arrangement.spacedBy(SmallSpace),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             TitleContainer(title = CREATED_CLASSES)
+
             if (createCourseUIState.createClassError != null) {
                 Text(
                     text = createCourseUIState.createClassError!!,

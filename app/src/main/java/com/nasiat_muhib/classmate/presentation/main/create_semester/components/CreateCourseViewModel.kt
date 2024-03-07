@@ -41,12 +41,15 @@ class CreateCourseViewModel @Inject constructor(
     private val _createClassUIState = MutableStateFlow(CreateClassUIState())
     val createClassUIState = _createClassUIState.asStateFlow()
 
+    // Create Course UI Validation
     private val _allCreateCourseValidationPassed = MutableStateFlow(false)
     private val allCreateCourseValidationPassed = _allCreateCourseValidationPassed.asStateFlow()
 
+    // Create Class Dialog Validation
     private val _allCreateClassValidationPassed = MutableStateFlow(false)
     private val allCreateClassValidationPassed = _allCreateClassValidationPassed.asStateFlow()
 
+    // Create Class Dialog State
     private val _createClassDialogState = MutableStateFlow(false)
     val createCourseDialogState = _createClassDialogState.asStateFlow()
 
@@ -54,16 +57,18 @@ class CreateCourseViewModel @Inject constructor(
     private val _classDetailsDataList = MutableStateFlow<MutableSet<ClassDetails>>(mutableSetOf())
     val classDetailsDataList = _classDetailsDataList.asStateFlow()
 
+    // Class Details List Validation
     private val _classDetailsListValidationPassed = MutableStateFlow(false)
     private val classDetailsListValidationPassed = _classDetailsListValidationPassed.asStateFlow()
 
 
+    // Current User
     private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
     val userState = _userState.asStateFlow()
 
     init {
         val currentUser = userRepo.currentUser
-        Log.d(TAG, "init: email: ${currentUser.email}")
+//        Log.d(TAG, "init: email: ${currentUser.email}")
         if (currentUser.email != null) {
             getUser(currentUser.email!!)
         }
@@ -75,43 +80,57 @@ class CreateCourseViewModel @Inject constructor(
             Log.d(TAG, "getUser: $it")
         }
     }
+
+
     // Create Course
     fun onCreateCourse(event: CreateCourseUIEvent) {
 
         when (event) {
+
+            // Course Code Change
             is CreateCourseUIEvent.CourseCodeChanged -> {
                 _createCourseUIState.value =
                     _createCourseUIState.value.copy(courseCode = event.courseCode)
             }
 
+            // Course Credit Change
             is CreateCourseUIEvent.CourseCreditChanged -> {
-                val credit = if (event.courseCredit.isBlank()) 0f else event.courseCredit.toFloat()
+                val credit = if (event.courseCredit.isBlank()) 0.0 else event.courseCredit.toDouble()
                 _createCourseUIState.value =
                     _createCourseUIState.value.copy(
                         courseCredit = credit
                     )
             }
 
+            // Course Semester Change
             is CreateCourseUIEvent.CourseSemesterChanged -> {
                 _createCourseUIState.value =
                     _createCourseUIState.value.copy(courseSemester = event.courseSemester)
             }
 
+            // Course Title Change
             is CreateCourseUIEvent.CourseTitleChanged -> {
                 _createCourseUIState.value =
                     _createCourseUIState.value.copy(courseTitle = event.courseTitle)
             }
 
+            // Back Button
             CreateCourseUIEvent.BackButtonClick -> {
                 _classDetailsDataList.value.clear()
                 ClassMateAppRouter.navigateTo(Screen.CreateSemesterScreen)
             }
 
+            // Create Class
             CreateCourseUIEvent.CreateClassButtonClick -> {
                 createCourse()
             }
 
+            // Search Teacher
+            is CreateCourseUIEvent.SearchTeacherButtonClick -> {
+                ClassMateAppRouter.navigateTo(Screen.SearchTeacher)
+            }
 
+            // Select Teacher Teacher
             is CreateCourseUIEvent.SearchUISelectButtonClick -> {
                 _createCourseUIState.value =
                     _createCourseUIState.value.copy(
@@ -120,10 +139,7 @@ class CreateCourseViewModel @Inject constructor(
                 ClassMateAppRouter.navigateTo(Screen.CreateCourse)
             }
 
-            is CreateCourseUIEvent.SearchTeacherButtonClick -> {
-                ClassMateAppRouter.navigateTo(Screen.SearchTeacher)
-            }
-
+            // Create Course
             is CreateCourseUIEvent.CreateClick -> {
                 onCreate()
             }
@@ -140,7 +156,6 @@ class CreateCourseViewModel @Inject constructor(
     private fun onCreate() = viewModelScope.launch(Dispatchers.IO) {
         validateClassDetailsListDataWithRules()
         if (allCreateCourseValidationPassed.value && allCreateClassValidationPassed.value && classDetailsListValidationPassed.value) {
-
 
             userState.value.data?.let { user ->
                 val courseClasses = mutableListOf<String>()
@@ -161,6 +176,8 @@ class CreateCourseViewModel @Inject constructor(
                 courseRepo.createCourse(course, classDetailsDataList.value).collectLatest {
                     Log.d(TAG, "onCreate: courseRepo: course: ${it.first.data}")
                 }
+
+                ClassMateAppRouter.navigateTo(Screen.CreateSemesterScreen)
             }
         }
 
@@ -170,7 +187,7 @@ class CreateCourseViewModel @Inject constructor(
     private fun validateCreateCourseUIDataWithRules() {
 
         val credit: String =
-            if (createCourseUIState.value.courseCredit == 0f) "" else createCourseUIState.value.courseCredit.toString()
+            if (createCourseUIState.value.courseCredit == 0.0) "" else createCourseUIState.value.courseCredit.toString()
 
         val courseCodeResult =
             CreateCourseValidator.validateCourseCode(createCourseUIState.value.courseCode)

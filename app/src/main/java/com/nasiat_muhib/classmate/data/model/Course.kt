@@ -17,7 +17,7 @@ data class Course(
     val courseSemester: String = SEMESTERS[0],
     val courseCode: String = "",
     val courseTitle: String = "",
-    val courseCredit: Float = 0f,
+    val courseCredit: Double = 0.0,
     val courseTeacher: String = "",
     val courseClasses: List<String> = emptyList(),
     val enrolledStudents: List<String> = emptyList(),

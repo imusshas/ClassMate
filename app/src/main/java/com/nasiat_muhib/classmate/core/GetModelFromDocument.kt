@@ -85,8 +85,8 @@ object GetModelFromDocument {
             if (snapshot[COURSE_CODE] != null) snapshot[COURSE_CODE] as String else ""
         val courseTitle: String =
             if (snapshot[COURSE_TITLE] != null) snapshot[COURSE_TITLE] as String else ""
-        val courseCredit: Float =
-            if (snapshot[COURSE_CREDIT] != null) snapshot[COURSE_CREATOR] as Float else 0f
+        val courseCredit: Double =
+            if (snapshot[COURSE_CREDIT] != null) snapshot[COURSE_CREDIT] as Double else 0.0
         val courseTeacher: String =
             if (snapshot[COURSE_TEACHER] != null) snapshot[COURSE_TEACHER] as String else ""
 

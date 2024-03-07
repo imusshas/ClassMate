@@ -7,7 +7,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface CourseRepository {
     fun createCourse(course: Course, classDetailsSet: Set<ClassDetails>): Flow<Pair<DataState<Course>, DataState<Set<ClassDetails>>>>
-    fun getCourse(email: String, courseId: String): Flow<DataState<Course>>
+    fun getCourse(courseId: String): Flow<DataState<Course>>
+
+    fun getCourseList(courseIds: List<String>): Flow<List<Course>>
     fun updateCourse(): Flow<DataState<Course>>
     fun deleteCourse(): Flow<DataState<Course>>
 }

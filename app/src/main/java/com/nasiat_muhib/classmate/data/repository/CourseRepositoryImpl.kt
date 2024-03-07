@@ -3,6 +3,7 @@ package com.nasiat_muhib.classmate.data.repository
 import android.util.Log
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.nasiat_muhib.classmate.core.GetModelFromDocument.getCourseFromFirestoreDocument
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
@@ -102,12 +103,17 @@ class CourseRepositoryImpl @Inject constructor(
         if (isSuccessful) {
             emit(Pair(DataState.Success(course), DataState.Success(classDetailsSet)))
         } else {
-            emit(Pair(DataState.Error("Unable to create course"), DataState.Error("Unable to create class details")))
+            emit(
+                Pair(
+                    DataState.Error("Unable to create course"),
+                    DataState.Error("Unable to create class details")
+                )
+            )
         }
 
     }
 
-    override fun getCourse(email: String, courseId: String): Flow<DataState<Course>> =
+    override fun getCourse(courseId: String): Flow<DataState<Course>> =
         callbackFlow {
 
             var data: DataState<Course> = DataState.Loading
@@ -119,10 +125,43 @@ class CourseRepositoryImpl @Inject constructor(
                         data = DataState.Success(course)
                     } else if (error != null) {
                         data = error.localizedMessage?.let { DataState.Error(it) }!!
+                        Log.d(TAG, "getCourse: error for: $courseId: ${error.localizedMessage}")
                     }
 
                     trySend(data).isSuccess
                 }
+
+            awaitClose {
+                snapshotListener.remove()
+            }
+        }
+
+    override fun getCourseList(courseIds: List<String>): Flow<List<Course>> =
+        callbackFlow {
+
+            if (courseIds.isEmpty()) {
+                close(IllegalArgumentException("User courses list is empty"))
+                return@callbackFlow
+            }
+            
+
+            val snapshotListener = coursesCollection
+                .addSnapshotListener { value, error ->
+                    val courseList = mutableListOf<Course>()
+                value?.documents?.forEach { documentSnapshot ->
+                    if (courseIds.contains(documentSnapshot.id)) {
+                        val course = getCourseFromFirestoreDocument(documentSnapshot)
+                        courseList.add(course)
+                    }
+                    Log.d(TAG, "getCourseList: $courseList")
+                    trySend(courseList).isSuccess
+                }
+
+                    error?.let {
+                        close(it.cause)
+                        return@addSnapshotListener
+                    }
+            }
 
             awaitClose {
                 snapshotListener.remove()
@@ -251,7 +290,8 @@ class CourseRepositoryImpl @Inject constructor(
 
         docRef.get()
             .addOnCompleteListener { classSnapshot ->
-                val prevList = if (classSnapshot.result[field] != null) classSnapshot.result[field] as List<String> else emptyList()
+                val prevList =
+                    if (classSnapshot.result[field] != null) classSnapshot.result[field] as List<String> else emptyList()
                 prevList.forEach {
                     arrayList.add(it)
                 }
@@ -264,8 +304,8 @@ class CourseRepositoryImpl @Inject constructor(
             arrayList.add(value)
             docRef.update(mapOf(field to arrayList.toList()))
                 .addOnCompleteListener {
-                isSuccessful = it.isSuccessful
-            }.await()
+                    isSuccessful = it.isSuccessful
+                }.await()
 
 //            Log.d(TAG, "getAndUpdateArrayToFirebase: result for updating array: $isSuccessful")
         }

@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.nasiat_muhib.classmate.components.SwipeToDeleteOrEdit
 import com.nasiat_muhib.classmate.navigation.ClassMateSecondVersion
 import com.nasiat_muhib.classmate.presentation.search.SearchUI
 import com.nasiat_muhib.classmate.ui.theme.ClassMateTheme
@@ -26,6 +27,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     ClassMateSecondVersion()
 //                    SearchUI()
+//                    SwipeToDeleteOrEdit()
                 }
             }
         }
