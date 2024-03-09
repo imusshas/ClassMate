@@ -4,6 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.nasiat_muhib.classmate.data.model.Course
 
 sealed class Screen {
     data object SignInScreen: Screen()
@@ -16,8 +17,10 @@ sealed class Screen {
     data object NotificationScreen: Screen()
     data object MenuScreen: Screen()
     data object CreateCourse: Screen()
-
     data object SearchTeacher: Screen()
+
+    data class EditCourse(val course: Course): Screen()
+    data class EditSearchTeacher(val courseTeacherEmail: Screen) : Screen()
 
 }
 

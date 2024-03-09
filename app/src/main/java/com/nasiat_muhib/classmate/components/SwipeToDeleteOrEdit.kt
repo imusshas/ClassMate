@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -32,39 +31,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import com.nasiat_muhib.classmate.R
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import kotlinx.coroutines.delay
-
-@Composable
-fun SwipeToDeleteOrEdit() {
-    val deleteItemList = remember {
-        mutableStateListOf("a", "b", "c", "d", "e", "f", "g", "h")
-    }
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = MediumSpace)
-    ) {
-        items(
-            items = deleteItemList,
-            key = {it}
-        ) { item ->
-            SwipeToDeleteOrEditContainer(
-                item = item,
-                onDelete = {
-                    deleteItemList.remove(it)
-                }, onEdit = { /*TODO*/ }
-            ) {
-                Text(text = it, modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = MediumSpace))
-            }
-        }
-    }
-}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,7 +40,7 @@ fun SwipeToDeleteOrEdit() {
 fun <T> SwipeToDeleteOrEditContainer(
     item: T,
     onDelete: (T) -> Unit,
-    onEdit: () -> Unit,
+    onEdit: (T) -> Unit,
     animationDuration: Int = 500,
     content: @Composable (T) -> Unit,
 ) {
@@ -107,7 +75,6 @@ fun <T> SwipeToDeleteOrEditContainer(
             state = dismissBoxState,
             backgroundContent = { DeleteBackground(swipeToDismissBoxState = dismissBoxState) },
             content = { content(item) },
-            enableDismissFromStartToEnd = true
         )
     }
 

@@ -10,16 +10,18 @@ import com.nasiat_muhib.classmate.presentation.auth.forgot_password.ForgotPasswo
 import com.nasiat_muhib.classmate.presentation.auth.sign_in.SignInScreen
 import com.nasiat_muhib.classmate.presentation.auth.sign_up.SignUpScreen
 import com.nasiat_muhib.classmate.presentation.main.create_semester.CreateSemesterScreen
-import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateCourse
+import com.nasiat_muhib.classmate.presentation.main.create_semester.components.create.CreateCourse
+import com.nasiat_muhib.classmate.presentation.main.create_semester.components.create.SearchTeacherScreen
+import com.nasiat_muhib.classmate.presentation.main.create_semester.components.edit.EditCourse
 import com.nasiat_muhib.classmate.presentation.main.enroll_course.EnrollCourseScreen
 import com.nasiat_muhib.classmate.presentation.main.home.HomeScreen
-import com.nasiat_muhib.classmate.presentation.search.SearchUI
 
 @Composable
 fun ClassMateSecondVersion() {
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Crossfade(targetState = ClassMateAppRouter.currentScreen, label = "") {
             when(it.value) {
+                /***************** Authentication *************/
                 Screen.SignInScreen -> {
                     SignInScreen()
                 }
@@ -30,7 +32,9 @@ fun ClassMateSecondVersion() {
                 Screen.ForgotPasswordScreen -> {
                     ForgotPasswordScreen()
                 }
+                /***************** Authentication *************/
 
+                /***************** Tab Items *************/
                 Screen.HomeScreen -> {
                     HomeScreen()
                 }
@@ -39,17 +43,29 @@ fun ClassMateSecondVersion() {
                     CreateSemesterScreen()
                 }
 
-                Screen.CreateCourse -> {
-                    CreateCourse()
-                }
-
                 Screen.EnrollCourseScreen -> {
                     EnrollCourseScreen()
                 }
                 Screen.MenuScreen -> TODO()
                 Screen.NotificationScreen -> TODO()
+                /***************** Tab Items *************/
+
+
+                /***************** Create Course *************/
+                Screen.CreateCourse -> {
+                    CreateCourse()
+                }
+
                 Screen.SearchTeacher -> {
-                    SearchUI()
+                    SearchTeacherScreen()
+                }
+
+                is Screen.EditCourse -> {
+                    EditCourse(course = (it.value as Screen.EditCourse).course)
+                }
+
+                is Screen.EditSearchTeacher -> {
+
                 }
             }
         }

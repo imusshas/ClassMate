@@ -12,7 +12,7 @@ sealed class CreateCourseUIEvent {
 
     data object SearchTeacherButtonClick : CreateCourseUIEvent()
 
-    data class SearchUISelectButtonClick(
+    data class SearchUIRequestButtonClick(
         val courseTeacherEmail: String
     ): CreateCourseUIEvent()
 

@@ -1,4 +1,4 @@
-package com.nasiat_muhib.classmate.presentation.search
+package com.nasiat_muhib.classmate.presentation.main.create_semester.components.create
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchViewModel @Inject constructor(
+class SearchTeacherViewModel @Inject constructor(
     private val searchRepo: SearchRepository,
 ) : ViewModel() {
 
@@ -66,10 +66,6 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun onSearch(text: String) {
-        _searchText.value = text
-    }
-
     private fun getAllTeachers() = viewModelScope.launch(Dispatchers.IO) {
         searchRepo.getAllTeachers().collectLatest {
             Log.d(TAG, "getAllTeachers: $it")
@@ -81,17 +77,3 @@ class SearchViewModel @Inject constructor(
         const val TAG = "SearchViewModel"
     }
 }
-
-
-private val allUsers = listOf(
-    User(firstName = "Md. Abid Ullah", lastName = "Muhib"),
-    User(firstName = "Rayhanul Amin", lastName = "Tanvir"),
-    User(firstName = "Nasiat Hasan", lastName = "Fahim"),
-    User(firstName = "Rezaul Karim", lastName = "Sumon"),
-    User(firstName = "Niloy Sarkar", lastName = "Tonmoy"),
-    User(firstName = "Mohammad Ridowan", lastName = "Sikder"),
-    User(firstName = "Khalid Bin", lastName = "Selim"),
-    User(firstName = "Gazi Mujtaba", lastName = "Rafid"),
-    User(firstName = "Al Fahad", lastName = "Rakib"),
-    User(firstName = "Iqbal Mahmood", lastName = "Sajid"),
-)

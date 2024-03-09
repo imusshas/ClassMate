@@ -10,6 +10,7 @@ import com.nasiat_muhib.classmate.strings.COURSE_SEMESTER
 import com.nasiat_muhib.classmate.strings.COURSE_TEACHER
 import com.nasiat_muhib.classmate.strings.COURSE_TITLE
 import com.nasiat_muhib.classmate.strings.ENROLLED_STUDENTS
+import com.nasiat_muhib.classmate.strings.PENDING_STATUS
 
 data class Course(
     val courseCreator: String = "",
@@ -19,6 +20,7 @@ data class Course(
     val courseTitle: String = "",
     val courseCredit: Double = 0.0,
     val courseTeacher: String = "",
+    val pendingStatus: Boolean = true,
     val courseClasses: List<String> = emptyList(),
     val enrolledStudents: List<String> = emptyList(),
 ) {
@@ -30,7 +32,20 @@ data class Course(
         COURSE_TITLE to courseTitle,
         COURSE_CREDIT to courseCredit,
         COURSE_TEACHER to courseTeacher,
+        PENDING_STATUS to pendingStatus,
         COURSE_CLASSES to courseClasses,
         ENROLLED_STUDENTS to enrolledStudents
     )
+
+    fun doesMatchSearchQuery(query: String): Boolean {
+        val matchingCombinations = listOf(
+            "$courseCode$courseDepartment$courseTitle",
+            courseCode,
+            courseDepartment,
+            courseTitle
+
+        )
+
+        return matchingCombinations.any { it.contains(query, ignoreCase = true) }
+    }
 }

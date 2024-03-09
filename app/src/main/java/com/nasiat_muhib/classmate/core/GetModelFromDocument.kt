@@ -6,6 +6,9 @@ import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.strings.BLOOD_GROUP
 import com.nasiat_muhib.classmate.strings.CLASSROOM
+import com.nasiat_muhib.classmate.strings.CLASS_COURSE_CODE
+import com.nasiat_muhib.classmate.strings.CLASS_DEPARTMENT
+import com.nasiat_muhib.classmate.strings.CLASS_NO
 import com.nasiat_muhib.classmate.strings.COURSES
 import com.nasiat_muhib.classmate.strings.COURSE_CODE
 import com.nasiat_muhib.classmate.strings.COURSE_CREATOR
@@ -21,6 +24,7 @@ import com.nasiat_muhib.classmate.strings.END_MINUTE
 import com.nasiat_muhib.classmate.strings.END_SHIFT
 import com.nasiat_muhib.classmate.strings.FIRST_NAME
 import com.nasiat_muhib.classmate.strings.LAST_NAME
+import com.nasiat_muhib.classmate.strings.PENDING_STATUS
 import com.nasiat_muhib.classmate.strings.PHONE_NO
 import com.nasiat_muhib.classmate.strings.REQUESTED_COURSES
 import com.nasiat_muhib.classmate.strings.ROLE
@@ -89,6 +93,8 @@ object GetModelFromDocument {
             if (snapshot[COURSE_CREDIT] != null) snapshot[COURSE_CREDIT] as Double else 0.0
         val courseTeacher: String =
             if (snapshot[COURSE_TEACHER] != null) snapshot[COURSE_TEACHER] as String else ""
+        val pendingStatus: Boolean =
+            if (snapshot[PENDING_STATUS] != null) snapshot[PENDING_STATUS] as Boolean else true
 
 //        val course = Course(
 //            courseCreator = courseCreator,
@@ -109,13 +115,19 @@ object GetModelFromDocument {
             courseCode = courseCode,
             courseTitle = courseTitle,
             courseCredit = courseCredit,
-            courseTeacher = courseTeacher
+            courseTeacher = courseTeacher,
+            pendingStatus = pendingStatus
         )
     }
 
 
     fun getClassDetailsFromFirestoreDocument(snapshot: DocumentSnapshot): ClassDetails {
 
+        val classDepartment: String =
+            if (snapshot[CLASS_DEPARTMENT] != null) snapshot[CLASS_DEPARTMENT] as String else ""
+        val classCourseCode: String =
+            if (snapshot[CLASS_COURSE_CODE] != null) snapshot[CLASS_COURSE_CODE] as String else ""
+        val classNo: Int = if (snapshot[CLASS_NO] != null) snapshot[CLASS_NO] as Int else -1
         val weekDay: String = if (snapshot[WEEKDAY] != null) snapshot[WEEKDAY] as String else ""
         val classroom: String =
             if (snapshot[CLASSROOM] != null) snapshot[CLASSROOM] as String else ""
@@ -131,6 +143,9 @@ object GetModelFromDocument {
             if (snapshot[END_SHIFT] != null) snapshot[END_SHIFT] as String else ""
 
         return ClassDetails(
+            classDepartment = classDepartment,
+            classCourseCode = classCourseCode,
+            classNo = classNo,
             weekDay = weekDay,
             classroom = classroom,
             section = section,

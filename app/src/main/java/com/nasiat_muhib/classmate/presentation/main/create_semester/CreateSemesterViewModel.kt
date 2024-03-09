@@ -40,6 +40,10 @@ class CreateSemesterViewModel @Inject constructor(
             CreateSemesterUIEvent.CreateSemesterFABClick -> {
                 ClassMateAppRouter.navigateTo(Screen.CreateCourse)
             }
+
+            is CreateSemesterUIEvent.EditCourseUIEvent -> {
+
+            }
         }
 
     }
@@ -58,15 +62,17 @@ class CreateSemesterViewModel @Inject constructor(
         }
     }
 
-
-    private val courseList = mutableListOf<Course>()
     fun getCourses(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
 
-        Log.d(TAG, "getCourses: courseIds: $courseIds")
+//        Log.d(TAG, "getCourses: courseIds: $courseIds")
         if (courseIds.isNotEmpty()) {
-            courseRepo.getCourseList(courseIds).collectLatest {
-                _courses.value = it
-                Log.d(TAG, "getCourses: $it")
+            try {
+                courseRepo.getCourseList(courseIds).collectLatest {
+                    _courses.value = it
+                    Log.d(TAG, "getCourses: $it")
+                }
+            } catch (e: Exception) {
+                Log.d(TAG, "getCourses: ${e.localizedMessage}")
             }
         }
     }

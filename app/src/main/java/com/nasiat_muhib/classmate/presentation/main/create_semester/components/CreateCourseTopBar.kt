@@ -16,11 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.nasiat_muhib.classmate.domain.event.CreateClassUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateCourseUIEvent
-import com.nasiat_muhib.classmate.domain.state.CreateClassUIState
-import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
-import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.strings.CREATE_ICON
 import com.nasiat_muhib.classmate.strings.CREATE_COURSE
 import com.nasiat_muhib.classmate.strings.GO_BACK_ICON

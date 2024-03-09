@@ -1,4 +1,4 @@
-package com.nasiat_muhib.classmate.presentation.main.create_semester.components
+package com.nasiat_muhib.classmate.presentation.main.create_semester.components.create
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +19,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,26 +27,22 @@ import com.nasiat_muhib.classmate.components.CustomDropDownMenu
 import com.nasiat_muhib.classmate.components.CustomElevatedButton
 import com.nasiat_muhib.classmate.components.CustomOutlinedField
 import com.nasiat_muhib.classmate.components.TitleContainer
-import com.nasiat_muhib.classmate.core.Constants
 import com.nasiat_muhib.classmate.core.Constants.SEMESTERS
-import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.domain.event.CreateCourseUIEvent
-import com.nasiat_muhib.classmate.domain.event.SignUpUIEvent
+import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateCourseTopBar
+import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateCourseViewModel
+import com.nasiat_muhib.classmate.presentation.main.create_semester.components.EditClassDetails
 import com.nasiat_muhib.classmate.strings.COURSE_CODE_LABEL
 import com.nasiat_muhib.classmate.strings.COURSE_CREDIT_LABEL
-import com.nasiat_muhib.classmate.strings.COURSE_DEPARTMENT_LABEL
-import com.nasiat_muhib.classmate.strings.COURSE_TEACHER_EMAIL_LABEL
 import com.nasiat_muhib.classmate.strings.COURSE_TITLE_LABEL
 import com.nasiat_muhib.classmate.strings.CREATED_CLASSES
 import com.nasiat_muhib.classmate.strings.CREATE_CLASS_BUTTON
-import com.nasiat_muhib.classmate.strings.ROLE_HARDCODED
 import com.nasiat_muhib.classmate.strings.SEARCH_COURSE_TEACHER_BUTTON
 import com.nasiat_muhib.classmate.strings.SEMESTER_HARD_CODED
 import com.nasiat_muhib.classmate.ui.theme.ExtraExtraLargeSpace
 import com.nasiat_muhib.classmate.ui.theme.LargeSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
-import com.nasiat_muhib.classmate.ui.theme.ZeroSpace
 
 @Composable
 fun CreateCourse(
@@ -56,7 +50,7 @@ fun CreateCourse(
 ) {
 
     val createCourseUIState by createCourseViewModel.createCourseUIState.collectAsState()
-    val classDetailsList by createCourseViewModel.classDetailsDataList.collectAsState()
+    val classDetailsList by createCourseViewModel.createClassDetailsDataList.collectAsState()
 
     val createClassDialogState by createCourseViewModel.createCourseDialogState.collectAsState()
 
@@ -159,13 +153,15 @@ fun CreateCourse(
                     color = MaterialTheme.colorScheme.error
                 )
             }
-//            LazyColumn(
-//                modifier = Modifier.fillMaxWidth().padding(horizontal = MediumSpace)
-//            ) {
-//                items(classDetailsList.size) {index ->
-//
-//                }
-//            }
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = MediumSpace)
+            ) {
+                items(
+                    items = classDetailsList.toList()
+                ) {
+
+                }
+            }
             classDetailsList.forEach {details ->
                 EditClassDetails(classDetails = details)
             }

@@ -1,6 +1,5 @@
 package com.nasiat_muhib.classmate.presentation.main.create_semester.components
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nasiat_muhib.classmate.data.model.ClassDetails
@@ -20,9 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -53,18 +50,49 @@ class CreateCourseViewModel @Inject constructor(
     private val _createClassDialogState = MutableStateFlow(false)
     val createCourseDialogState = _createClassDialogState.asStateFlow()
 
-    // Class Details List Data State
-    private val _classDetailsDataList = MutableStateFlow<MutableSet<ClassDetails>>(mutableSetOf())
-    val classDetailsDataList = _classDetailsDataList.asStateFlow()
+    // Create Class Details List Data State
+    private val _createClassDetailsDataList = MutableStateFlow<MutableSet<ClassDetails>>(mutableSetOf())
+    val createClassDetailsDataList = _createClassDetailsDataList.asStateFlow()
 
-    // Class Details List Validation
-    private val _classDetailsListValidationPassed = MutableStateFlow(false)
-    private val classDetailsListValidationPassed = _classDetailsListValidationPassed.asStateFlow()
-
+    // Create Class Details List Validation
+    private val _createClassDetailsListValidationPassed = MutableStateFlow(false)
+    private val createClassDetailsListValidationPassed = _createClassDetailsListValidationPassed.asStateFlow()
 
     // Current User
     private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
-    val userState = _userState.asStateFlow()
+    private val userState = _userState.asStateFlow()
+
+
+
+
+    // Edit Course UI State
+//    private val _editCourseUIState = MutableStateFlow(CreateCourseUIState())
+//    private val editCourseUIState = _editCourseUIState.asStateFlow()
+//
+//    // Edit Class Details UI State
+//    private val _editClassUIState = MutableStateFlow(CreateClassUIState())
+//    private val editClassUIState = _editClassUIState.asStateFlow()
+//
+//    // Edit Class Details List Data
+//    private val _editClassDetailsListData = MutableStateFlow<MutableSet<ClassDetails>>(mutableSetOf())
+//    private val editClassDetailsListData = _editClassDetailsListData.asStateFlow()
+//
+//    // Edit Class Details Dialog State
+//    private val _editClassDialogState = MutableStateFlow(false)
+//    private val editClassDialogState = _editClassDialogState.asStateFlow()
+//
+//
+//    // Edit Course Validation
+//    private val _allEditCourseValidationPassed = MutableStateFlow(false)
+//    private val  allEditValidationPassed = _allEditCourseValidationPassed.asStateFlow()
+//
+//    // Edit Class Validation
+//    private val _allEditClassValidationPassed = MutableStateFlow(false)
+//    private val allEditClassDetailsValidationPassed = _allEditClassValidationPassed.asStateFlow()
+//
+//    // Edit Class Details List Data Validation
+//    private val _editClassDetailsListDataValidationPassed = MutableStateFlow(false)
+//    private val editClassDetailsListDataValidationPassed = _editClassDetailsListDataValidationPassed.asStateFlow()
 
     init {
         val currentUser = userRepo.currentUser
@@ -77,7 +105,7 @@ class CreateCourseViewModel @Inject constructor(
     private fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
         userRepo.getUser(email).collectLatest {
             _userState.value = it
-            Log.d(TAG, "getUser: $it")
+//            Log.d(TAG, "getUser: $it")
         }
     }
 
@@ -86,7 +114,6 @@ class CreateCourseViewModel @Inject constructor(
     fun onCreateCourse(event: CreateCourseUIEvent) {
 
         when (event) {
-
             // Course Code Change
             is CreateCourseUIEvent.CourseCodeChanged -> {
                 _createCourseUIState.value =
@@ -116,7 +143,7 @@ class CreateCourseViewModel @Inject constructor(
 
             // Back Button
             CreateCourseUIEvent.BackButtonClick -> {
-                _classDetailsDataList.value.clear()
+                _createClassDetailsDataList.value.clear()
                 ClassMateAppRouter.navigateTo(Screen.CreateSemesterScreen)
             }
 
@@ -131,7 +158,7 @@ class CreateCourseViewModel @Inject constructor(
             }
 
             // Select Teacher Teacher
-            is CreateCourseUIEvent.SearchUISelectButtonClick -> {
+            is CreateCourseUIEvent.SearchUIRequestButtonClick -> {
                 _createCourseUIState.value =
                     _createCourseUIState.value.copy(
                         courseTeacherEmail = event.courseTeacherEmail
@@ -154,12 +181,12 @@ class CreateCourseViewModel @Inject constructor(
     }
 
     private fun onCreate() = viewModelScope.launch(Dispatchers.IO) {
-        validateClassDetailsListDataWithRules()
-        if (allCreateCourseValidationPassed.value && allCreateClassValidationPassed.value && classDetailsListValidationPassed.value) {
+        validateCreateClassDetailsListDataWithRules()
+        if (allCreateCourseValidationPassed.value && allCreateClassValidationPassed.value && createClassDetailsListValidationPassed.value) {
 
             userState.value.data?.let { user ->
                 val courseClasses = mutableListOf<String>()
-                classDetailsDataList.value.forEachIndexed { index, _ ->
+                createClassDetailsDataList.value.forEachIndexed { index, _ ->
                     courseClasses.add("class${index + 1}")
                 }
                 val course = Course(
@@ -172,9 +199,9 @@ class CreateCourseViewModel @Inject constructor(
                     courseSemester = createCourseUIState.value.courseSemester,
                     courseClasses = courseClasses
                 )
-                Log.d(TAG, "onCreate: $course")
-                courseRepo.createCourse(course, classDetailsDataList.value).collectLatest {
-                    Log.d(TAG, "onCreate: courseRepo: course: ${it.first.data}")
+//                Log.d(TAG, "onCreate: $course")
+                courseRepo.createCourse(course, createClassDetailsDataList.value).collectLatest {
+//                    Log.d(TAG, "onCreate: courseRepo: course: ${it.first.data}")
                 }
 
                 ClassMateAppRouter.navigateTo(Screen.CreateSemesterScreen)
@@ -214,15 +241,15 @@ class CreateCourseViewModel @Inject constructor(
                     courseTeacherEmailResult.message == null
     }
 
-    private fun validateClassDetailsListDataWithRules() {
+    private fun validateCreateClassDetailsListDataWithRules() {
         val createClassResult =
-            CreateCourseValidator.validateClassDetails(classDetailsDataList.value.toList())
+            CreateCourseValidator.validateClassDetails(createClassDetailsDataList.value.toList())
 
         _createCourseUIState.value = _createCourseUIState.value.copy(
             createClassError = createClassResult.message
         )
 
-        _classDetailsListValidationPassed.value = createClassResult.message == null
+        _createClassDetailsListValidationPassed.value = createClassResult.message == null
     }
 
 
@@ -311,6 +338,7 @@ class CreateCourseViewModel @Inject constructor(
         }
     }
 
+    // Checks Create Class Validation Validation and Adds Created Class to the existing list
     private fun createClass() {
         validateCreateClassUIDataWithRules()
         if (allCreateClassValidationPassed.value) {
@@ -326,10 +354,11 @@ class CreateCourseViewModel @Inject constructor(
                 endMinute = _createClassUIState.value.endMinute,
                 endShift = _createClassUIState.value.endShift,
             )
-            _classDetailsDataList.value.add(details)
+            _createClassDetailsDataList.value.add(details)
         }
     }
 
+    // Validates create class UI data
     private fun validateCreateClassUIDataWithRules() {
         val sHour =
             if (createClassUIState.value.startHour == -1) "" else createClassUIState.value.startHour.toString()

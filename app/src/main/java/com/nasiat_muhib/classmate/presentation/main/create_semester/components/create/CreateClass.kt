@@ -1,4 +1,4 @@
-package com.nasiat_muhib.classmate.presentation.main.create_semester.components
+package com.nasiat_muhib.classmate.presentation.main.create_semester.components.create
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,9 +25,11 @@ import com.nasiat_muhib.classmate.components.CustomOutlinedField
 import com.nasiat_muhib.classmate.components.CustomTimePicker
 import com.nasiat_muhib.classmate.core.Constants.WEEK_DAYS
 import com.nasiat_muhib.classmate.domain.event.CreateClassUIEvent
+import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateCourseViewModel
 import com.nasiat_muhib.classmate.strings.CANCEL_BUTTON
 import com.nasiat_muhib.classmate.strings.CLASSROOM_LABEL
 import com.nasiat_muhib.classmate.strings.CREATE_BUTTON
+import com.nasiat_muhib.classmate.strings.EDIT_BUTTON
 import com.nasiat_muhib.classmate.strings.END_TIME
 import com.nasiat_muhib.classmate.strings.SECTION_LABEL
 import com.nasiat_muhib.classmate.strings.START_TIME
@@ -39,7 +41,7 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
 @Composable
 fun CreateClass(
-    createCourseViewModel: CreateCourseViewModel
+    createCourseViewModel: CreateCourseViewModel,
 ) {
 
     val createClassUIState by createCourseViewModel.createClassUIState.collectAsState()
@@ -55,52 +57,70 @@ fun CreateClass(
             verticalArrangement = Arrangement.spacedBy(SmallSpace)
         ) {
 
-            CustomDropDownMenu(itemList = WEEK_DAYS, onItemChange = { weekDay ->
-                createCourseViewModel.onCreateClass(CreateClassUIEvent.WeekDayChanged(weekDay))
-            })
-            CustomOutlinedField(labelValue = CLASSROOM_LABEL, onValueChange = { classroom ->
-                createCourseViewModel.onCreateClass(CreateClassUIEvent.ClassRoomChanged(classroom))
-            }, errorMessage = createClassUIState.classroomError)
-            CustomOutlinedField(labelValue = SECTION_LABEL, onValueChange = { section ->
-                createCourseViewModel.onCreateClass(CreateClassUIEvent.SectionChanged(section))
+            // WeekDay Picker
+            CustomDropDownMenu(
+                itemList = WEEK_DAYS,
+                selectedItem =  WEEK_DAYS[0] ,
+                onItemChange = { weekDay ->
+                    createCourseViewModel.onCreateClass(CreateClassUIEvent.WeekDayChanged(weekDay))
+                }
+            )
 
-            }, errorMessage = createClassUIState.sectionError)
+            // Classroom
+            CustomOutlinedField(
+                labelValue = CLASSROOM_LABEL,
+                onValueChange = { classroom ->
+                    createCourseViewModel.onCreateClass(
+                        CreateClassUIEvent.ClassRoomChanged(
+                            classroom
+                        )
+                    )
+                }, errorMessage = createClassUIState.classroomError
+            )
+
+            // Section
+            CustomOutlinedField(
+                labelValue = SECTION_LABEL,
+                onValueChange = { section ->
+                    createCourseViewModel.onCreateClass(CreateClassUIEvent.SectionChanged(section))
+
+                },
+                errorMessage = createClassUIState.sectionError
+            )
+
+            // Start Time Picker
             CustomTimePicker(
                 title = START_TIME,
                 onHourChange = { startHour ->
                     createCourseViewModel.onCreateClass(
                         CreateClassUIEvent.StartHourChanged(startHour)
                     )
-//                    Log.d(TAG, "CreateClass: startHour: $startHour")
                 },
                 onMinuteChange = { startMinute ->
                     createCourseViewModel.onCreateClass(
                         CreateClassUIEvent.StartMinuteChanged(startMinute)
                     )
-//                    Log.d(TAG, "CreateClass: startMinute: $startMinute")
                 },
                 onShiftClick = { startShift ->
                     createCourseViewModel.onCreateClass(
                         CreateClassUIEvent.StartShiftChanged(startShift)
                     )
-//                    Log.d(TAG, "CreateClass: startShift: $startShift")
                 }
             )
+
+            // End Time Picker
             CustomTimePicker(
                 title = END_TIME,
                 onHourChange = { endHour ->
                     createCourseViewModel.onCreateClass(CreateClassUIEvent.EndHourChanged(endHour))
-//                    Log.d(TAG, "CreateClass: endHour: $endHour")
                 },
                 onMinuteChange = { endMinute ->
                     createCourseViewModel.onCreateClass(
                         CreateClassUIEvent.EndMinuteChanged(endMinute)
                     )
-//                    Log.d(TAG, "CreateClass: endMinute: $endMinute")
                 },
                 onShiftClick = { endShift ->
                     createCourseViewModel.onCreateClass(CreateClassUIEvent.EndShiftChanged(endShift))
-//                    Log.d(TAG, "CreateClass: endShift: $endShift")
                 }
             )
             if (createClassUIState.timeError != null) {

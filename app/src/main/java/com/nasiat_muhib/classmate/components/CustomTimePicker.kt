@@ -1,7 +1,6 @@
 package com.nasiat_muhib.classmate.components
 
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,23 +29,18 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.nasiat_muhib.classmate.strings.AM
 import com.nasiat_muhib.classmate.strings.COLON
 import com.nasiat_muhib.classmate.strings.PM
-import com.nasiat_muhib.classmate.strings.TAG
 import com.nasiat_muhib.classmate.strings.TIME
 import com.nasiat_muhib.classmate.ui.theme.ExtraSmallSpace
 import com.nasiat_muhib.classmate.ui.theme.LargeHeight
 import com.nasiat_muhib.classmate.ui.theme.LargeRounded
-import com.nasiat_muhib.classmate.ui.theme.LargeSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.PickerStyle
 import com.nasiat_muhib.classmate.ui.theme.SmallBorder
 import com.nasiat_muhib.classmate.ui.theme.SmallHeight
 import com.nasiat_muhib.classmate.ui.theme.SmallPickerStyle
-import com.nasiat_muhib.classmate.ui.theme.SmallSpace
-import com.nasiat_muhib.classmate.ui.theme.TitleStyle
 import com.nasiat_muhib.classmate.ui.theme.ZeroSpace
 import java.time.LocalTime
 
@@ -67,13 +60,13 @@ fun CustomTimePicker(
 
     val time = LocalTime.now()
     val currentHour = if (time.hour > 12) time.hour - 12 else if (time.hour == 0) 12 else time.hour
-    val hour = rememberSaveable { mutableStateOf(currentHour.toString()) }
-    val minute = rememberSaveable { mutableStateOf(time.minute.toString()) }
+    val hour = rememberSaveable { mutableStateOf( currentHour.toString()  ) }
+    val minute = rememberSaveable { mutableStateOf( time.minute.toString() ) }
 
     val hourClicked = rememberSaveable { mutableStateOf(false) }
     val minuteClicked = rememberSaveable { mutableStateOf(false) }
     val shiftClicked = rememberSaveable { mutableStateOf(false) }
-    val isAmSelected = rememberSaveable { mutableStateOf(time.hour < 12) }
+    val isAmSelected = rememberSaveable { mutableStateOf( time.hour < 12) }
 
     if(!hourClicked.value) {
         onHourChange(hour.value)

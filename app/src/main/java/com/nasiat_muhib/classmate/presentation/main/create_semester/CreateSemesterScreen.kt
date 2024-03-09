@@ -26,11 +26,8 @@ fun CreateSemesterScreen(
 
         is DataState.Success ->  {
             userState.data?.let {
-                Log.d(TAG, "CreateSemesterScreen: ${userState.data?.courses}")
                 createSemesterViewModel.getCourses(it.courses)
-                val courses by createSemesterViewModel.courses.collectAsState()
                 CreateSemesterContent(
-                    user = it,
                     createSemesterViewModel = createSemesterViewModel,
                 )
             }
