@@ -12,6 +12,7 @@ import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.strings.CLASSES_COLLECTION
 import com.nasiat_muhib.classmate.strings.COURSES
 import com.nasiat_muhib.classmate.strings.COURSES_COLLECTION
+import com.nasiat_muhib.classmate.strings.COURSE_CLASSES
 import com.nasiat_muhib.classmate.strings.COURSE_CREATOR
 import com.nasiat_muhib.classmate.strings.REQUESTED_COURSES
 import com.nasiat_muhib.classmate.strings.USERS_COLLECTION
@@ -133,23 +134,17 @@ class CourseRepositoryImpl @Inject constructor(
     override fun getCourseList(courseIds: List<String>): Flow<List<Course>> =
         callbackFlow {
 
-//            if (courseIds.isEmpty()) {
-//                trySend(emptyList()).isSuccess
-//                Log.d(TAG, "getCourseList: User have no courses")
-//                return@callbackFlow
-//            }
-
 
             val snapshotListener = coursesCollection
                 .addSnapshotListener { value, error ->
 
                     val courseList = mutableListOf<Course>()
                     value?.documents?.forEach { documentSnapshot ->
-                        if (courseIds.isNotEmpty() && courseIds.contains(documentSnapshot.id)) {
+                        if (courseIds.contains(documentSnapshot.id)) {
                             val course = getCourseFromFirestoreDocument(documentSnapshot)
-//                            if (!course.pendingStatus) {
-                            courseList.add(course)
-//                            }
+                            if (!course.pendingStatus) {
+                                courseList.add(course)
+                            }
                         } else {
                             Log.d(TAG, "getCourseList: User have no course")
                         }
@@ -168,6 +163,40 @@ class CourseRepositoryImpl @Inject constructor(
             }
         }.catch {
             Log.d(TAG, "getCourseList: $it")
+        }
+
+    override fun getPendingCourseList(courseIds: List<String>): Flow<List<Course>> =
+        callbackFlow {
+
+
+            val snapshotListener = coursesCollection
+                .addSnapshotListener { value, error ->
+
+                    val courseList = mutableListOf<Course>()
+                    value?.documents?.forEach { documentSnapshot ->
+                        if (courseIds.contains(documentSnapshot.id)) {
+                            val course = getCourseFromFirestoreDocument(documentSnapshot)
+                            if (course.pendingStatus) {
+                                courseList.add(course)
+                            }
+                        } else {
+                            Log.d(TAG, "getPendingCourseList: User have no course")
+                        }
+
+                        trySend(courseList).isSuccess
+                    }
+
+                    error?.let {
+                        Log.d(TAG, "getPendingCourseList: ${it.localizedMessage}")
+                        return@addSnapshotListener
+                    }
+                }
+
+            awaitClose {
+                snapshotListener.remove()
+            }
+        }.catch {
+            Log.d(TAG, "getPendingCourseList: $it")
         }
 
     override fun getClassDetailsList(courseId: String): Flow<List<ClassDetails>> =
@@ -267,20 +296,6 @@ class CourseRepositoryImpl @Inject constructor(
 
     }.catch { Log.d(TAG, "deleteCourse: $it") }
 
-
-    private suspend fun deleteDocument(docRef: DocumentReference): Boolean {
-
-        var isSuccessful = false
-
-        docRef.delete().addOnCompleteListener {
-            isSuccessful = it.isSuccessful
-        }.await()
-
-        return isSuccessful
-
-    }
-
-
     override fun updateClass(details: ClassDetails): Flow<DataState<ClassDetails>> = flow {
         emit(DataState.Loading)
 
@@ -304,6 +319,46 @@ class CourseRepositoryImpl @Inject constructor(
         Log.d(TAG, "updateClass: $it")
     }
 
+    override fun deleteClass(classDetails: ClassDetails): Flow<DataState<ClassDetails>> = flow {
+        emit(DataState.Loading)
+
+        var isSuccessful = false
+
+        val courseId = "${classDetails.classDepartment}:${classDetails.classCourseCode}"
+        val courseRef = coursesCollection.document(courseId)
+
+        isSuccessful = getAndUpdateArrayToFirebaseByDelete(courseRef, COURSE_CLASSES, classDetails.classNo.toString())
+
+        if (!isSuccessful) {
+            emit(DataState.Error("Unable to delete class from course"))
+            Log.d(TAG, "deleteClass: Unable to delete class from course")
+            return@flow
+        }
+
+        val classId = "$courseId:${classDetails.classNo}"
+        val classRef = classesCollection.document(classId)
+        isSuccessful = deleteDocument(classRef)
+
+        if (!isSuccessful) {
+            Log.d(TAG, "deleteClass: Unable to delete course")
+            emit(DataState.Error("Unable to delete course"))
+            return@flow
+        }
+
+        emit(DataState.Success(classDetails))
+    }
+
+    private suspend fun deleteDocument(docRef: DocumentReference): Boolean {
+
+        var isSuccessful = false
+
+        docRef.delete().addOnCompleteListener {
+            isSuccessful = it.isSuccessful
+        }.await()
+
+        return isSuccessful
+
+    }
 
     private suspend fun searchForExistence(
         courseRef: DocumentReference,

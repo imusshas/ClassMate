@@ -29,7 +29,7 @@ import com.nasiat_muhib.classmate.core.Constants.SEMESTERS
 import com.nasiat_muhib.classmate.domain.event.CreateCourseUIEvent
 import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateCourseTopBar
 import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateCourseViewModel
-import com.nasiat_muhib.classmate.presentation.main.create_semester.components.EditClassDetails
+import com.nasiat_muhib.classmate.presentation.main.create_semester.components.DisplayClassDetails
 import com.nasiat_muhib.classmate.strings.COURSE_CODE_LABEL
 import com.nasiat_muhib.classmate.strings.COURSE_CREDIT_LABEL
 import com.nasiat_muhib.classmate.strings.COURSE_TITLE_LABEL
@@ -167,7 +167,7 @@ fun CreateCourse(
             }
             
             classDetailsList.forEach { 
-                EditClassDetails(classDetails = it, createCourseViewModel = createCourseViewModel)
+                DisplayClassDetails(classDetails = it, createCourseViewModel = createCourseViewModel)
             }
         }
     }

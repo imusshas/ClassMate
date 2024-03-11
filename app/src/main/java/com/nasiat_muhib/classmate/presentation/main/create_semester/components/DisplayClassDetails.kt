@@ -1,9 +1,6 @@
 package com.nasiat_muhib.classmate.presentation.main.create_semester.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,8 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -36,17 +31,15 @@ import com.nasiat_muhib.classmate.ui.theme.LargeHeight
 import com.nasiat_muhib.classmate.ui.theme.LargeRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
-import com.nasiat_muhib.classmate.ui.theme.SmallHeight
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 import com.nasiat_muhib.classmate.ui.theme.SomeStyle
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 
 @Composable
-fun EditClassDetails(
+fun DisplayClassDetails(
     classDetails: ClassDetails,
     createCourseViewModel: CreateCourseViewModel,
-    animationDuration: Int = 500
 ) {
 
     val isVisible = rememberSaveable { mutableStateOf(true) }
@@ -79,7 +72,7 @@ fun EditClassDetails(
             .height(NormalHeight)
             .padding(horizontal = MediumSpace),
     ) {
-        AnimatedVisibility(visible = isVisible.value,) {
+        AnimatedVisibility(visible = isVisible.value) {
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxSize(),

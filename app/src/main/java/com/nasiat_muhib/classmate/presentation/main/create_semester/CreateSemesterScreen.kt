@@ -1,7 +1,6 @@
 package com.nasiat_muhib.classmate.presentation.main.create_semester
 
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -11,7 +10,7 @@ import com.nasiat_muhib.classmate.components.ErrorScreen
 import com.nasiat_muhib.classmate.components.LoadingScreen
 import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateSemesterContent
-//import com.nasiat_muhib.classmate.strings.TAG
+
 
 @Composable
 fun CreateSemesterScreen(
@@ -27,6 +26,7 @@ fun CreateSemesterScreen(
         is DataState.Success ->  {
             userState.data?.let {
                 createSemesterViewModel.getCourses(it.courses)
+                createSemesterViewModel.getPendingCourses(it.courses)
                 CreateSemesterContent(
                     createSemesterViewModel = createSemesterViewModel,
                 )
