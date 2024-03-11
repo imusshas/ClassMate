@@ -24,6 +24,7 @@ import com.nasiat_muhib.classmate.components.CustomDropDownMenu
 import com.nasiat_muhib.classmate.components.CustomOutlinedField
 import com.nasiat_muhib.classmate.components.CustomTimePicker
 import com.nasiat_muhib.classmate.core.Constants.WEEK_DAYS
+import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.domain.event.CreateClassUIEvent
 import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateCourseViewModel
 import com.nasiat_muhib.classmate.strings.CANCEL_BUTTON
@@ -169,5 +170,5 @@ fun CreateClass(
 @Composable
 @Preview(showBackground = true)
 fun CreateClassPreview() {
-    CreateClass(hiltViewModel())
+//    CreateClass(hiltViewModel())
 }

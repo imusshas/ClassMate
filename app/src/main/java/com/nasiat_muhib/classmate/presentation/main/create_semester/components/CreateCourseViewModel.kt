@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.presentation.main.create_semester.components
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nasiat_muhib.classmate.data.model.ClassDetails
@@ -63,36 +64,6 @@ class CreateCourseViewModel @Inject constructor(
     private val userState = _userState.asStateFlow()
 
 
-
-
-    // Edit Course UI State
-//    private val _editCourseUIState = MutableStateFlow(CreateCourseUIState())
-//    private val editCourseUIState = _editCourseUIState.asStateFlow()
-//
-//    // Edit Class Details UI State
-//    private val _editClassUIState = MutableStateFlow(CreateClassUIState())
-//    private val editClassUIState = _editClassUIState.asStateFlow()
-//
-//    // Edit Class Details List Data
-//    private val _editClassDetailsListData = MutableStateFlow<MutableSet<ClassDetails>>(mutableSetOf())
-//    private val editClassDetailsListData = _editClassDetailsListData.asStateFlow()
-//
-//    // Edit Class Details Dialog State
-//    private val _editClassDialogState = MutableStateFlow(false)
-//    private val editClassDialogState = _editClassDialogState.asStateFlow()
-//
-//
-//    // Edit Course Validation
-//    private val _allEditCourseValidationPassed = MutableStateFlow(false)
-//    private val  allEditValidationPassed = _allEditCourseValidationPassed.asStateFlow()
-//
-//    // Edit Class Validation
-//    private val _allEditClassValidationPassed = MutableStateFlow(false)
-//    private val allEditClassDetailsValidationPassed = _allEditClassValidationPassed.asStateFlow()
-//
-//    // Edit Class Details List Data Validation
-//    private val _editClassDetailsListDataValidationPassed = MutableStateFlow(false)
-//    private val editClassDetailsListDataValidationPassed = _editClassDetailsListDataValidationPassed.asStateFlow()
 
     init {
         val currentUser = userRepo.currentUser
@@ -170,6 +141,11 @@ class CreateCourseViewModel @Inject constructor(
             is CreateCourseUIEvent.CreateClick -> {
                 onCreate()
             }
+
+            is CreateCourseUIEvent.ClassDetailsDeleteSwipe -> {
+                _createClassDetailsDataList.value.remove(event.classDetails)
+                Log.d(TAG, "onCreateCourse: ${createClassDetailsDataList.value}")
+            }
         }
     }
 
@@ -187,7 +163,7 @@ class CreateCourseViewModel @Inject constructor(
             userState.value.data?.let { user ->
                 val courseClasses = mutableListOf<String>()
                 createClassDetailsDataList.value.forEachIndexed { index, _ ->
-                    courseClasses.add("class${index + 1}")
+                    courseClasses.add("$index")
                 }
                 val course = Course(
                     courseCreator = user.email,
@@ -202,7 +178,12 @@ class CreateCourseViewModel @Inject constructor(
 //                Log.d(TAG, "onCreate: $course")
                 courseRepo.createCourse(course, createClassDetailsDataList.value).collectLatest {
 //                    Log.d(TAG, "onCreate: courseRepo: course: ${it.first.data}")
+//                    Log.d(TAG, "onCreate: courseRepo: classes: ${it.second.data}")
                 }
+
+                _createClassDetailsDataList.value.clear()
+                _createCourseUIState.value = CreateCourseUIState()
+                _createClassUIState.value = CreateClassUIState()
 
                 ClassMateAppRouter.navigateTo(Screen.CreateSemesterScreen)
             }
@@ -328,12 +309,8 @@ class CreateCourseViewModel @Inject constructor(
             }
 
             CreateClassUIEvent.CreateButtonClick -> {
-                validateCreateClassUIDataWithRules()
 //                Log.d(TAG, "onCreateClass: ${createClassUIState.value}")
                 createClass()
-                if(allCreateClassValidationPassed.value) {
-                    _createClassDialogState.value = false
-                }
             }
         }
     }
@@ -354,7 +331,9 @@ class CreateCourseViewModel @Inject constructor(
                 endMinute = _createClassUIState.value.endMinute,
                 endShift = _createClassUIState.value.endShift,
             )
+            
             _createClassDetailsDataList.value.add(details)
+//            Log.d(TAG, "createClass: ${createClassDetailsDataList.value}")
         }
     }
 

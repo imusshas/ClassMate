@@ -23,24 +23,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nasiat_muhib.classmate.components.SwipeToDeleteOrEditContainer
+import com.nasiat_muhib.classmate.components.SwipeToDeleteContainer
 import com.nasiat_muhib.classmate.components.TitleContainer
-import com.nasiat_muhib.classmate.data.model.Course
-import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.CreateSemesterUIEvent
-import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
-import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
 import com.nasiat_muhib.classmate.presentation.main.create_semester.CreateSemesterViewModel
 import com.nasiat_muhib.classmate.strings.ADD_ICON
-import com.nasiat_muhib.classmate.strings.CLASS_REPRESENTATIVE
 import com.nasiat_muhib.classmate.strings.CREATED_COURSES
-import com.nasiat_muhib.classmate.strings.STUDENT
-import com.nasiat_muhib.classmate.ui.theme.ExtraSmallSpace
 import com.nasiat_muhib.classmate.ui.theme.LargeRounded
-import com.nasiat_muhib.classmate.ui.theme.MediumRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
@@ -50,7 +41,7 @@ fun CreateSemesterContent(
     createSemesterViewModel: CreateSemesterViewModel,
 ) {
 
-    val course by createSemesterViewModel.courses.collectAsState()
+    val courses by createSemesterViewModel.courses.collectAsState()
 
     Scaffold(
         topBar = { ClassMateTabRow(tab = TabItem.CreateSemester) },
@@ -76,34 +67,32 @@ fun CreateSemesterContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = paddingValues.calculateTopPadding() + MediumSpace),
-            verticalArrangement = Arrangement.spacedBy(MediumSpace),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             // TODO: Add Routine
             // TODO: Add Already Created Courses
-            TitleContainer(title = CREATED_COURSES)
+
 
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(MediumSpace),
+                verticalArrangement = Arrangement.spacedBy(SmallSpace),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(items = course) {item ->
-                    SwipeToDeleteOrEditContainer(
+                item {
+                    TitleContainer(title = CREATED_COURSES)
+                }
+                items(items = courses) { item ->
+                    SwipeToDeleteContainer(
                         item = item,
                         onDelete = {
-
+                                   createSemesterViewModel.onCreateSemesterEvent(CreateSemesterUIEvent.DeleteCourseSwipe(item))
                         },
-                        onEdit = {
-
-                        }
                     ) { currentCourse ->
                         ElevatedCard(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(NormalHeight)
-                                .padding(horizontal = MediumSpace),
+                                .height(NormalHeight),
                             shape = LargeRounded
                         ) {
                             Row (

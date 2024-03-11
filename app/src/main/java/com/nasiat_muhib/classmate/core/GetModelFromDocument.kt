@@ -10,6 +10,7 @@ import com.nasiat_muhib.classmate.strings.CLASS_COURSE_CODE
 import com.nasiat_muhib.classmate.strings.CLASS_DEPARTMENT
 import com.nasiat_muhib.classmate.strings.CLASS_NO
 import com.nasiat_muhib.classmate.strings.COURSES
+import com.nasiat_muhib.classmate.strings.COURSE_CLASSES
 import com.nasiat_muhib.classmate.strings.COURSE_CODE
 import com.nasiat_muhib.classmate.strings.COURSE_CREATOR
 import com.nasiat_muhib.classmate.strings.COURSE_CREDIT
@@ -95,6 +96,8 @@ object GetModelFromDocument {
             if (snapshot[COURSE_TEACHER] != null) snapshot[COURSE_TEACHER] as String else ""
         val pendingStatus: Boolean =
             if (snapshot[PENDING_STATUS] != null) snapshot[PENDING_STATUS] as Boolean else true
+        val courseClasses: List<String> =
+            if (snapshot[COURSE_CLASSES] != null) snapshot[COURSE_CLASSES] as List<String> else emptyList()
 
 //        val course = Course(
 //            courseCreator = courseCreator,
@@ -115,6 +118,7 @@ object GetModelFromDocument {
             courseCode = courseCode,
             courseTitle = courseTitle,
             courseCredit = courseCredit,
+            courseClasses = courseClasses,
             courseTeacher = courseTeacher,
             pendingStatus = pendingStatus
         )

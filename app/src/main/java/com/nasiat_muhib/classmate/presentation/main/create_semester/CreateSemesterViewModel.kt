@@ -15,11 +15,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.log
 
 @HiltViewModel
 class CreateSemesterViewModel @Inject constructor(
@@ -34,15 +32,19 @@ class CreateSemesterViewModel @Inject constructor(
     private val _courses = MutableStateFlow<List<Course>>(listOf())
     val courses = _courses.asStateFlow()
 
-    fun onCreateSemesterEvent(createSemester: CreateSemesterUIEvent) {
+    fun onCreateSemesterEvent(event: CreateSemesterUIEvent) {
 
-        when (createSemester) {
+        when (event) {
             CreateSemesterUIEvent.CreateSemesterFABClick -> {
                 ClassMateAppRouter.navigateTo(Screen.CreateCourse)
             }
 
             is CreateSemesterUIEvent.EditCourseUIEvent -> {
 
+            }
+
+            is CreateSemesterUIEvent.DeleteCourseSwipe -> {
+                deleteCourse(event.course)
             }
         }
 
@@ -75,6 +77,14 @@ class CreateSemesterViewModel @Inject constructor(
                 Log.d(TAG, "getCourses: ${e.localizedMessage}")
             }
         }
+    }
+
+    private fun deleteCourse(course: Course) = viewModelScope.launch {
+        courseRepo
+            .deleteCourse(course)
+            .collectLatest {
+
+            }
     }
 
     private fun validateAllStates() {

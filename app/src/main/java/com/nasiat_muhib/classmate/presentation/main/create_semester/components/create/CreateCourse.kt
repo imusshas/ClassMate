@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -46,13 +44,14 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
 @Composable
 fun CreateCourse(
-    createCourseViewModel: CreateCourseViewModel = viewModel()
+    createCourseViewModel: CreateCourseViewModel = viewModel(),
 ) {
 
     val createCourseUIState by createCourseViewModel.createCourseUIState.collectAsState()
+    val createClassDialogState by createCourseViewModel.createCourseDialogState.collectAsState()
     val classDetailsList by createCourseViewModel.createClassDetailsDataList.collectAsState()
 
-    val createClassDialogState by createCourseViewModel.createCourseDialogState.collectAsState()
+
 
     Column(
         modifier = Modifier
@@ -76,18 +75,27 @@ fun CreateCourse(
         CustomOutlinedField(
             value = createCourseUIState.courseTitle,
             labelValue = COURSE_TITLE_LABEL,
-            onValueChange = {courseTitle ->
-                createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CourseTitleChanged(courseTitle))},
+            onValueChange = { courseTitle ->
+                createCourseViewModel.onCreateCourse(
+                    CreateCourseUIEvent.CourseTitleChanged(
+                        courseTitle
+                    )
+                )
+            },
             errorMessage = createCourseUIState.courseTitleError
         )
-        Row (
+        Row(
             modifier = Modifier.fillMaxWidth()
         ) {
             CustomOutlinedField(
                 value = createCourseUIState.courseCredit.toString(),
                 labelValue = COURSE_CREDIT_LABEL,
                 onValueChange = { courseCredit ->
-                    createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CourseCreditChanged(courseCredit))
+                    createCourseViewModel.onCreateCourse(
+                        CreateCourseUIEvent.CourseCreditChanged(
+                            courseCredit
+                        )
+                    )
                 },
                 errorMessage = createCourseUIState.courseCreditError,
                 modifier = Modifier
@@ -107,7 +115,11 @@ fun CreateCourse(
             CustomDropDownMenu(
                 itemList = SEMESTERS,
                 onItemChange = { semester ->
-                    createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CourseSemesterChanged(semester))
+                    createCourseViewModel.onCreateCourse(
+                        CreateCourseUIEvent.CourseSemesterChanged(
+                            semester
+                        )
+                    )
                 }
             )
         }
@@ -153,20 +165,11 @@ fun CreateCourse(
                     color = MaterialTheme.colorScheme.error
                 )
             }
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = MediumSpace)
-            ) {
-                items(
-                    items = classDetailsList.toList()
-                ) {
-
-                }
-            }
-            classDetailsList.forEach {details ->
-                EditClassDetails(classDetails = details)
+            
+            classDetailsList.forEach { 
+                EditClassDetails(classDetails = it, createCourseViewModel = createCourseViewModel)
             }
         }
-
     }
 }
 

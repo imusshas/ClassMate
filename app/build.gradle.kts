@@ -118,4 +118,7 @@ dependencies {
     // Constraint Layout
 //    implementation("androidx.constraintlayout:constraintlayout-compose-android:1.1.0-alpha13")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+
+    // Swipe Action
+    implementation ("me.saket.swipe:swipe:1.3.0")
 }

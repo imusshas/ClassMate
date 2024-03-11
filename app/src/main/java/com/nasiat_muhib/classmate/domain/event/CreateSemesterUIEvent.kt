@@ -10,4 +10,6 @@ sealed class CreateSemesterUIEvent {
         val course: Course,
         val classDetailsList: List<ClassDetails>
     ): CreateSemesterUIEvent()
+
+    class DeleteCourseSwipe(val course: Course) : CreateSemesterUIEvent()
 }

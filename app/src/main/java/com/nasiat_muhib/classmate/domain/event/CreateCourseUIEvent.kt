@@ -1,5 +1,7 @@
 package com.nasiat_muhib.classmate.domain.event
 
+import com.nasiat_muhib.classmate.data.model.ClassDetails
+
 sealed class CreateCourseUIEvent {
 
     data class CourseCodeChanged(val courseCode: String): CreateCourseUIEvent()
@@ -15,6 +17,8 @@ sealed class CreateCourseUIEvent {
     data class SearchUIRequestButtonClick(
         val courseTeacherEmail: String
     ): CreateCourseUIEvent()
+
+    data class ClassDetailsDeleteSwipe(val classDetails: ClassDetails): CreateCourseUIEvent()
 
     data object CreateClick : CreateCourseUIEvent()
 }

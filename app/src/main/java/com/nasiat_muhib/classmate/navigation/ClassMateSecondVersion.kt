@@ -12,7 +12,6 @@ import com.nasiat_muhib.classmate.presentation.auth.sign_up.SignUpScreen
 import com.nasiat_muhib.classmate.presentation.main.create_semester.CreateSemesterScreen
 import com.nasiat_muhib.classmate.presentation.main.create_semester.components.create.CreateCourse
 import com.nasiat_muhib.classmate.presentation.main.create_semester.components.create.SearchTeacherScreen
-import com.nasiat_muhib.classmate.presentation.main.create_semester.components.edit.EditCourse
 import com.nasiat_muhib.classmate.presentation.main.enroll_course.EnrollCourseScreen
 import com.nasiat_muhib.classmate.presentation.main.home.HomeScreen
 
@@ -61,7 +60,7 @@ fun ClassMateSecondVersion() {
                 }
 
                 is Screen.EditCourse -> {
-                    EditCourse(course = (it.value as Screen.EditCourse).course)
+
                 }
 
                 is Screen.EditSearchTeacher -> {
