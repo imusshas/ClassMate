@@ -128,14 +128,14 @@ class CourseRepositoryImpl @Inject constructor(
         Log.d(TAG, "createCourse: ${it.localizedMessage}")
     }
 
-    override fun getCourseList(courseIds: List<String>): Flow<List<Course>> = callbackFlow {
+    override fun getRequestedCourses(courseIds: List<String>): Flow<List<Course>> = callbackFlow {
 
         val snapshotListener = coursesCollection.addSnapshotListener { value, error ->
             val pendingCourses = mutableListOf<Course>()
             value?.documents?.forEach { document ->
                 courseIds.forEach {
                     val course = getCourseFromFirestoreDocument(document)
-                    if (!course.pendingStatus && document.id.contains(it)) {
+                    if (course.pendingStatus && document.id.contains(it)) {
                         pendingCourses.add(course)
                     }
                 }
@@ -202,6 +202,36 @@ class CourseRepositoryImpl @Inject constructor(
                 trySend(pendingCourses).isSuccess
             }
             
+            if (error != null) {
+                Log.d(TAG, "getPendingCourseList: ${error.localizedMessage}")
+            }
+        }
+
+        awaitClose {
+            snapshotListener.remove()
+        }
+
+    }.catch {
+//        Log.d(TAG, "getPendingCourseList: $it")
+    }
+
+    override fun getCourses(courseIds: List<String>): Flow<List<Course>> = callbackFlow {
+//        Log.d(TAG, "getPendingCourseList: $courseIds")
+        val snapshotListener = coursesCollection.addSnapshotListener { value, error ->
+            val courses = mutableListOf<Course>()
+            value?.documents?.forEach { document ->
+//                Log.d(TAG, "getPendingCourseList: ${document.data}")
+                courseIds.forEach {
+//                    Log.d(TAG, "getPendingCourseList: $it, ${document.id}")
+                    val course = getCourseFromFirestoreDocument(document)
+                    if (!course.pendingStatus && document.id.contains(it)) {
+                        courses.add(course)
+//                        Log.d(TAG, "getPendingCourseList: true")
+                    }
+                }
+                trySend(courses).isSuccess
+            }
+
             if (error != null) {
                 Log.d(TAG, "getPendingCourseList: ${error.localizedMessage}")
             }

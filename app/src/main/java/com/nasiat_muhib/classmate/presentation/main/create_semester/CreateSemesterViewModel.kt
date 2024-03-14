@@ -35,6 +35,9 @@ class CreateSemesterViewModel @Inject constructor(
     private val _pendingCourses = MutableStateFlow<List<Course>>(listOf())
     val pendingCourses = _pendingCourses.asStateFlow()
 
+    private val _courses = MutableStateFlow<List<Course>>(listOf())
+    val courses = _courses.asStateFlow()
+
     fun onCreateSemesterEvent(event: CreateSemesterUIEvent) {
 
         when (event) {
@@ -64,25 +67,6 @@ class CreateSemesterViewModel @Inject constructor(
         userRepo.getUser(email).collect {
             _userState.value = it
         }
-    }
-
-    fun getCourses(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
-
-            try {
-                courseRepo.getCourseList(courseIds).collectLatest {course ->
-                    val created = mutableListOf<Course>()
-                    course.forEach {
-                        Log.d(TAG, "getCourses: $it")
-                        if (it.courseCreator == userState.value.data?.email) {
-                            created.add(it)
-                        }
-                    }
-//                    _createdCourses.value = created
-                }
-            } catch (e: Exception) {
-                Log.d(TAG, "getCourses: ${e.localizedMessage}")
-            }
-
     }
 
     fun getPendingCourses(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {

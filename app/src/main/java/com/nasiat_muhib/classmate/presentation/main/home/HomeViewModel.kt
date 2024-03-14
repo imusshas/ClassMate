@@ -1,9 +1,7 @@
 package com.nasiat_muhib.classmate.presentation.main.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.type.DateTime
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
@@ -17,8 +15,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Locale
@@ -74,14 +70,14 @@ class HomeViewModel @Inject constructor(
 
 
     fun getCourseList(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
-        courseRepo.getCourseList(courseIds).collectLatest {
+        courseRepo.getCourses(courseIds).collectLatest {
             _courses.value = it
         }
     }
 
 
     fun getRequestedCourseList(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
-        courseRepo.getCourseList(courseIds).collectLatest {
+        courseRepo.getRequestedCourses(courseIds).collectLatest {
             _requestedCourses.value = it
         }
     }
@@ -128,13 +124,13 @@ class HomeViewModel @Inject constructor(
         _tomorrowClasses.value = tomorrowClassList
     }
 
-    fun deleteRequest(course: Course) = viewModelScope.launch {
+    private fun deleteRequest(course: Course) = viewModelScope.launch {
         courseRepo.deleteCourse(course).collectLatest {
 
         }
     }
 
-    fun acceptCourse (course: Course) = viewModelScope.launch {
+    private fun acceptCourse (course: Course) = viewModelScope.launch {
         courseRepo.acceptCourse(course).collectLatest {
 
         }

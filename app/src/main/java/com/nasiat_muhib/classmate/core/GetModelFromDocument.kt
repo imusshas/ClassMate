@@ -97,7 +97,7 @@ object GetModelFromDocument {
         val pendingStatus: Boolean =
             if (snapshot[PENDING_STATUS] != null) snapshot[PENDING_STATUS] as Boolean else true
         val courseClasses: List<String> =
-            if (snapshot[COURSE_CLASSES] != null) snapshot[COURSE_CLASSES] as List<String> else emptyList()
+            if (snapshot[COURSE_CLASSES] != null && snapshot[COURSE_CLASSES] is List<*>) snapshot[COURSE_CLASSES] as List<String> else emptyList()
 
 //        val course = Course(
 //            courseCreator = courseCreator,

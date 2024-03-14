@@ -20,11 +20,10 @@ class SearchRepositoryImpl @Inject constructor(
     private val firestoreRef: FirebaseFirestore
 ): SearchRepository {
     override fun getAllTeachers(): Flow<Set<User>> = callbackFlow {
-        
-        val teachers = mutableSetOf<User>()
 
         val snapshotListener = firestoreRef.collection(USERS_COLLECTION)
             .addSnapshotListener { value, error ->
+                val teachers = mutableSetOf<User>()
                 if (value != null) {
                     value.documents.forEach {
                         val user = getUserFromFirestoreDocument(it)
@@ -52,10 +51,11 @@ class SearchRepositoryImpl @Inject constructor(
     
     
     override fun getAllCourses(): Flow<Set<Course>> = callbackFlow{
-        val courses = mutableSetOf<Course>()
+
         
         val snapshotListener = firestoreRef.collection(COURSES_COLLECTION)
             .addSnapshotListener { value, error ->
+                val courses = mutableSetOf<Course>()
                 if (value != null) {
                     value.documents.forEach {
                         val course = getCourseFromFirestoreDocument(it)
