@@ -11,5 +11,7 @@ sealed class CreateSemesterUIEvent {
         val classDetailsList: List<ClassDetails>
     ): CreateSemesterUIEvent()
 
-    class DeleteCourseSwipe(val course: Course) : CreateSemesterUIEvent()
+    data class DeleteCourseSwipe(val course: Course) : CreateSemesterUIEvent()
+
+    data class DisplayCourseSwipe(val course: Course): CreateSemesterUIEvent()
 }

@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import com.nasiat_muhib.classmate.presentation.auth.forgot_password.ForgotPasswordScreen
 import com.nasiat_muhib.classmate.presentation.auth.sign_in.SignInScreen
 import com.nasiat_muhib.classmate.presentation.auth.sign_up.SignUpScreen
+import com.nasiat_muhib.classmate.presentation.main.components.display_course.CourseDetailsDisplay
 import com.nasiat_muhib.classmate.presentation.main.create_semester.CreateSemesterScreen
 import com.nasiat_muhib.classmate.presentation.main.create_semester.components.create.CreateCourse
 import com.nasiat_muhib.classmate.presentation.main.create_semester.components.create.SearchTeacherScreen
@@ -65,6 +66,10 @@ fun ClassMateSecondVersion() {
 
                 is Screen.EditSearchTeacher -> {
 
+                }
+
+                is Screen.CourseDetailsDisplay -> {
+                    CourseDetailsDisplay(course = (it.value as Screen.CourseDetailsDisplay).course)
                 }
             }
         }

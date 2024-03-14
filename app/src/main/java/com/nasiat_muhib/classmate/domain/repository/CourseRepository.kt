@@ -19,7 +19,7 @@ interface CourseRepository {
     fun updateCourse(): Flow<DataState<Course>>
     fun acceptCourse(course: Course): Flow<DataState<Course>>
     fun deleteCourse(course: Course): Flow<DataState<Course>>
-    fun updateClass(details: ClassDetails): Flow<DataState<ClassDetails>>
+    fun updateClassStatus(details: ClassDetails): Flow<DataState<ClassDetails>>
 
     fun deleteClass(classDetails: ClassDetails): Flow<DataState<ClassDetails>>
 

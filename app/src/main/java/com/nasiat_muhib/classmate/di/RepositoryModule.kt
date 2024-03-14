@@ -3,11 +3,15 @@ package com.nasiat_muhib.classmate.di
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.nasiat_muhib.classmate.data.repository.AuthenticationRepositoryImpl
+import com.nasiat_muhib.classmate.data.repository.ClassDetailsRepositoryImpl
 import com.nasiat_muhib.classmate.data.repository.CourseRepositoryImpl
+import com.nasiat_muhib.classmate.data.repository.EventRepositoryImpl
 import com.nasiat_muhib.classmate.data.repository.UserRepositoryImpl
 import com.nasiat_muhib.classmate.domain.repository.AuthenticationRepository
 import com.nasiat_muhib.classmate.data.repository.SearchRepositoryImpl
+import com.nasiat_muhib.classmate.domain.repository.ClassDetailsRepository
 import com.nasiat_muhib.classmate.domain.repository.CourseRepository
+import com.nasiat_muhib.classmate.domain.repository.EventRepository
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import com.nasiat_muhib.classmate.domain.repository.SearchRepository
 import dagger.Module
@@ -44,8 +48,20 @@ class RepositoryModule {
 
     @Provides
     @Singleton
-
     fun providesCourseRepository (
         firestoreRef: FirebaseFirestore
     ): CourseRepository = CourseRepositoryImpl (firestoreRef)
+
+    @Provides
+    @Singleton
+    fun providesEventRepository (
+        firestoreRef: FirebaseFirestore
+    ): EventRepository = EventRepositoryImpl(firestoreRef)
+
+
+    @Provides
+    @Singleton
+    fun providesClassDetailsRepository (
+        firestoreRef: FirebaseFirestore
+    ): ClassDetailsRepository = ClassDetailsRepositoryImpl (firestoreRef)
 }

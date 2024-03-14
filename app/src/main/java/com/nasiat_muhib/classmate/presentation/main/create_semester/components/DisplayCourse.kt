@@ -44,7 +44,7 @@ fun DisplayCourse(
 
     val display = SwipeAction(
         onSwipe = {
-            createSemesterViewModel.onCreateSemesterEvent(CreateSemesterUIEvent.DeleteCourseSwipe(course))
+            createSemesterViewModel.onCreateSemesterEvent(CreateSemesterUIEvent.DisplayCourseSwipe(course))
         },
         icon = {
             Icon(

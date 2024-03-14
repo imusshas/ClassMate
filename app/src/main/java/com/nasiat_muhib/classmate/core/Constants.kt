@@ -37,4 +37,6 @@ object Constants {
         FOURTH_YEAR_FIRST_SEMESTER,
         FOURTH_YEAR_SECOND_SEMESTER
     )
+
+    val EVENTS = listOf("Term Test", "Assignment")
 }

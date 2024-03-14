@@ -51,9 +51,28 @@ class CourseRepositoryImpl @Inject constructor(
         val courseId = "${course.courseDepartment}:${course.courseCode}"
 
         // Send course Delete request
-        if (!searchForExistenceAndSendRequest(courseId)) {
-            emit(Pair(DataState.Error("Course is already created"), DataState.Error("Course is already created")))
-            return@flow
+        coursesCollection.document(courseId).get().addOnSuccessListener { courseSnapshot ->
+            if (courseSnapshot.exists() && courseSnapshot != null) {
+                val creatorEmail = courseSnapshot[COURSE_CREATOR].toString()
+                usersCollection.document(creatorEmail).get().addOnSuccessListener { creator ->
+                    if (creator.exists() && creator != null) {
+                        val requestedCourses = if (creator[REQUESTED_COURSES] == null) mutableListOf() else creator[REQUESTED_COURSES] as MutableList<String>
+                        requestedCourses.add(courseId)
+                        usersCollection.document(creatorEmail).update(REQUESTED_COURSES,requestedCourses).addOnFailureListener {
+                            Log.d(TAG, "searchForExistenceAndSendRequest: request update: ${it.localizedMessage}")
+                        }.addOnFailureListener {
+//                            Log.d(TAG, "createCourse: ${it.localizedMessage}")
+                            Log.d(TAG, "searchForExistenceAndSendRequest: ${it.localizedMessage}")
+                        }
+                    }
+                }.addOnFailureListener {
+                    Log.d(TAG, "createCourse: ${it.localizedMessage}")
+                    return@addOnFailureListener
+                }
+            }
+        }.addOnFailureListener {
+//            Log.d(TAG, "createCourse: ${it.localizedMessage}")
+            return@addOnFailureListener
         }
 
 
@@ -112,37 +131,8 @@ class CourseRepositoryImpl @Inject constructor(
         Log.d(TAG, "createCourse: ${it.localizedMessage}")
     }
 
-    private suspend fun searchForExistenceAndSendRequest(courseId: String): Boolean {
-        var isSuccessful = false
 
-        coursesCollection.document(courseId).get().addOnSuccessListener { courseSnapshot ->
-            if (courseSnapshot.exists() && courseSnapshot != null) {
-                val creatorEmail = courseSnapshot[COURSE_CREATOR].toString()
-                usersCollection.document(creatorEmail).get().addOnSuccessListener { creator ->
-                    if (creator.exists() && creator != null) {
-                        val requestedCourses = if (creator[REQUESTED_COURSES] == null) mutableListOf() else creator[REQUESTED_COURSES] as MutableList<String>
-                        requestedCourses.add(courseId)
-                        usersCollection.document(creatorEmail).update(REQUESTED_COURSES,requestedCourses).addOnCompleteListener {
-                            isSuccessful = it.isSuccessful
-                        }.addOnFailureListener {
-                            return@addOnFailureListener
-                        }.addOnFailureListener {
-//                            Log.d(TAG, "createCourse: ${it.localizedMessage}")
-                            return@addOnFailureListener
-                        }
-                    }
-                }.addOnFailureListener {
-                    Log.d(TAG, "createCourse: ${it.localizedMessage}")
-                    return@addOnFailureListener
-                }
-            }
-        }.addOnFailureListener {
-//            Log.d(TAG, "createCourse: ${it.localizedMessage}")
-            return@addOnFailureListener
-        }.await()
 
-        return isSuccessful
-    }
 
     override fun getRequestedCourses(courseIds: List<String>): Flow<List<Course>> = callbackFlow {
 
@@ -401,7 +391,7 @@ class CourseRepositoryImpl @Inject constructor(
         Log.d(TAG, "deleteCourse: catch block: ${it.localizedMessage}")
     }
 
-    override fun updateClass(details: ClassDetails): Flow<DataState<ClassDetails>> {
+    override fun updateClassStatus(details: ClassDetails): Flow<DataState<ClassDetails>> {
         TODO("Not yet implemented")
     }
 

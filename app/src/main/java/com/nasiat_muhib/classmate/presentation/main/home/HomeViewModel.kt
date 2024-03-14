@@ -147,7 +147,7 @@ class HomeViewModel @Inject constructor(
                             val details = it.copy(
                                 isActive = event.isActive
                             )
-                            courseRepo.updateClass(details)
+                            courseRepo.updateClassStatus(details)
                         }
                     }
                 }
@@ -158,7 +158,7 @@ class HomeViewModel @Inject constructor(
                             val details = it.copy(
                                 isActive = event.isActive
                             )
-                            courseRepo.updateClass(details)
+                            courseRepo.updateClassStatus(details)
                         }
                     }
                 }

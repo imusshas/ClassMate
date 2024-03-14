@@ -22,6 +22,8 @@ sealed class Screen {
     data class EditCourse(val course: Course): Screen()
     data class EditSearchTeacher(val courseTeacherEmail: Screen) : Screen()
 
+    data class CourseDetailsDisplay(val course: Course): Screen()
+
 }
 
 object ClassMateAppRouter {

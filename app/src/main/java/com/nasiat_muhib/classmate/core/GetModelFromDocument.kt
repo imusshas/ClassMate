@@ -3,6 +3,7 @@ package com.nasiat_muhib.classmate.core
 import com.google.firebase.firestore.DocumentSnapshot
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
+import com.nasiat_muhib.classmate.data.model.Event
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.strings.BLOOD_GROUP
 import com.nasiat_muhib.classmate.strings.CLASSROOM
@@ -23,6 +24,17 @@ import com.nasiat_muhib.classmate.strings.EMAIL
 import com.nasiat_muhib.classmate.strings.END_HOUR
 import com.nasiat_muhib.classmate.strings.END_MINUTE
 import com.nasiat_muhib.classmate.strings.END_SHIFT
+import com.nasiat_muhib.classmate.strings.EVENT_CLASSROOM
+import com.nasiat_muhib.classmate.strings.EVENT_COURSE_CODE
+import com.nasiat_muhib.classmate.strings.EVENT_DAY
+import com.nasiat_muhib.classmate.strings.EVENT_DEPARTMENT
+import com.nasiat_muhib.classmate.strings.EVENT_HOUR
+import com.nasiat_muhib.classmate.strings.EVENT_MINUTE
+import com.nasiat_muhib.classmate.strings.EVENT_MONTH
+import com.nasiat_muhib.classmate.strings.EVENT_NO
+import com.nasiat_muhib.classmate.strings.EVENT_SHIFT
+import com.nasiat_muhib.classmate.strings.EVENT_TYPE
+import com.nasiat_muhib.classmate.strings.EVENT_YEAR
 import com.nasiat_muhib.classmate.strings.FIRST_NAME
 import com.nasiat_muhib.classmate.strings.LAST_NAME
 import com.nasiat_muhib.classmate.strings.PENDING_STATUS
@@ -131,34 +143,62 @@ object GetModelFromDocument {
             if (snapshot[CLASS_DEPARTMENT] != null) snapshot[CLASS_DEPARTMENT] as String else ""
         val classCourseCode: String =
             if (snapshot[CLASS_COURSE_CODE] != null) snapshot[CLASS_COURSE_CODE] as String else ""
-        val classNo: Int = if (snapshot[CLASS_NO] != null) snapshot[CLASS_NO] as Int else -1
+        val classNo: Long = if (snapshot[CLASS_NO] != null) snapshot[CLASS_NO] as Long else -1
         val weekDay: String = if (snapshot[WEEKDAY] != null) snapshot[WEEKDAY] as String else ""
         val classroom: String =
             if (snapshot[CLASSROOM] != null) snapshot[CLASSROOM] as String else ""
         val section: String = if (snapshot[SECTION] != null) snapshot[SECTION] as String else ""
-        val startHour: Int = if (snapshot[START_HOUR] != null) snapshot[START_HOUR] as Int else -1
-        val startMinute: Int =
-            if (snapshot[START_MINUTE] != null) snapshot[START_MINUTE] as Int else -1
+        val startHour: Long = if (snapshot[START_HOUR] != null) snapshot[START_HOUR] as Long else -1
+        val startMinute: Long =
+            if (snapshot[START_MINUTE] != null) snapshot[START_MINUTE] as Long else -1
         val startShift: String =
             if (snapshot[START_SHIFT] != null) snapshot[START_SHIFT] as String else ""
-        val endHour: Int = if (snapshot[END_HOUR] != null) snapshot[END_HOUR] as Int else -1
-        val endMinute: Int = if (snapshot[END_MINUTE] != null) snapshot[END_MINUTE] as Int else -1
+        val endHour: Long = if (snapshot[END_HOUR] != null) snapshot[END_HOUR] as Long else -1
+        val endMinute: Long = if (snapshot[END_MINUTE] != null) snapshot[END_MINUTE] as Long else -1
         val endShift: String =
             if (snapshot[END_SHIFT] != null) snapshot[END_SHIFT] as String else ""
 
         return ClassDetails(
             classDepartment = classDepartment,
             classCourseCode = classCourseCode,
-            classNo = classNo,
+            classNo = classNo.toInt(),
             weekDay = weekDay,
             classroom = classroom,
             section = section,
-            startHour = startHour,
-            startMinute = startMinute,
+            startHour = startHour.toInt(),
+            startMinute = startMinute.toInt(),
             startShift = startShift,
-            endHour = endHour,
-            endMinute = endMinute,
+            endHour = endHour.toInt(),
+            endMinute = endMinute.toInt(),
             endShift = endShift
+        )
+    }
+
+    fun getEventFromFirestoreDocument(snapshot: DocumentSnapshot): Event {
+        val type: String = snapshot[EVENT_TYPE].toString()
+        val eventNo: Long = if (snapshot[EVENT_NO] != null) snapshot[EVENT_NO] as Long else  -1
+        val courseCode: String = snapshot[EVENT_COURSE_CODE].toString()
+        val department: String = snapshot[EVENT_DEPARTMENT].toString()
+        val classroom: String = snapshot[EVENT_CLASSROOM].toString()
+        val day: Long = if (snapshot[EVENT_DAY] != null) snapshot[EVENT_DAY] as Long else  -1
+        val month: String = snapshot[EVENT_MONTH].toString()
+        val year: Long = if (snapshot[EVENT_YEAR] != null) snapshot[EVENT_YEAR] as Long else -1
+        val hour: Long = if (snapshot[EVENT_HOUR] != null) snapshot[EVENT_HOUR] as Long else -1
+        val minute: Long = if (snapshot[EVENT_MINUTE] != null) snapshot[EVENT_MINUTE] as Long else -1
+        val shift: String = snapshot[EVENT_SHIFT].toString()
+
+        return Event(
+            type = type,
+            eventNo = eventNo.toInt(),
+            courseCode = courseCode,
+            department = department,
+            classroom = classroom,
+            day = day.toInt(),
+            month = month,
+            year = year.toInt(),
+            hour = hour.toInt(),
+            minute = minute.toInt(),
+            shift = shift
         )
     }
 
