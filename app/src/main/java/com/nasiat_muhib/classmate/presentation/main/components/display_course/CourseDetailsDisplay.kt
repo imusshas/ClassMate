@@ -5,11 +5,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nasiat_muhib.classmate.components.ClickableTitleContainer
+import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.event.CourseDetailsDisplayUIEvent
 import com.nasiat_muhib.classmate.ui.theme.LargeSpace
@@ -22,6 +25,8 @@ fun CourseDetailsDisplay(
 ) {
 
     courseDetailsDisplayViewModel.setCurrentCourse(course)
+    courseDetailsDisplayViewModel.getClassDetailsList()
+    val classes by courseDetailsDisplayViewModel.classes.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -44,6 +49,15 @@ fun CourseDetailsDisplay(
             onTitleClick = { /*TODO*/ }
         )
 
+        CustomSwipeAbleLazyColumn(
+            items = classes,
+            key = {
+                "${it.classDepartment}:${it.classCourseCode}:${it.classNo}"
+            }
+        ) {
+            DisplayClass(classDetails = it, courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
+        }
+
         Spacer(modifier = Modifier.height(MediumSpace))
 
         ClickableTitleContainer(
@@ -57,6 +71,8 @@ fun CourseDetailsDisplay(
             title = "Assignment +",
             onTitleClick = { /*TODO*/ }
         )
+
+        Spacer(modifier = Modifier.height(MediumSpace))
 
         ClickableTitleContainer(
             title = "Resource Link +",

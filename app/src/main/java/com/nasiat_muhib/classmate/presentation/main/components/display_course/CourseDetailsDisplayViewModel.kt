@@ -11,6 +11,7 @@ import com.nasiat_muhib.classmate.domain.event.CourseDetailsDisplayUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateClassUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateTermTestUIEvent
 import com.nasiat_muhib.classmate.domain.repository.ClassDetailsRepository
+import com.nasiat_muhib.classmate.domain.repository.EventRepository
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import com.nasiat_muhib.classmate.domain.rules.CreateCourseValidator
 import com.nasiat_muhib.classmate.domain.state.CreateClassUIState
@@ -28,6 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CourseDetailsDisplayViewModel @Inject constructor(
     private val classRepo: ClassDetailsRepository,
+    private val eventRepo: EventRepository,
     private val userRepo: UserRepository,
 ) : ViewModel() {
 
@@ -104,6 +106,12 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
     fun setCurrentCourse(course: Course) {
         _currentCourse.value = course
+    }
+
+    fun getClassDetailsList() = viewModelScope.launch {
+        classRepo.getClasses("${currentCourse.value.courseDepartment}:${currentCourse.value.courseCode}").collectLatest {
+            _classes.value = it
+        }
     }
 
 
