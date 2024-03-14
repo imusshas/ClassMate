@@ -54,7 +54,7 @@ fun DisplayCourse(
                 modifier = Modifier.size(ExtraSmallHeight)
             )
         },
-        background = Color.Red
+        background = Color.Green
     )
 
     val delete = SwipeAction(
