@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class CourseRepositoryImpl @Inject constructor(
@@ -69,7 +70,7 @@ class CourseRepositoryImpl @Inject constructor(
         }.addOnFailureListener {
 //            Log.d(TAG, "createCourse: ${it.localizedMessage}")
             return@addOnFailureListener
-        }
+        }.await()
 
 
         // Send Teacher request
@@ -85,7 +86,7 @@ class CourseRepositoryImpl @Inject constructor(
         }.addOnFailureListener {
 //            Log.d(TAG, "createCourse: ${it.localizedMessage}")
             return@addOnFailureListener
-        }
+        }.await()
 
         // Update Creators Course List
         usersCollection.document(course.courseCreator).get().addOnSuccessListener { creator ->
@@ -100,7 +101,7 @@ class CourseRepositoryImpl @Inject constructor(
         }.addOnFailureListener {
 //            Log.d(TAG, "createCourse: ${it.localizedMessage}")
             return@addOnFailureListener
-        }
+        }.await()
 
         // Create Course Classes
         classDetailsSet.forEach { classDetails ->
@@ -111,14 +112,15 @@ class CourseRepositoryImpl @Inject constructor(
             classesCollection.document(classId).set(details.toMap()).addOnFailureListener {
 //                Log.d(TAG, "createCourse: ${it.localizedMessage}")
                 return@addOnFailureListener
-            }
+            }.await()
         }
+
         
         // Create Course
         coursesCollection.document(courseId).set(course.toMap()).addOnFailureListener {
 //            Log.d(TAG, "createCourse: ${it.localizedMessage}")
             return@addOnFailureListener
-        }
+        }.await()
         
         emit(Pair(DataState.Success(course), DataState.Success(classDetailsSet.toList())))
 
