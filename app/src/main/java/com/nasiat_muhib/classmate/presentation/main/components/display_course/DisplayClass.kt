@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import com.nasiat_muhib.classmate.R
 import com.nasiat_muhib.classmate.data.model.ClassDetails
+import com.nasiat_muhib.classmate.domain.event.CourseDetailsDisplayUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateCourseUIEvent
 import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateCourseViewModel
 import com.nasiat_muhib.classmate.strings.COLON
@@ -48,9 +49,7 @@ fun DisplayClass(
 
     val delete = SwipeAction(
         onSwipe = {
-//            createCourseViewModel.onCreateCourse(
-//                CreateCourseUIEvent.ClassDetailsDeleteSwipe(classDetails)
-//            )
+            courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.ClassDeleteSwipe(classDetails))
             isVisible.value = false
         },
         icon = {
