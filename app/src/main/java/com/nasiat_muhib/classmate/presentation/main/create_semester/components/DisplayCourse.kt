@@ -1,6 +1,7 @@
 package com.nasiat_muhib.classmate.presentation.main.create_semester.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,6 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.SmartDisplay
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -38,6 +42,21 @@ fun DisplayCourse(
 ) {
     val isVisible = rememberSaveable { mutableStateOf(true) }
 
+    val display = SwipeAction(
+        onSwipe = {
+            createSemesterViewModel.onCreateSemesterEvent(CreateSemesterUIEvent.DeleteCourseSwipe(course))
+        },
+        icon = {
+            Icon(
+                imageVector = Icons.Filled.SmartDisplay,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(ExtraSmallHeight)
+            )
+        },
+        background = Color.Red
+    )
+
     val delete = SwipeAction(
         onSwipe = {
             createSemesterViewModel.onCreateSemesterEvent(CreateSemesterUIEvent.DeleteCourseSwipe(course))
@@ -45,7 +64,7 @@ fun DisplayCourse(
         },
         icon = {
             Icon(
-                painter = painterResource(id = R.drawable.delete),
+                imageVector = Icons.Filled.Delete,
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(ExtraSmallHeight)
@@ -55,6 +74,7 @@ fun DisplayCourse(
     )
 
     SwipeableActionsBox(
+        startActions = listOf(display),
         endActions = listOf(delete),
         swipeThreshold = LargeHeight,
         modifier = Modifier
@@ -63,7 +83,10 @@ fun DisplayCourse(
             .height(NormalHeight)
             .padding(horizontal = MediumSpace),
     ) {
-        AnimatedVisibility(visible = isVisible.value) {
+        AnimatedVisibility(
+            visible = isVisible.value,
+            exit = shrinkHorizontally()
+        ) {
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxSize(),

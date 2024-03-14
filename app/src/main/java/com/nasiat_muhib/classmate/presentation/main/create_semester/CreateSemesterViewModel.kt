@@ -63,18 +63,15 @@ class CreateSemesterViewModel @Inject constructor(
     private fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
         userRepo.getUser(email).collect {
             _userState.value = it
-//            Log.d(TAG, "getUser: $it")
         }
     }
 
     fun getCourses(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
 
-//        Log.d(TAG, "getCourses: courseIds: $courseIds")
         if (courseIds.isNotEmpty()) {
             try {
                 courseRepo.getCourseList(courseIds).collectLatest {
                     _courses.value = it
-//                    Log.d(TAG, "getCourses: $it")
                 }
             } catch (e: Exception) {
                 Log.d(TAG, "getCourses: ${e.localizedMessage}")
@@ -83,7 +80,6 @@ class CreateSemesterViewModel @Inject constructor(
     }
 
     fun getPendingCourses(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
-        if (courseIds.isNotEmpty()) {
             try {
                 courseRepo.getPendingCourseList(courseIds).collectLatest {
                     _pendingCourses.value = it
@@ -91,7 +87,6 @@ class CreateSemesterViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.d(TAG, "getPendingCourses: ${e.localizedMessage}")
             }
-        }
     }
 
     private fun deleteCourse(course: Course) = viewModelScope.launch(Dispatchers.IO) {

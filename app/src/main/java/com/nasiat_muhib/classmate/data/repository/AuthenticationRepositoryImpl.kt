@@ -24,12 +24,8 @@ class AuthenticationRepositoryImpl @Inject constructor(
         flow {
             emit(DataState.Loading)
 
-            val response = signInToFirebase(email, password)
-            if (response) {
-                emit(DataState.Success(true))
-            } else {
-                emit(DataState.Error("Unable To Sign In"))
-            }
+            signInToFirebase(email, password)
+            emit(DataState.Success(true))
 
         }.catch {
             emit(DataState.Error("Unable To Sign In"))
@@ -40,18 +36,9 @@ class AuthenticationRepositoryImpl @Inject constructor(
         flow {
             emit(DataState.Loading)
 
-            var response = createUserToFirebase(email, user)
-            Log.d(TAG, "signUp: response for create user: $response")
-            if (response) {
-                response = signUpToFirebase(email, password)
-                if (response) {
-                    emit(DataState.Success(true))
-                } else {
-                    emit(DataState.Error("Unable To Sign Up"))
-                }
-            } else {
-                emit(DataState.Error("Unable To Create User"))
-            }
+            createUserToFirebase(email, user)
+            signUpToFirebase(email, password)
+            emit(DataState.Success(true))
 
         }.catch {
             emit(DataState.Error("Unable To Sign Up"))

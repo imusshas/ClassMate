@@ -47,7 +47,7 @@ object GetModelFromDocument {
         val bloodGroup = if (snapshot[BLOOD_GROUP] != null) snapshot[BLOOD_GROUP] as String else ""
         val phoneNo = if (snapshot[PHONE_NO] != null) snapshot[PHONE_NO] as String else ""
         val email = if (snapshot[EMAIL] != null) snapshot[EMAIL] as String else ""
-        val courses = if (snapshot[COURSES] != null) snapshot[COURSES] as List<String> else emptyList()
+        val courses = if (snapshot[COURSES] != null && snapshot[COURSES] is List<*>) snapshot[COURSES] as List<String> else emptyList()
         val requestedCourses = if (snapshot[REQUESTED_COURSES] != null) snapshot[REQUESTED_COURSES] as List<String> else emptyList()
 
 //        val user = User(

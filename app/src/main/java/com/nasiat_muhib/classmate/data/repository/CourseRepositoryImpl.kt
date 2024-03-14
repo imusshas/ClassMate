@@ -1,27 +1,25 @@
 package com.nasiat_muhib.classmate.data.repository
 
 import android.util.Log
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
-import com.nasiat_muhib.classmate.core.GetModelFromDocument.getClassDetailsFromFirestoreDocument
 import com.nasiat_muhib.classmate.core.GetModelFromDocument.getCourseFromFirestoreDocument
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.state.DataState
+import com.nasiat_muhib.classmate.strings.ASSIGNMENTS_COLLECTION
 import com.nasiat_muhib.classmate.strings.CLASSES_COLLECTION
 import com.nasiat_muhib.classmate.strings.COURSES
 import com.nasiat_muhib.classmate.strings.COURSES_COLLECTION
-import com.nasiat_muhib.classmate.strings.COURSE_CLASSES
 import com.nasiat_muhib.classmate.strings.COURSE_CREATOR
 import com.nasiat_muhib.classmate.strings.REQUESTED_COURSES
+import com.nasiat_muhib.classmate.strings.TERM_TESTS_COLLECTION
 import com.nasiat_muhib.classmate.strings.USERS_COLLECTION
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class CourseRepositoryImpl @Inject constructor(
@@ -31,479 +29,272 @@ class CourseRepositoryImpl @Inject constructor(
     private val usersCollection = firestoreRef.collection(USERS_COLLECTION)
     private val coursesCollection = firestoreRef.collection(COURSES_COLLECTION)
     private val classesCollection = firestoreRef.collection(CLASSES_COLLECTION)
+    private val termTestsCollection = firestoreRef.collection(TERM_TESTS_COLLECTION)
+    private val assignmentsCollection = firestoreRef.collection(ASSIGNMENTS_COLLECTION)
 
+
+
+
+
+    companion object {
+        const val TAG = "CourseRepositoryImpl"
+    }
 
     override fun createCourse(
         course: Course,
         classDetailsSet: Set<ClassDetails>,
-    ): Flow<Pair<DataState<Course>, DataState<List<ClassDetails>>>> =
-        flow {
+    ): Flow<Pair<DataState<Course>, DataState<List<ClassDetails>>>> = flow<Pair<DataState<Course>, DataState<List<ClassDetails>>>> {
+        emit(Pair(DataState.Loading, DataState.Loading))
+        val courseId = "${course.courseDepartment}:${course.courseCode}"
 
-
-            emit(Pair(DataState.Loading, DataState.Loading))
-
-
-            val courseId = "${course.courseDepartment}:${course.courseCode}"
-            val courseDoc = coursesCollection.document(courseId)
-
-            val response = searchForExistence(courseDoc)
-
-            if (response != null) {
-                sendRequest(response, courseId)
-                emit(
-                    Pair(
-                        DataState.Error("Course is already created by $response. A course delete request has been sent."),
-                        DataState.Error("Course Already exists.")
-                    )
-                )
-                return@flow
-            }
-
-            var isSuccessful = sendRequest(course.courseTeacher, courseId)
-
-            if (!isSuccessful) {
-                Log.d(TAG, "createCourse: Unable to send course request to the teacher")
-                emit(
-                    Pair(
-                        DataState.Error("Unable to send course request to the teacher"),
-                        DataState.Error("Unable to send course request to the teacher")
-                    )
-                )
-                return@flow
-            }
-
-            val creatorDoc = usersCollection.document(course.courseCreator)
-
-            isSuccessful = getAndUpdateArrayToFirebaseByCreate(creatorDoc, COURSES, courseId)
-            if (!isSuccessful) {
-                Log.d(TAG, "createCourse: Unable to update creator's course list")
-                emit(
-                    Pair(
-                        DataState.Error("Unable to update creator's course list"),
-                        DataState.Error("Unable to update creator's course list")
-                    )
-                )
-                return@flow
-            }
-
-            for (classes in classDetailsSet) {
-                val classDetails = classes.copy(
-                    classDepartment = course.courseDepartment,
-                    classCourseCode = course.courseCode,
-                    classNo = classDetailsSet.indexOf(classes)
-                )
-                val classId =
-                    "$courseId:${classDetails.classNo}"
-                val classDoc = classesCollection.document(classId)
-                isSuccessful = createClassesToFirebase(classDoc, classDetails)
-
-                if (!isSuccessful) {
-                    emit(
-                        Pair(
-                            DataState.Error("Failed to create course due to failure in creation of classes"),
-                            DataState.Error("Failed fo create class: $classId")
-                        )
-                    )
-                    Log.d(TAG, "createCourse: Failed to create class: $classId")
-                    return@flow
-                }
-            }
-
-
-            isSuccessful = createCourseToFirebase(courseDoc, course)
-
-            if (!isSuccessful) {
-                emit(
-                    Pair(
-                        DataState.Error("Failed to create course"),
-                        DataState.Error("Classes were created successfully but failed to create course")
-                    )
-                )
-                Log.d(TAG, "createCourse: Failed to create course")
-                return@flow
-            }
-
-            emit(Pair(DataState.Success(course), DataState.Success(classDetailsSet.toList())))
-
-
-        }.catch {
-            Log.d(TAG, "createCourse: $it")
-        }
-
-
-    override fun getCourseList(courseIds: List<String>): Flow<List<Course>> =
-        callbackFlow {
-
-
-            val snapshotListener = coursesCollection
-                .addSnapshotListener { value, error ->
-
-                    val courseList = mutableListOf<Course>()
-                    value?.documents?.forEach { documentSnapshot ->
-                        if (courseIds.contains(documentSnapshot.id)) {
-                            val course = getCourseFromFirestoreDocument(documentSnapshot)
-                            if (!course.pendingStatus) {
-                                courseList.add(course)
-                            }
-                        } else {
-                            Log.d(TAG, "getCourseList: User have no course")
+        // Send course Delete request
+        coursesCollection.document(courseId).get().addOnSuccessListener { course ->
+            if (course.exists() && course != null) {
+                val creatorEmail = course[COURSE_CREATOR].toString()
+                usersCollection.document(creatorEmail).get().addOnSuccessListener { creator ->
+                    if (creator.exists() && creator != null) {
+                        val requestedCourses = if (creator[REQUESTED_COURSES] == null) mutableListOf() else creator[REQUESTED_COURSES] as MutableList<String>
+                        requestedCourses.add(courseId)
+                        usersCollection.document(creatorEmail).update(REQUESTED_COURSES,requestedCourses).addOnFailureListener {
+//                            Log.d(TAG, "createCourse: ${it.localizedMessage}")
+                            return@addOnFailureListener
                         }
-
-                        trySend(courseList).isSuccess
                     }
-
-                    error?.let {
-                        Log.d(TAG, "getCourseList: ${it.localizedMessage}")
-                        return@addSnapshotListener
-                    }
+                }.addOnFailureListener {
+                    Log.d(TAG, "createCourse: ${it.localizedMessage}")
+                    return@addOnFailureListener
                 }
-
-            awaitClose {
-                snapshotListener.remove()
             }
-        }.catch {
-            Log.d(TAG, "getCourseList: $it")
+        }.addOnFailureListener {
+//            Log.d(TAG, "createCourse: ${it.localizedMessage}")
+            return@addOnFailureListener
         }
 
-    override fun getPendingCourseList(courseIds: List<String>): Flow<List<Course>> =
-        callbackFlow {
 
-
-            val snapshotListener = coursesCollection
-                .addSnapshotListener { value, error ->
-
-                    val courseList = mutableListOf<Course>()
-                    value?.documents?.forEach { documentSnapshot ->
-                        if (courseIds.contains(documentSnapshot.id)) {
-                            val course = getCourseFromFirestoreDocument(documentSnapshot)
-                            if (course.pendingStatus) {
-                                courseList.add(course)
-                            }
-                        } else {
-                            Log.d(TAG, "getPendingCourseList: User have no course")
-                        }
-
-                        trySend(courseList).isSuccess
-                    }
-
-                    error?.let {
-                        Log.d(TAG, "getPendingCourseList: ${it.localizedMessage}")
-                        return@addSnapshotListener
-                    }
+        // Send Teacher request
+        usersCollection.document(course.courseTeacher).get().addOnSuccessListener { creator ->
+            if (creator.exists() && creator != null) {
+                val requestedCourses = if (creator[REQUESTED_COURSES] == null) mutableListOf() else creator[REQUESTED_COURSES] as MutableList<String>
+                requestedCourses.add(courseId)
+                usersCollection.document(course.courseTeacher).update(REQUESTED_COURSES,requestedCourses).addOnFailureListener {
+//                    Log.d(TAG, "createCourse: ${it.localizedMessage}")
+                    return@addOnFailureListener
                 }
-
-            awaitClose {
-                snapshotListener.remove()
             }
-        }.catch {
-            Log.d(TAG, "getPendingCourseList: $it")
+        }.addOnFailureListener {
+//            Log.d(TAG, "createCourse: ${it.localizedMessage}")
+            return@addOnFailureListener
         }
 
-    override fun getClassDetailsList(courseId: String): Flow<List<ClassDetails>> =
-        callbackFlow {
-
-            val classDetailsList = mutableListOf<ClassDetails>()
-            val snapshotListener = classesCollection.document(courseId)
-                .addSnapshotListener { value, error ->
-                    if (value != null) {
-                        val classDetails = getClassDetailsFromFirestoreDocument(value)
-                        classDetailsList.add(classDetails)
-                    } else if (error != null) {
-                        Log.d(TAG, "getClassDetailsList: ${error.localizedMessage}")
-                        return@addSnapshotListener
-                    }
-
-                    trySend(classDetailsList).isSuccess
+        // Update Creators Course List
+        usersCollection.document(course.courseCreator).get().addOnSuccessListener { creator ->
+            if (creator.exists() && creator != null) {
+                val creatorCourses = if (creator[COURSES] == null) mutableListOf() else creator[COURSES] as MutableList<String>
+                creatorCourses.add(courseId)
+                usersCollection.document(course.courseCreator).update(COURSES,creatorCourses).addOnFailureListener {
+//                    Log.d(TAG, "createCourse: ${it.localizedMessage}")
+                    return@addOnFailureListener
                 }
-
-
-            awaitClose {
-                snapshotListener.remove()
             }
-
+        }.addOnFailureListener {
+//            Log.d(TAG, "createCourse: ${it.localizedMessage}")
+            return@addOnFailureListener
         }
 
+        // Create Course Classes
+        classDetailsSet.forEach { classDetails ->
+            val classIndex = classDetailsSet.indexOf(classDetails)
+            val classId = "$courseId:$classIndex"
+            val details = classDetails.copy(classNo = classIndex, classCourseCode = course.courseCode, classDepartment = course.courseDepartment)
+//            Log.d(TAG, "createCourse: $details")
+            classesCollection.document(classId).set(details.toMap()).addOnFailureListener {
+//                Log.d(TAG, "createCourse: ${it.localizedMessage}")
+                return@addOnFailureListener
+            }
+        }
+        
+        // Create Course
+        coursesCollection.document(courseId).set(course.toMap()).addOnFailureListener {
+//            Log.d(TAG, "createCourse: ${it.localizedMessage}")
+            return@addOnFailureListener
+        }
+        
+        emit(Pair(DataState.Success(course), DataState.Success(classDetailsSet.toList())))
+
+    }.catch {
+        Log.d(TAG, "createCourse: ${it.localizedMessage}")
+    }
+
+    override fun getCourseList(courseIds: List<String>): Flow<List<Course>> = callbackFlow {
+
+        val snapshotListener = coursesCollection.addSnapshotListener { value, error ->
+            val pendingCourses = mutableListOf<Course>()
+            value?.documents?.forEach { document ->
+                courseIds.forEach {
+                    val course = getCourseFromFirestoreDocument(document)
+                    if (!course.pendingStatus && document.id.contains(it)) {
+                        pendingCourses.add(course)
+                    }
+                }
+                trySend(pendingCourses).isSuccess
+            }
+
+            if (error != null) {
+                Log.d(TAG, "getPendingCourseList: ${error.localizedMessage}")
+            }
+        }
+
+        awaitClose {
+            snapshotListener.remove()
+        }
+
+    }.catch {
+//        Log.d(TAG, "getCourseList: ${it.localizedMessage}")
+    }
+
+    override fun getPendingCourseList(courseIds: List<String>): Flow<List<Course>> = callbackFlow {
+        Log.d(TAG, "getPendingCourseList: $courseIds")
+        val snapshotListener = coursesCollection.addSnapshotListener { value, error ->
+            val pendingCourses = mutableListOf<Course>()
+            value?.documents?.forEach { document ->
+//                Log.d(TAG, "getPendingCourseList: ${document.data}")
+                courseIds.forEach {
+//                    Log.d(TAG, "getPendingCourseList: $it, ${document.id}")
+                    val course = getCourseFromFirestoreDocument(document)
+                    if (course.pendingStatus && document.id.contains(it)) {
+                        pendingCourses.add(course)
+//                        Log.d(TAG, "getPendingCourseList: true")
+                    }
+                }
+                trySend(pendingCourses).isSuccess
+            }
+            
+            if (error != null) {
+                Log.d(TAG, "getPendingCourseList: ${error.localizedMessage}")
+            }
+        }
+
+        awaitClose {
+            snapshotListener.remove()
+        }
+
+    }.catch {
+//        Log.d(TAG, "getPendingCourseList: $it")
+    }
+
+    override fun getClassDetailsList(courseId: String): Flow<List<ClassDetails>> {
+        TODO("Not yet implemented")
+    }
 
     override fun updateCourse(): Flow<DataState<Course>> {
         TODO("Not yet implemented")
     }
 
-    override fun deleteCourse(course: Course): Flow<DataState<Course>> = flow {
+    override fun deleteCourse(course: Course): Flow<DataState<Course>> = flow<DataState<Course>> {
         emit(DataState.Loading)
 
         val courseId = "${course.courseDepartment}:${course.courseCode}"
+
         // Delete the course from teacher
-        var isSuccessful =
-            getAndUpdateArrayToFirebaseByDelete(
-                usersCollection.document(course.courseTeacher),
-                if (course.pendingStatus) REQUESTED_COURSES else COURSES,
-                courseId
-            )
-        if (!isSuccessful) {
-            emit(DataState.Error("Unable to delete course from teacher"))
-            Log.d(TAG, "deleteCourse: Unable to delete course from teacher")
-            return@flow
+        usersCollection.document(course.courseTeacher).get().addOnSuccessListener { courseIds ->
+            val courses = if (courseIds[COURSES]  != null) courseIds[COURSES] as MutableList<String> else mutableListOf()
+            val requestedCourses = if (courseIds[REQUESTED_COURSES] != null) courseIds[REQUESTED_COURSES] as MutableList<String> else mutableListOf()
+            courses.remove(courseId)
+            requestedCourses.remove(courseId)
+            usersCollection.document(course.courseTeacher).update(COURSES, course).addOnFailureListener {
+                Log.d(TAG, "deleteCourse from teacher: ${it.localizedMessage}")
+                return@addOnFailureListener
+            }
+            usersCollection.document(course.courseTeacher).update(REQUESTED_COURSES, requestedCourses).addOnFailureListener {
+                Log.d(TAG, "deleteCourse from teacher: ${it.localizedMessage}")
+                return@addOnFailureListener
+            }
+        }
+
+
+        // Delete the course from creator
+        usersCollection.document(course.courseCreator).get().addOnSuccessListener { courseIds ->
+            val courses = if (courseIds[COURSES]  != null) courseIds[COURSES] as MutableList<String> else mutableListOf()
+            val requestedCourses = if (courseIds[REQUESTED_COURSES] != null) courseIds[REQUESTED_COURSES] as MutableList<String> else mutableListOf()
+            courses.remove(courseId)
+            requestedCourses.remove(courseId)
+            usersCollection.document(course.courseCreator).update(COURSES, course).addOnFailureListener {
+                Log.d(TAG, "deleteCourse from creator: ${it.localizedMessage}")
+                return@addOnFailureListener
+            }
+            usersCollection.document(course.courseCreator).update(REQUESTED_COURSES, requestedCourses).addOnFailureListener {
+                Log.d(TAG, "deleteCourse from creator: ${it.localizedMessage}")
+                return@addOnFailureListener
+            }
         }
 
         // Delete the course from enrolled students
-        course.enrolledStudents.forEach {
-            val studentDoc = usersCollection.document(it)
-            isSuccessful = getAndUpdateArrayToFirebaseByDelete(studentDoc, COURSES, courseId)
+        course.enrolledStudents.forEach { students ->
+            usersCollection.document(students).get().addOnSuccessListener { courseIds ->
+                val courses = if (courseIds[COURSES]  != null) courseIds[COURSES] as MutableList<String> else mutableListOf()
+                courses.remove(courseId)
 
-            if (!isSuccessful) {
-                emit(DataState.Error("Unable to delete course from student: $it"))
-                Log.d(TAG, "deleteCourse: Unable to delete course from student: $it")
-                return@flow
+                usersCollection.document(students).update(COURSES, course).addOnFailureListener {
+                    Log.d(TAG, "deleteCourse from students: ${it.localizedMessage}")
+                    return@addOnFailureListener
+                }
             }
         }
+
 
         // Delete the course classes
-        course.courseClasses.forEach {
-            val classId = "$courseId:$it"
-            Log.d(TAG, "deleteCourse: $classId")
-            isSuccessful = deleteDocument(classesCollection.document(classId))
-
-            if (!isSuccessful) {
-                emit(DataState.Error("Unable to delete class: $classId"))
-                Log.d(TAG, "deleteCourse: Unable to delete class: $classId")
-                return@flow
+        classesCollection.get().addOnSuccessListener { querySnapshot ->
+            querySnapshot?.forEach { queryDocumentSnapshot ->
+                if (queryDocumentSnapshot != null && queryDocumentSnapshot.id.contains(courseId)) {
+                    classesCollection.document(queryDocumentSnapshot.id).delete().addOnFailureListener {
+                        Log.d(TAG, "deleteCourse classes: ${it.localizedMessage}")
+                        return@addOnFailureListener
+                    }
+                }
             }
         }
 
-        // Delete the course from creator
-        isSuccessful =
-            getAndUpdateArrayToFirebaseByDelete(
-                usersCollection.document(course.courseCreator),
-                COURSES,
-                courseId
-            )
-
-        if (!isSuccessful) {
-            emit(DataState.Error("Unable to delete course from creator"))
-            Log.d(TAG, "deleteCourse: Unable to delete course from creator")
-            return@flow
+        // Delete the course term tests
+        termTestsCollection.get().addOnSuccessListener { querySnapshot ->
+            querySnapshot?.forEach { queryDocumentSnapshot ->
+                if (queryDocumentSnapshot != null && queryDocumentSnapshot.id.contains(courseId)) {
+                    termTestsCollection.document(queryDocumentSnapshot.id).delete().addOnFailureListener {
+                        Log.d(TAG, "deleteCourse classes: ${it.localizedMessage}")
+                        return@addOnFailureListener
+                    }
+                }
+            }
         }
+
+        // Delete the course assignments
+        assignmentsCollection.get().addOnSuccessListener { querySnapshot ->
+            querySnapshot?.forEach { queryDocumentSnapshot ->
+                if (queryDocumentSnapshot != null && queryDocumentSnapshot.id.contains(courseId)) {
+                    assignmentsCollection.document(queryDocumentSnapshot.id).delete().addOnFailureListener {
+                        Log.d(TAG, "deleteCourse classes: ${it.localizedMessage}")
+                        return@addOnFailureListener
+                    }
+                }
+            }
+        }
+
+        /*TODO: Consider deleting course related posts */
 
         // Delete the course
-        isSuccessful = deleteDocument(coursesCollection.document(courseId))
-        if (!isSuccessful) {
-            emit(DataState.Error("Unable to delete course"))
-            Log.d(TAG, "deleteCourse: Unable to delete course")
-            return@flow
+        coursesCollection.document(courseId).delete().addOnFailureListener {
+            Log.d(TAG, "deleteCourse: ${it.localizedMessage}")
         }
 
-        emit(DataState.Success(course))
-
-    }.catch { Log.d(TAG, "deleteCourse: $it") }
-
-    override fun updateClass(details: ClassDetails): Flow<DataState<ClassDetails>> = flow {
-        emit(DataState.Loading)
-
-        val classId = "${details.classDepartment}:${details.classCourseCode}:${details.classNo}"
-        var isSuccessful = false
-
-        classesCollection.document(classId).update(details.toMap())
-            .addOnCompleteListener {
-                isSuccessful = it.isSuccessful
-            }.addOnFailureListener {
-                Log.d(TAG, "updateClass: ${it.localizedMessage}")
-            }.await()
-
-        if (isSuccessful) {
-            emit(DataState.Success(details))
-        } else {
-            emit(DataState.Error("Unable to update details: $classId"))
-        }
 
     }.catch {
-        Log.d(TAG, "updateClass: $it")
+        Log.d(TAG, "deleteCourse: catch block: ${it.localizedMessage}")
     }
 
-    override fun deleteClass(classDetails: ClassDetails): Flow<DataState<ClassDetails>> = flow {
-        emit(DataState.Loading)
-
-        var isSuccessful = false
-
-        val courseId = "${classDetails.classDepartment}:${classDetails.classCourseCode}"
-        val courseRef = coursesCollection.document(courseId)
-
-        isSuccessful = getAndUpdateArrayToFirebaseByDelete(courseRef, COURSE_CLASSES, classDetails.classNo.toString())
-
-        if (!isSuccessful) {
-            emit(DataState.Error("Unable to delete class from course"))
-            Log.d(TAG, "deleteClass: Unable to delete class from course")
-            return@flow
-        }
-
-        val classId = "$courseId:${classDetails.classNo}"
-        val classRef = classesCollection.document(classId)
-        isSuccessful = deleteDocument(classRef)
-
-        if (!isSuccessful) {
-            Log.d(TAG, "deleteClass: Unable to delete course")
-            emit(DataState.Error("Unable to delete course"))
-            return@flow
-        }
-
-        emit(DataState.Success(classDetails))
+    override fun updateClass(details: ClassDetails): Flow<DataState<ClassDetails>> {
+        TODO("Not yet implemented")
     }
 
-    private suspend fun deleteDocument(docRef: DocumentReference): Boolean {
-
-        var isSuccessful = false
-
-        docRef.delete().addOnCompleteListener {
-            isSuccessful = it.isSuccessful
-        }.await()
-
-        return isSuccessful
-
-    }
-
-    private suspend fun searchForExistence(
-        courseRef: DocumentReference,
-    ): String? {
-        var respose: String? = null
-        courseRef.get()
-            .addOnSuccessListener {
-                if (it.exists() && it != null) {
-                    respose = it[COURSE_CREATOR].toString()
-                }
-            }.addOnFailureListener {
-                Log.d(TAG, "searchForExistence: ${it.localizedMessage}")
-            }.await()
-
-        return respose
-    }
-
-    private suspend fun sendRequest(
-        user: String,
-        courseId: String,
-    ): Boolean {
-
-        val docRef = usersCollection.document(user)
-        return getAndUpdateArrayToFirebaseByCreate(docRef, REQUESTED_COURSES, courseId)
-    }
-
-
-    private suspend fun createCourseToFirebase(
-        courseDocument: DocumentReference,
-        course: Course,
-    ): Boolean {
-
-        var isSuccessful = false
-
-        courseDocument.set(course.toMap())
-            .addOnCompleteListener {
-                isSuccessful = it.isSuccessful
-            }.addOnFailureListener {
-                Log.d(TAG, "createCourseToFirebase: ${it.localizedMessage}")
-            }.await()
-
-        return isSuccessful
-    }
-
-    private suspend fun createClassesToFirebase(
-        classesDocument: DocumentReference,
-        classDetails: ClassDetails,
-    ): Boolean {
-        var isSuccessful = false
-        Log.d(TAG, "createClassesToFirebase: $classDetails")
-        classesDocument.set(classDetails.toMap())
-            .addOnCompleteListener {
-                isSuccessful = it.isSuccessful
-            }.addOnFailureListener {
-                Log.d(TAG, "createClassesToFirebase: ${it.localizedMessage}")
-            }.await()
-
-        return isSuccessful
-    }
-
-    private suspend fun getAndUpdateArrayToFirebaseByCreate(
-        docRef: DocumentReference,
-        field: String,
-        value: String,
-    ): Boolean {
-
-        var isSuccessful = false
-
-        val arraySet = mutableSetOf<String>()
-
-        docRef.get()
-            .addOnCompleteListener { snapshot ->
-                val prevList =
-                    if (snapshot.result[field] != null) snapshot.result[field] as List<String> else emptyList()
-                prevList.forEach {
-                    arraySet.add(it)
-                }
-                isSuccessful = snapshot.isSuccessful
-            }.addOnFailureListener {
-                Log.d(TAG, "getAndUpdateArrayToFirebase: getting: ${it.localizedMessage}")
-            }
-            .await()
-
-//        Log.d(TAG, "getAndUpdateArrayToFirebase: result for getting array: $arraySet")
-
-        if (isSuccessful) {
-            arraySet.add(value)
-            docRef.update(mapOf(field to arraySet.toList()))
-                .addOnCompleteListener {
-                    isSuccessful = it.isSuccessful
-                }.addOnFailureListener {
-                    Log.d(TAG, "getAndUpdateArrayToFirebaseByCreate: ${it.localizedMessage}")
-                }.await()
-
-//            Log.d(TAG, "getAndUpdateArrayToFirebase: result for updating array: $isSuccessful")
-        }
-
-        return isSuccessful
-    }
-
-
-    private suspend fun getAndUpdateArrayToFirebaseByDelete(
-        docRef: DocumentReference,
-        field: String,
-        value: String,
-    ): Boolean {
-        var isSuccessful = false
-
-        val arraySet = mutableSetOf<String>()
-
-        docRef.get()
-            .addOnCompleteListener { snapshot ->
-                val prevList =
-                    if (snapshot.result[field] != null) snapshot.result[field] as List<String> else emptyList()
-                prevList.forEach {
-                    if (it != value)
-                        arraySet.add(it)
-                }
-                isSuccessful = snapshot.isSuccessful
-            }.addOnFailureListener {
-                Log.d(TAG, "getAndUpdateArrayToFirebaseByDelete: getting: ${it.localizedMessage}")
-            }
-            .await()
-
-//        Log.d(TAG, "getAndUpdateArrayToFirebase: result for getting array: $arraySet")
-
-        if (isSuccessful) {
-            docRef.update(mapOf(field to arraySet.toList()))
-                .addOnCompleteListener {
-                    isSuccessful = it.isSuccessful
-                }.addOnFailureListener {
-                    Log.d(TAG, "getAndUpdateArrayToFirebase: ${it.localizedMessage}")
-                }.await()
-
-            Log.d(
-                TAG,
-                "getAndUpdateArrayToFirebaseByDelete: result for updating array: $isSuccessful"
-            )
-        }
-
-        return isSuccessful
-    }
-
-
-    companion object {
-        const val TAG = "CourseRepositoryImpl"
+    override fun deleteClass(classDetails: ClassDetails): Flow<DataState<ClassDetails>> {
+        TODO("Not yet implemented")
     }
 }

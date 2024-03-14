@@ -18,6 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.components.TwoTitleContainer
 import com.nasiat_muhib.classmate.domain.event.CreateSemesterUIEvent
 import com.nasiat_muhib.classmate.navigation.TabItem
@@ -73,8 +74,15 @@ fun CreateSemesterContent(
                 rightClick = { courses.value = pendingCourses }
             )
 
-            courses.value.forEach {
+            CustomSwipeAbleLazyColumn(
+                items = courses.value,
+                key = {
+                    "${it.courseDepartment}:${it.courseCode}"
+                }
+            ) {
+//            courses.value.forEach {
                 DisplayCourse(course = it, createSemesterViewModel = createSemesterViewModel)
+//            }
             }
 
         }
