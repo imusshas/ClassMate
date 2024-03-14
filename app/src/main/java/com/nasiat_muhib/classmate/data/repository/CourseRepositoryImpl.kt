@@ -12,6 +12,7 @@ import com.nasiat_muhib.classmate.strings.CLASSES_COLLECTION
 import com.nasiat_muhib.classmate.strings.COURSES
 import com.nasiat_muhib.classmate.strings.COURSES_COLLECTION
 import com.nasiat_muhib.classmate.strings.COURSE_CREATOR
+import com.nasiat_muhib.classmate.strings.EMAIL
 import com.nasiat_muhib.classmate.strings.PENDING_STATUS
 import com.nasiat_muhib.classmate.strings.REQUESTED_COURSES
 import com.nasiat_muhib.classmate.strings.TERM_TESTS_COLLECTION
@@ -45,32 +46,15 @@ class CourseRepositoryImpl @Inject constructor(
     override fun createCourse(
         course: Course,
         classDetailsSet: Set<ClassDetails>,
-    ): Flow<Pair<DataState<Course>, DataState<List<ClassDetails>>>> = flow<Pair<DataState<Course>, DataState<List<ClassDetails>>>> {
+    ): Flow<Pair<DataState<Course>, DataState<List<ClassDetails>>>> = flow {
         emit(Pair(DataState.Loading, DataState.Loading))
         val courseId = "${course.courseDepartment}:${course.courseCode}"
 
         // Send course Delete request
-        coursesCollection.document(courseId).get().addOnSuccessListener { course ->
-            if (course.exists() && course != null) {
-                val creatorEmail = course[COURSE_CREATOR].toString()
-                usersCollection.document(creatorEmail).get().addOnSuccessListener { creator ->
-                    if (creator.exists() && creator != null) {
-                        val requestedCourses = if (creator[REQUESTED_COURSES] == null) mutableListOf() else creator[REQUESTED_COURSES] as MutableList<String>
-                        requestedCourses.add(courseId)
-                        usersCollection.document(creatorEmail).update(REQUESTED_COURSES,requestedCourses).addOnFailureListener {
-//                            Log.d(TAG, "createCourse: ${it.localizedMessage}")
-                            return@addOnFailureListener
-                        }
-                    }
-                }.addOnFailureListener {
-                    Log.d(TAG, "createCourse: ${it.localizedMessage}")
-                    return@addOnFailureListener
-                }
-            }
-        }.addOnFailureListener {
-//            Log.d(TAG, "createCourse: ${it.localizedMessage}")
-            return@addOnFailureListener
-        }.await()
+        if (!searchForExistenceAndSendRequest(courseId)) {
+            emit(Pair(DataState.Error("Course is already created"), DataState.Error("Course is already created")))
+            return@flow
+        }
 
 
         // Send Teacher request
@@ -126,6 +110,38 @@ class CourseRepositoryImpl @Inject constructor(
 
     }.catch {
         Log.d(TAG, "createCourse: ${it.localizedMessage}")
+    }
+
+    private suspend fun searchForExistenceAndSendRequest(courseId: String): Boolean {
+        var isSuccessful = false
+
+        coursesCollection.document(courseId).get().addOnSuccessListener { courseSnapshot ->
+            if (courseSnapshot.exists() && courseSnapshot != null) {
+                val creatorEmail = courseSnapshot[COURSE_CREATOR].toString()
+                usersCollection.document(creatorEmail).get().addOnSuccessListener { creator ->
+                    if (creator.exists() && creator != null) {
+                        val requestedCourses = if (creator[REQUESTED_COURSES] == null) mutableListOf() else creator[REQUESTED_COURSES] as MutableList<String>
+                        requestedCourses.add(courseId)
+                        usersCollection.document(creatorEmail).update(REQUESTED_COURSES,requestedCourses).addOnCompleteListener {
+                            isSuccessful = it.isSuccessful
+                        }.addOnFailureListener {
+                            return@addOnFailureListener
+                        }.addOnFailureListener {
+//                            Log.d(TAG, "createCourse: ${it.localizedMessage}")
+                            return@addOnFailureListener
+                        }
+                    }
+                }.addOnFailureListener {
+                    Log.d(TAG, "createCourse: ${it.localizedMessage}")
+                    return@addOnFailureListener
+                }
+            }
+        }.addOnFailureListener {
+//            Log.d(TAG, "createCourse: ${it.localizedMessage}")
+            return@addOnFailureListener
+        }.await()
+
+        return isSuccessful
     }
 
     override fun getRequestedCourses(courseIds: List<String>): Flow<List<Course>> = callbackFlow {
