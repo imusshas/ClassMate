@@ -19,6 +19,7 @@ import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.event.CourseDetailsDisplayUIEvent
 import com.nasiat_muhib.classmate.ui.theme.LargeSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
+import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
 @Composable
 fun CourseDetailsDisplay(
@@ -29,6 +30,7 @@ fun CourseDetailsDisplay(
     courseDetailsDisplayViewModel.setCurrentCourse(course)
     courseDetailsDisplayViewModel.getClassDetailsList()
     val classes by courseDetailsDisplayViewModel.classes.collectAsState()
+    val createClassDialogState by courseDetailsDisplayViewModel.createClassDialogState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -50,9 +52,11 @@ fun CourseDetailsDisplay(
 
         ClickableTitleContainer(
             title = "Classes +",
-            onTitleClick = { /*TODO*/ }
+            onTitleClick = {
+                courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.ClassTitleClicked)
+            }
         )
-
+        Spacer(modifier = Modifier.height(SmallSpace))
         CustomSwipeAbleLazyColumn(
             items = classes,
             key = {
@@ -80,7 +84,7 @@ fun CourseDetailsDisplay(
 
         ClickableTitleContainer(
             title = "Resource Link +",
-            onTitleClick = { /*TODO*/ }
+            onTitleClick = { /* TODO */ }
         )
 
 //        CustomSwipeAbleLazyColumn(
@@ -89,6 +93,10 @@ fun CourseDetailsDisplay(
 //        ) {
 //
 //        }
+
+        if (createClassDialogState) {
+            CreateClassOnDisplay(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
+        }
     }
 
 }

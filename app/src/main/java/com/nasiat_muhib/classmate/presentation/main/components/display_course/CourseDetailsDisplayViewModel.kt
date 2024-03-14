@@ -121,6 +121,14 @@ class CourseDetailsDisplayViewModel @Inject constructor(
             CourseDetailsDisplayUIEvent.CourseDetailsDisplayTopBarBackButtonClicked -> {
                 ClassMateAppRouter.navigateTo(Screen.CreateSemesterScreen)
             }
+
+            CourseDetailsDisplayUIEvent.ClassTitleClicked -> {
+                currentUser.value.data?.let {
+                    if (it.email == currentCourse.value.courseCreator || it.email == currentCourse.value.courseTeacher) {
+                        _createClassDialogState.value = true
+                    }
+                }
+            }
         }
     }
 
@@ -141,13 +149,15 @@ class CourseDetailsDisplayViewModel @Inject constructor(
             }
 
             is CreateClassUIEvent.EndHourChanged -> {
+                val hour = if (event.endHour == "") -1 else event.endHour.toInt()
                 _createClassUIState.value =
-                    createClassUIState.value.copy(endHour = event.endHour.toInt())
+                    createClassUIState.value.copy(endHour = hour)
             }
 
             is CreateClassUIEvent.EndMinuteChanged -> {
+                val minute = if (event.endMinute == "") -1 else event.endMinute.toInt()
                 _createClassUIState.value =
-                    createClassUIState.value.copy(endMinute = event.endMinute.toInt())
+                    createClassUIState.value.copy(endMinute = minute)
             }
 
             is CreateClassUIEvent.EndShiftChanged -> {
@@ -159,13 +169,15 @@ class CourseDetailsDisplayViewModel @Inject constructor(
             }
 
             is CreateClassUIEvent.StartHourChanged -> {
+                val hour = if (event.startHour == "") -1 else event.startHour.toInt()
                 _createClassUIState.value =
-                    createClassUIState.value.copy(startHour = event.startHour.toInt())
+                    createClassUIState.value.copy(startHour = hour)
             }
 
             is CreateClassUIEvent.StartMinuteChanged -> {
+                val minute = if (event.startMinute == "") -1 else event.startMinute.toInt()
                 _createClassUIState.value =
-                    createClassUIState.value.copy(startMinute = event.startMinute.toInt())
+                    createClassUIState.value.copy(startMinute = minute)
             }
 
             is CreateClassUIEvent.StartShiftChanged -> {
