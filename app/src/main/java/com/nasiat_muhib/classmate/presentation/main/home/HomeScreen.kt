@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.presentation.main.home
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -9,6 +10,7 @@ import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
 import com.nasiat_muhib.classmate.presentation.main.home.components.HomeScreenContent
+import com.nasiat_muhib.classmate.strings.TAG
 
 @Composable
 fun HomeScreen(
@@ -24,6 +26,7 @@ fun HomeScreen(
         }
         is DataState.Success -> {
             userState.data?.let {
+                Log.d(TAG, "HomeScreen: $it")
                 homeViewModel.getTodayClasses()
                 homeViewModel.getTomorrowClasses()
                 homeViewModel.getCourseList(it.courses)

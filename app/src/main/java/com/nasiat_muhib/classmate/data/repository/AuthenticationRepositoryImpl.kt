@@ -46,14 +46,9 @@ class AuthenticationRepositoryImpl @Inject constructor(
         }
 
     override fun signOut(): Flow<DataState<Boolean>> = flow {
-
-        val response = signOutFromFirebase()
-
-        if (response) {
-            emit(DataState.Success(true))
-        } else {
-            emit(DataState.Error("Unable To Sign Out"))
-        }
+        emit(DataState.Loading)
+        signOutFromFirebase()
+        emit(DataState.Success(true))
     }.catch {
         emit(DataState.Error("Unable To Sign Out"))
         Log.d(TAG, "signOut: ${it.localizedMessage}")
@@ -151,7 +146,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
         auth.signOut()
 
         val authStateListener = FirebaseAuth.AuthStateListener {
-            if (auth.currentUser == null) {
+            if (it.currentUser == null) {
                 ClassMateAppRouter.navigateTo(Screen.SignInScreen)
                 isSuccessful = true
             }

@@ -12,6 +12,7 @@ import com.nasiat_muhib.classmate.strings.CLASSES_COLLECTION
 import com.nasiat_muhib.classmate.strings.COURSES
 import com.nasiat_muhib.classmate.strings.COURSES_COLLECTION
 import com.nasiat_muhib.classmate.strings.COURSE_CREATOR
+import com.nasiat_muhib.classmate.strings.PENDING_STATUS
 import com.nasiat_muhib.classmate.strings.REQUESTED_COURSES
 import com.nasiat_muhib.classmate.strings.TERM_TESTS_COLLECTION
 import com.nasiat_muhib.classmate.strings.USERS_COLLECTION
@@ -140,7 +141,37 @@ class CourseRepositoryImpl @Inject constructor(
             }
 
             if (error != null) {
-                Log.d(TAG, "getPendingCourseList: ${error.localizedMessage}")
+                Log.d(TAG, "getCourseList: ${error.localizedMessage}")
+            }
+        }
+
+        awaitClose {
+            snapshotListener.remove()
+        }
+
+    }.catch {
+//        Log.d(TAG, "getCourseList: ${it.localizedMessage}")
+    }
+
+    override fun getCreatedCourses(
+        courseIds: List<String>,
+        creatorEmail: String,
+    ): Flow<List<Course>> = callbackFlow {
+
+        val snapshotListener = coursesCollection.addSnapshotListener { value, error ->
+            val pendingCourses = mutableListOf<Course>()
+            value?.documents?.forEach { document ->
+                courseIds.forEach {
+                    val course = getCourseFromFirestoreDocument(document)
+                    if (!course.pendingStatus && document.id.contains(it) && document[COURSE_CREATOR] == creatorEmail) {
+                        pendingCourses.add(course)
+                    }
+                }
+                trySend(pendingCourses).isSuccess
+            }
+
+            if (error != null) {
+                Log.d(TAG, "getCourseList: ${error.localizedMessage}")
             }
         }
 
@@ -153,7 +184,7 @@ class CourseRepositoryImpl @Inject constructor(
     }
 
     override fun getPendingCourseList(courseIds: List<String>): Flow<List<Course>> = callbackFlow {
-        Log.d(TAG, "getPendingCourseList: $courseIds")
+//        Log.d(TAG, "getPendingCourseList: $courseIds")
         val snapshotListener = coursesCollection.addSnapshotListener { value, error ->
             val pendingCourses = mutableListOf<Course>()
             value?.documents?.forEach { document ->
@@ -188,6 +219,38 @@ class CourseRepositoryImpl @Inject constructor(
 
     override fun updateCourse(): Flow<DataState<Course>> {
         TODO("Not yet implemented")
+    }
+
+    override fun acceptCourse(course: Course): Flow<DataState<Course>> = flow<DataState<Course>> {
+        emit(DataState.Loading)
+
+        val courseId = "${course.courseDepartment}:${course.courseCode}"
+
+        // Change Teacher's request status
+        usersCollection.document(course.courseTeacher).get().addOnSuccessListener {
+            if (it.exists() && it != null) {
+                val requestedCourses = if (it[REQUESTED_COURSES] != null) it[REQUESTED_COURSES] as MutableList<String> else mutableListOf()
+                val courses = if (it[COURSES] != null) it[COURSES] as MutableList<String> else mutableListOf()
+
+                requestedCourses.remove(courseId)
+                courses.add(courseId)
+
+                usersCollection.document(course.courseTeacher).update(COURSES, courses).addOnFailureListener {
+                    return@addOnFailureListener
+                }
+                usersCollection.document(course.courseTeacher).update(REQUESTED_COURSES, requestedCourses).addOnFailureListener {
+                    return@addOnFailureListener
+                }
+            }
+        }
+
+        // Change course pending status
+        coursesCollection.document(courseId).update(PENDING_STATUS, false).addOnSuccessListener {
+            return@addOnSuccessListener
+        }
+
+    }.catch {
+        Log.d(TAG, "acceptCourse: ${it.localizedMessage}")
     }
 
     override fun deleteCourse(course: Course): Flow<DataState<Course>> = flow<DataState<Course>> {

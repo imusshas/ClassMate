@@ -8,6 +8,7 @@ import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.HomeUIEvent
+import com.nasiat_muhib.classmate.domain.repository.AuthenticationRepository
 import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import com.nasiat_muhib.classmate.domain.state.DataState
@@ -27,6 +28,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val courseRepo: CourseRepository,
+    private val authRepo: AuthenticationRepository,
 ) : ViewModel() {
 
     private val currentUser = userRepo.currentUser
@@ -61,6 +63,12 @@ class HomeViewModel @Inject constructor(
     private fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
         userRepo.getUser(email).collectLatest {
             _userState.value = it
+        }
+    }
+
+    fun signOut() = viewModelScope.launch {
+        authRepo.signOut().collectLatest {
+
         }
     }
 
@@ -120,6 +128,18 @@ class HomeViewModel @Inject constructor(
         _tomorrowClasses.value = tomorrowClassList
     }
 
+    fun deleteRequest(course: Course) = viewModelScope.launch {
+        courseRepo.deleteCourse(course).collectLatest {
+
+        }
+    }
+
+    fun acceptCourse (course: Course) = viewModelScope.launch {
+        courseRepo.acceptCourse(course).collectLatest {
+
+        }
+    }
+
 
     fun onHomeEvent(event: HomeUIEvent) {
 
@@ -147,8 +167,13 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
-            HomeUIEvent.TodayClassClicked -> TODO()
-            HomeUIEvent.TomorrowClassClicked -> TODO()
+
+            is HomeUIEvent.AcceptCourseRequest -> {
+                acceptCourse(event.course)
+            }
+            is HomeUIEvent.DeleteCourseRequest -> {
+                deleteRequest(event.course)
+            }
         }
     }
 

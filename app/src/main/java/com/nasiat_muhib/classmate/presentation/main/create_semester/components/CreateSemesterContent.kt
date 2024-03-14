@@ -25,6 +25,7 @@ import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
 import com.nasiat_muhib.classmate.presentation.main.create_semester.CreateSemesterViewModel
 import com.nasiat_muhib.classmate.strings.ADD_ICON
+import com.nasiat_muhib.classmate.strings.CLASS_REPRESENTATIVE
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
@@ -33,7 +34,8 @@ fun CreateSemesterContent(
     createSemesterViewModel: CreateSemesterViewModel,
 ) {
 
-    val createdCourses by createSemesterViewModel.courses.collectAsState()
+    val user by createSemesterViewModel.userState.collectAsState()
+    val createdCourses by createSemesterViewModel.cratedCourses.collectAsState()
     val pendingCourses by createSemesterViewModel.pendingCourses.collectAsState()
 
     val courses = rememberSaveable { mutableStateOf(createdCourses) }
@@ -41,7 +43,7 @@ fun CreateSemesterContent(
     Scaffold(
         topBar = { ClassMateTabRow(tab = TabItem.CreateSemester) },
         floatingActionButton = {
-//            if (user.role == CLASS_REPRESENTATIVE) {
+            if (user.data?.role == CLASS_REPRESENTATIVE) {
                 FloatingActionButton(
                     onClick = {
                         createSemesterViewModel.onCreateSemesterEvent(CreateSemesterUIEvent.CreateSemesterFABClick)
@@ -54,7 +56,7 @@ fun CreateSemesterContent(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
-//            }
+            }
         }
 
     ) { paddingValues ->

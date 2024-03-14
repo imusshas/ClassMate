@@ -29,8 +29,8 @@ class CreateSemesterViewModel @Inject constructor(
     val userState = _userState.asStateFlow()
 
 
-    private val _courses = MutableStateFlow<List<Course>>(listOf())
-    val courses = _courses.asStateFlow()
+    private val _createdCourses = MutableStateFlow<List<Course>>(listOf())
+    val cratedCourses = _createdCourses.asStateFlow()
 
     private val _pendingCourses = MutableStateFlow<List<Course>>(listOf())
     val pendingCourses = _pendingCourses.asStateFlow()
@@ -68,15 +68,21 @@ class CreateSemesterViewModel @Inject constructor(
 
     fun getCourses(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
 
-        if (courseIds.isNotEmpty()) {
             try {
-                courseRepo.getCourseList(courseIds).collectLatest {
-                    _courses.value = it
+                courseRepo.getCourseList(courseIds).collectLatest {course ->
+                    val created = mutableListOf<Course>()
+                    course.forEach {
+                        Log.d(TAG, "getCourses: $it")
+                        if (it.courseCreator == userState.value.data?.email) {
+                            created.add(it)
+                        }
+                    }
+//                    _createdCourses.value = created
                 }
             } catch (e: Exception) {
                 Log.d(TAG, "getCourses: ${e.localizedMessage}")
             }
-        }
+
     }
 
     fun getPendingCourses(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
@@ -87,6 +93,13 @@ class CreateSemesterViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.d(TAG, "getPendingCourses: ${e.localizedMessage}")
             }
+    }
+
+
+    fun getCreatedCourses(courseIds: List<String>, creatorEmail: String) = viewModelScope.launch {
+        courseRepo.getCreatedCourses(courseIds, creatorEmail).collectLatest {
+            _createdCourses.value = it
+        }
     }
 
     private fun deleteCourse(course: Course) = viewModelScope.launch(Dispatchers.IO) {

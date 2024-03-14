@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -16,6 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.nasiat_muhib.classmate.components.CustomLazyColumn
+import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.components.TwoTitleContainer
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
@@ -74,6 +77,19 @@ fun HomeScreenContent(
                     courseOrRequest.value = requestedCourses
                 }
             )
+
+            CustomSwipeAbleLazyColumn(items = courseOrRequest.value, key = {
+                "${it.courseDepartment}:${it.courseCode}"
+            }) {
+                CourseDisplay(course = it, homeViewModel = homeViewModel, isRequested = requestedCourses.contains(it))
+            }
+
+        }
+
+        ElevatedButton(onClick = {
+            homeViewModel.signOut()
+        }) {
+            Text(text = "Sign Out")
         }
     }
 }
