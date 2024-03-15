@@ -19,18 +19,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import com.nasiat_muhib.classmate.components.CustomClickableText
 import com.nasiat_muhib.classmate.components.CustomDatePicker
 import com.nasiat_muhib.classmate.components.CustomDialog
-import com.nasiat_muhib.classmate.components.CustomDropDownMenu
 import com.nasiat_muhib.classmate.components.CustomOutlinedField
 import com.nasiat_muhib.classmate.components.CustomTimePicker
-import com.nasiat_muhib.classmate.core.Constants
-import com.nasiat_muhib.classmate.domain.event.CreateClassUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateTermTestUIEvent
 import com.nasiat_muhib.classmate.strings.CANCEL_BUTTON
 import com.nasiat_muhib.classmate.strings.CLASSROOM_LABEL
 import com.nasiat_muhib.classmate.strings.CREATE_BUTTON
-import com.nasiat_muhib.classmate.strings.END_TIME
-import com.nasiat_muhib.classmate.strings.SECTION_LABEL
-import com.nasiat_muhib.classmate.strings.START_TIME
 import com.nasiat_muhib.classmate.ui.theme.ClickableTextStyle
 import com.nasiat_muhib.classmate.ui.theme.ExtraLargeSpace
 import com.nasiat_muhib.classmate.ui.theme.ExtraSmallSpace
@@ -46,7 +40,7 @@ fun CreateTermTest(
 
     CustomDialog(
         onDismissRequest = {
-            courseDetailsDisplayViewModel.onCreateTermTestEvent(CreateTermTestUIEvent.TermTestCancelButtonClick)
+            courseDetailsDisplayViewModel.onCreateTermTestEvent(CreateTermTestUIEvent.CancelButtonClick)
         }
     ) {
         Column(
@@ -61,7 +55,7 @@ fun CreateTermTest(
                 labelValue = CLASSROOM_LABEL,
                 onValueChange = { classroom ->
                     courseDetailsDisplayViewModel.onCreateTermTestEvent(
-                        CreateTermTestUIEvent.TermTestClassroomChanged(
+                        CreateTermTestUIEvent.ClassroomChanged(
                             classroom
                         )
                     )
@@ -72,17 +66,17 @@ fun CreateTermTest(
             CustomDatePicker(
                 onDayChange = { day ->
                               courseDetailsDisplayViewModel.onCreateTermTestEvent(
-                                  CreateTermTestUIEvent.TermTestDayChanged(day)
+                                  CreateTermTestUIEvent.DayChanged(day)
                               )
                 },
                 onMonthChange = { month ->
                                 courseDetailsDisplayViewModel.onCreateTermTestEvent(
-                                    CreateTermTestUIEvent.TermTestMonthChanged(month)
+                                    CreateTermTestUIEvent.MonthChanged(month)
                                 )
                 },
                 onYearChange = { year ->
                     courseDetailsDisplayViewModel.onCreateTermTestEvent(
-                        CreateTermTestUIEvent.TermTestYearChanged(year)
+                        CreateTermTestUIEvent.YearChanged(year)
                     )
 
                 }
@@ -92,17 +86,17 @@ fun CreateTermTest(
             CustomTimePicker(
                 onHourChange = { hour ->
                     courseDetailsDisplayViewModel.onCreateTermTestEvent(
-                        CreateTermTestUIEvent.TermTestHourChanged(hour)
+                        CreateTermTestUIEvent.HourChanged(hour)
                     )
                 },
                 onMinuteChange = { minute ->
                     courseDetailsDisplayViewModel.onCreateTermTestEvent(
-                        CreateTermTestUIEvent.TermTestMinuteChanged(minute)
+                        CreateTermTestUIEvent.MinuteChanged(minute)
                     )
                 },
                 onShiftClick = { shift ->
                     courseDetailsDisplayViewModel.onCreateTermTestEvent(
-                        CreateTermTestUIEvent.TermTestShiftChanged(shift)
+                        CreateTermTestUIEvent.ShiftChanged(shift)
                     )
                 }
             )
@@ -135,7 +129,7 @@ fun CreateTermTest(
                 CustomClickableText(
                     text = CANCEL_BUTTON,
                     onClick = {
-                        courseDetailsDisplayViewModel.onCreateTermTestEvent(CreateTermTestUIEvent.TermTestCancelButtonClick)
+                        courseDetailsDisplayViewModel.onCreateTermTestEvent(CreateTermTestUIEvent.CancelButtonClick)
                     },
                     style = ClickableTextStyle.copy(
                         textDecoration = TextDecoration.None,
@@ -146,7 +140,7 @@ fun CreateTermTest(
                 CustomClickableText(
                     text = CREATE_BUTTON,
                     onClick = {
-                        courseDetailsDisplayViewModel.onCreateTermTestEvent(CreateTermTestUIEvent.TermTestCreateButtonClick)
+                        courseDetailsDisplayViewModel.onCreateTermTestEvent(CreateTermTestUIEvent.CreateButtonClick)
                     },
                     style = ClickableTextStyle.copy(
                         textDecoration = TextDecoration.None,

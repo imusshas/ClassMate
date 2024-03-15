@@ -152,6 +152,10 @@ class CourseDetailsDisplayViewModel @Inject constructor(
             is CourseDetailsDisplayUIEvent.EventDeleteSwipe -> {
                 deleteEvent(event.event)
             }
+
+            CourseDetailsDisplayUIEvent.AssignmentTitleClicked -> {
+                _createAssignmentDialogState.value = true
+            }
         }
     }
 
@@ -307,42 +311,42 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     fun onCreateTermTestEvent(event: CreateTermTestUIEvent) {
 
         when (event) {
-            CreateTermTestUIEvent.TermTestCancelButtonClick -> {
+            CreateTermTestUIEvent.CancelButtonClick -> {
                 _createTermTestDialogState.value = false
             }
 
-            is CreateTermTestUIEvent.TermTestClassroomChanged -> {
+            is CreateTermTestUIEvent.ClassroomChanged -> {
                 _termTestUIState.value = termTestUIState.value.copy(classroom = event.classroom)
             }
 
-            CreateTermTestUIEvent.TermTestCreateButtonClick -> {
+            CreateTermTestUIEvent.CreateButtonClick -> {
                 createTermTest()
             }
 
-            is CreateTermTestUIEvent.TermTestDayChanged -> {
+            is CreateTermTestUIEvent.DayChanged -> {
                 val day = if (event.day == "") -1 else event.day.toInt()
                 _termTestUIState.value = termTestUIState.value.copy(day = day)
             }
 
-            is CreateTermTestUIEvent.TermTestHourChanged -> {
+            is CreateTermTestUIEvent.HourChanged -> {
                 val hour = if (event.hour == "") -1 else event.hour.toInt()
                 _termTestUIState.value = termTestUIState.value.copy(hour = hour)
             }
 
-            is CreateTermTestUIEvent.TermTestMinuteChanged -> {
+            is CreateTermTestUIEvent.MinuteChanged -> {
                 val minute = if (event.minute == "") -1 else event.minute.toInt()
                 _termTestUIState.value = termTestUIState.value.copy(minute = minute)
             }
 
-            is CreateTermTestUIEvent.TermTestMonthChanged -> {
+            is CreateTermTestUIEvent.MonthChanged -> {
                 _termTestUIState.value = termTestUIState.value.copy(month = event.month)
             }
 
-            is CreateTermTestUIEvent.TermTestShiftChanged -> {
+            is CreateTermTestUIEvent.ShiftChanged -> {
                 _termTestUIState.value = termTestUIState.value.copy(shift = event.shift)
             }
 
-            is CreateTermTestUIEvent.TermTestYearChanged -> {
+            is CreateTermTestUIEvent.YearChanged -> {
                 val year = if (event.year == "") -1 else event.year.toInt()
                 _termTestUIState.value = termTestUIState.value.copy(year = year)
             }

@@ -24,6 +24,7 @@ import com.nasiat_muhib.classmate.strings.DATE
 import com.nasiat_muhib.classmate.strings.FORWARD_SLASH
 import com.nasiat_muhib.classmate.strings.TIME
 import com.nasiat_muhib.classmate.ui.theme.ExtraSmallSpace
+import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.PickerStyle
 import com.nasiat_muhib.classmate.ui.theme.SmallPickerStyle
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
@@ -38,8 +39,8 @@ fun CustomDatePicker(
     onYearChange: (String) -> Unit,
     topPadding: Dp = ZeroSpace,
     bottomPadding: Dp = ZeroSpace,
-    startPadding: Dp = SmallSpace,
-    endPadding: Dp = SmallSpace,
+    startPadding: Dp = MediumSpace,
+    endPadding: Dp = MediumSpace,
 ) {
 
     val localFocusManager = LocalFocusManager.current
