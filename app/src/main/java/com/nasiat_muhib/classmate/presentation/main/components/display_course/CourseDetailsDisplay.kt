@@ -30,6 +30,7 @@ fun CourseDetailsDisplay(
     courseDetailsDisplayViewModel.setCurrentCourse(course)
     courseDetailsDisplayViewModel.getClassDetailsList()
     courseDetailsDisplayViewModel.getTermTestsList()
+    courseDetailsDisplayViewModel.getAssignmentList()
 
     val classes by courseDetailsDisplayViewModel.classes.collectAsState()
     val createClassDialogState by courseDetailsDisplayViewModel.createClassDialogState.collectAsState()
@@ -37,7 +38,7 @@ fun CourseDetailsDisplay(
     val termTests by courseDetailsDisplayViewModel.termTests.collectAsState()
     val createTermTestDialogState by courseDetailsDisplayViewModel.createTermTestDialogState.collectAsState()
 
-    val assignment by courseDetailsDisplayViewModel.assignments.collectAsState()
+    val assignments by courseDetailsDisplayViewModel.assignments.collectAsState()
     val createAssignmentDialogState by courseDetailsDisplayViewModel.createAssignmentDialogState.collectAsState()
 
     Column(
@@ -100,6 +101,16 @@ fun CourseDetailsDisplay(
             title = "Assignment +",
             onTitleClick = { courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.AssignmentTitleClicked) }
         )
+
+        Spacer(modifier = Modifier.height(SmallSpace))
+        CustomSwipeAbleLazyColumn(
+            items = assignments,
+            key = {
+                "${it.department}:${it.courseCode}:${it.eventNo}"
+            }
+        ) {
+            DisplayEvent(event = it, courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
+        }
 
         Spacer(modifier = Modifier.height(MediumSpace))
 

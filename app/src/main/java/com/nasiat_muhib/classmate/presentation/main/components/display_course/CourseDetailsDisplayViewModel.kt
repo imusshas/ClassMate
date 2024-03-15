@@ -55,7 +55,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     val createClassUIState = _createClassUIState.asStateFlow()
 
     private val _createClassValidationPassed = MutableStateFlow(false)
-    val createClassValidationPassed = _createClassValidationPassed.asStateFlow()
+    private val createClassValidationPassed = _createClassValidationPassed.asStateFlow()
     /************************* Class ****************************/
 
     /************************* TermTest ****************************/
@@ -69,7 +69,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     val termTestUIState = _termTestUIState.asStateFlow()
 
     private val _termTestValidationPassed = MutableStateFlow(false)
-    val termTestValidationPassed = _termTestValidationPassed.asStateFlow()
+    private val termTestValidationPassed = _termTestValidationPassed.asStateFlow()
     /************************* TermTest ****************************/
 
     /************************* Assignment ****************************/
@@ -83,7 +83,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     val assignmentUIState = _assignmentUIState.asStateFlow()
 
     private val _assignmentValidationPassed = MutableStateFlow(false)
-    val assignmentValidationPassed = _assignmentValidationPassed.asStateFlow()
+    private val assignmentValidationPassed = _assignmentValidationPassed.asStateFlow()
 
     /************************* Assignment ****************************/
 
@@ -120,6 +120,14 @@ class CourseDetailsDisplayViewModel @Inject constructor(
         val courseId = "${currentCourse.value.courseDepartment}:${currentCourse.value.courseCode}"
         eventRepo.getEventList(courseId, EVENTS[0]).collectLatest {
             _termTests.value = it
+        }
+    }
+
+
+    fun getAssignmentList() = viewModelScope.launch {
+        val courseId = "${currentCourse.value.courseDepartment}:${currentCourse.value.courseCode}"
+        eventRepo.getEventList(courseId, EVENTS[1]).collectLatest {
+            _assignments.value = it
         }
     }
 
