@@ -10,5 +10,9 @@ data class EventUIState(
     val year: Int = -1,
     val hour: Int = -1,
     val minute: Int = -1,
-    val shift: String = ""
+    val shift: String = "",
+
+    val classroomError: String? = null,
+    val dateError: String? = null,
+    val timeError: String? = null,
 )

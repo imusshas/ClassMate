@@ -22,7 +22,7 @@ fun <T> CustomSwipeAbleLazyColumn (
     content: @Composable (T) -> Unit
 ) {
     LazyColumn (
-        modifier = Modifier.fillMaxWidth().height(MaximumHeight),
+        modifier = Modifier.fillMaxWidth().heightIn(max = MaximumHeight),
         verticalArrangement = Arrangement.spacedBy(SmallSpace),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

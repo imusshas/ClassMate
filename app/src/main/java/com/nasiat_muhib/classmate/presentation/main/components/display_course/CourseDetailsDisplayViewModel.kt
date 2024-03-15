@@ -14,6 +14,7 @@ import com.nasiat_muhib.classmate.domain.repository.ClassDetailsRepository
 import com.nasiat_muhib.classmate.domain.repository.EventRepository
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import com.nasiat_muhib.classmate.domain.rules.CreateCourseValidator
+import com.nasiat_muhib.classmate.domain.rules.DisplayCourseValidator
 import com.nasiat_muhib.classmate.domain.state.CreateClassUIState
 import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.domain.state.EventUIState
@@ -41,7 +42,6 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     val currentCourse = _currentCourse.asStateFlow()
 
 
-
     /************************* Class ****************************/
     private val _classes = MutableStateFlow<List<ClassDetails>>(listOf())
     val classes = _classes.asStateFlow()
@@ -58,7 +58,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
     /************************* TermTest ****************************/
     private val _termTests = MutableStateFlow<List<Event>>(emptyList())
-    val termTest = _termTests.asStateFlow()
+    val termTests = _termTests.asStateFlow()
 
     private val _createTermTestDialogState = MutableStateFlow(false)
     val createTermTestDialogState = _createTermTestDialogState.asStateFlow()
@@ -77,7 +77,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     private val _createAssignmentDialogState = MutableStateFlow(false)
     val createAssignmentDialogState = _createAssignmentDialogState.asStateFlow()
 
-    private val _assignmentUIState = MutableStateFlow(EventUIState(type = EVENTS[0]))
+    private val _assignmentUIState = MutableStateFlow(EventUIState(type = EVENTS[1]))
     val assignmentUIState = _assignmentUIState.asStateFlow()
 
     private val _assignmentValidationPassed = MutableStateFlow(false)
@@ -95,8 +95,6 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     }
 
 
-
-
     private fun getUser(email: String) = viewModelScope.launch {
         userRepo.getUser(email).collectLatest {
             _currentUser.value = it
@@ -109,15 +107,24 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     }
 
     fun getClassDetailsList() = viewModelScope.launch {
-        classRepo.getClasses("${currentCourse.value.courseDepartment}:${currentCourse.value.courseCode}").collectLatest {
-            _classes.value = it
+        val courseId = "${currentCourse.value.courseDepartment}:${currentCourse.value.courseCode}"
+        classRepo.getClasses(courseId)
+            .collectLatest {
+                _classes.value = it
+            }
+    }
+
+    fun getTermTestsList() = viewModelScope.launch {
+        val courseId = "${currentCourse.value.courseDepartment}:${currentCourse.value.courseCode}"
+        eventRepo.getEventList(courseId, EVENTS[0]).collectLatest {
+            _termTests.value = it
         }
     }
 
 
     fun onDisplayEvent(event: CourseDetailsDisplayUIEvent) {
 
-        when(event) {
+        when (event) {
             CourseDetailsDisplayUIEvent.CourseDetailsDisplayTopBarBackButtonClicked -> {
                 ClassMateAppRouter.navigateTo(Screen.CreateSemesterScreen)
             }
@@ -132,6 +139,18 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
             is CourseDetailsDisplayUIEvent.ClassDeleteSwipe -> {
                 deleteClass(event.classDetails)
+            }
+
+            CourseDetailsDisplayUIEvent.TermTestTitleClicked -> {
+                currentUser.value.data?.let {
+                    if (it.email == currentCourse.value.courseCreator || it.email == currentCourse.value.courseTeacher) {
+                        _createTermTestDialogState.value = true
+                    }
+                }
+            }
+
+            is CourseDetailsDisplayUIEvent.EventDeleteSwipe -> {
+                eventRepo.deleteEvent(event.event)
             }
         }
     }
@@ -268,8 +287,6 @@ class CourseDetailsDisplayViewModel @Inject constructor(
                     ?: (endMinuteResult.message ?: durationResult.message))))
         )
 
-//        Log.d(TAG, "validateCreateClassUIDataWithRules: ${createClassUIState.value}")
-
         _createClassValidationPassed.value =
             classRoomResult.message == null &&
                     sectionResult.message == null &&
@@ -287,50 +304,95 @@ class CourseDetailsDisplayViewModel @Inject constructor(
             CreateTermTestUIEvent.TermTestCancelButtonClick -> {
                 _createTermTestDialogState.value = false
             }
+
             is CreateTermTestUIEvent.TermTestClassroomChanged -> {
                 _termTestUIState.value = termTestUIState.value.copy(classroom = event.classroom)
             }
+
             CreateTermTestUIEvent.TermTestCreateButtonClick -> {
-                _createTermTestDialogState.value = false
-                val termTest = Event(
-                    type = EVENTS[0],
-                    classroom = termTestUIState.value.classroom,
-                    day = termTestUIState.value.day,
-                    month = termTestUIState.value.month,
-                    year = termTestUIState.value.year,
-                    hour = termTestUIState.value.hour,
-                    minute = termTestUIState.value.minute,
-                    shift = termTestUIState.value.shift
-
-                )
-
-
+                createTermTest()
             }
+
             is CreateTermTestUIEvent.TermTestDayChanged -> {
-                _termTestUIState.value = termTestUIState.value.copy(day = event.day.toInt())
+                val day = if (event.day == "") -1 else event.day.toInt()
+                _termTestUIState.value = termTestUIState.value.copy(day = day)
             }
+
             is CreateTermTestUIEvent.TermTestHourChanged -> {
-                _termTestUIState.value = termTestUIState.value.copy(hour = event.hour.toInt())
+                val hour = if (event.hour == "") -1 else event.hour.toInt()
+                _termTestUIState.value = termTestUIState.value.copy(hour = hour)
             }
+
             is CreateTermTestUIEvent.TermTestMinuteChanged -> {
-                _termTestUIState.value = termTestUIState.value.copy(minute = event.minute.toInt())
+                val minute = if (event.minute == "") -1 else event.minute.toInt()
+                _termTestUIState.value = termTestUIState.value.copy(minute = minute)
             }
+
             is CreateTermTestUIEvent.TermTestMonthChanged -> {
                 _termTestUIState.value = termTestUIState.value.copy(month = event.month)
             }
+
             is CreateTermTestUIEvent.TermTestShiftChanged -> {
                 _termTestUIState.value = termTestUIState.value.copy(shift = event.shift)
             }
+
             is CreateTermTestUIEvent.TermTestYearChanged -> {
-                _termTestUIState.value = termTestUIState.value.copy(year = event.year.toInt())
+                val year = if (event.year == "") -1 else event.year.toInt()
+                _termTestUIState.value = termTestUIState.value.copy(year = year)
             }
         }
     }
 
-    private fun createTermTest() {
-        _createTermTestDialogState.value = false
-        val lastTermTest =
-            if (classes.value.isEmpty()) ClassDetails() else classes.value[classes.value.size - 1]
+    private fun createTermTest() = viewModelScope.launch {
+        validateTermTestUIDataWithRules()
+        if (termTestValidationPassed.value) {
+            _createTermTestDialogState.value = false
+            val lastTermTest =
+                if (termTests.value.isEmpty()) Event() else termTests.value[termTests.value.size - 1]
+            val termTest = Event(
+                type = EVENTS[0],
+                eventNo = lastTermTest.eventNo + 1,
+                department = currentCourse.value.courseDepartment,
+                courseCode = currentCourse.value.courseCode,
+                classroom = termTestUIState.value.classroom,
+                day = termTestUIState.value.day,
+                month = termTestUIState.value.month,
+                year = termTestUIState.value.year,
+                hour = termTestUIState.value.hour,
+                minute = termTestUIState.value.minute,
+                shift = termTestUIState.value.shift
+            )
+
+            eventRepo.createEvent(termTest).collectLatest {
+
+            }
+        }
+    }
+
+
+    private fun validateTermTestUIDataWithRules() {
+        val day = if (termTestUIState.value.day == -1) "" else termTestUIState.value.day.toString()
+        val year =
+            if (termTestUIState.value.year == -1) "" else termTestUIState.value.year.toString()
+        val hour =
+            if (termTestUIState.value.hour == -1) "" else termTestUIState.value.hour.toString()
+        val minute =
+            if (termTestUIState.value.minute == -1) "" else termTestUIState.value.minute.toString()
+
+        val classroomResult =
+            DisplayCourseValidator.validateClassroom(termTestUIState.value.classroom)
+        val dateResult = DisplayCourseValidator.validateDate(day, termTestUIState.value.month, year)
+        val hourResult = DisplayCourseValidator.validateHour(hour)
+        val minuteResult = DisplayCourseValidator.validateMinute(minute)
+
+        _termTestUIState.value = termTestUIState.value.copy(
+            classroomError = classroomResult.message,
+            dateError = dateResult.message,
+            timeError = hourResult.message ?: minuteResult.message
+        )
+
+        _termTestValidationPassed.value = classroomResult.message == null &&
+                dateResult.message == null && hourResult.message == null && minuteResult.message == null
     }
 
 

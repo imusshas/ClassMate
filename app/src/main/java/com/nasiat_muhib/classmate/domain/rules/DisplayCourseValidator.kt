@@ -1,17 +1,20 @@
 package com.nasiat_muhib.classmate.domain.rules
 
 import android.util.Log
+import java.time.LocalDate
 
 object DisplayCourseValidator {
 
-    /***********************    Class    ***************************/
-    fun validateSection(section: String): DisplayCourseValidationResult {
+    /***********************    Classroom    ***************************/
+    fun validateClassroom(classroom: String): DisplayCourseValidationResult {
         var message: String? = null
-        if (section.isBlank()) message = "Section can't be empty"
+        if (classroom.isBlank()) message = "Section can't be empty"
 
         return DisplayCourseValidationResult(message)
     }
+    /***********************    Classroom    ***************************/
 
+    /***********************    Time    ***************************/
     fun validateHour(hour: String): DisplayCourseValidationResult {
         var message: String? = null
         if (hour.isBlank()) message = "Hour can't be empty"
@@ -31,7 +34,39 @@ object DisplayCourseValidator {
         return DisplayCourseValidationResult(message)
     }
 
-    /***********************    Class    ***************************/
+    /***********************    Time    ***************************/
+
+
+    /***********************    Date    ***************************/
+    fun validateDate(day: String, month: String, year: String): DisplayCourseValidationResult {
+        var message: String? = null
+        val months = listOf("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
+        val has30Days = listOf("APR", "JUN", "SEP", "NOV")
+
+        if (day.isBlank() || month.isBlank() || year.isBlank()) {
+            message = "Date can't be empty"
+        }  else if (month.length != 3) {
+            message = "Month must be of 3 capital letters"
+        } else if (month !in "A".."Z") {
+            message = "Month must contain capital letters only"
+        } else if (day.toInt() !in  1..31 || month !in months || year.toInt() < LocalDate.now().year) {
+            message = "Invalid date"
+        } else if (month !in has30Days && day == "31") {
+            message = "$month can't have 31 days"
+        } else if (month == "FEB" && day.toInt() > 29) {
+            message = "FEB can't have $day days"
+        } else if (!isLeapYear(year.toInt()) && month == "FEB" && day == "29") {
+            message = "$year is not a leap year"
+        }
+
+        return DisplayCourseValidationResult(message)
+    }
+
+    /***********************    Date    ***************************/
+
+    private fun isLeapYear(year: Int): Boolean {
+        return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
+    }
 
 
 

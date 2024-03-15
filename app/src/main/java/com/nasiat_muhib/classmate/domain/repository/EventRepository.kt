@@ -6,15 +6,10 @@ import kotlinx.coroutines.flow.Flow
 
 interface EventRepository {
 
-    fun createTermTest (event: Event): Flow<DataState<Event>>
+    fun createEvent (event: Event): Flow<DataState<Event>>
 
-    fun getTermTestList (courseId: String): Flow<List<Event>>
+    fun getEventList (courseId: String, whichEvent: String): Flow<List<Event>>
 
-    fun deleteTermTest (event: Event): Flow<DataState<Event>>
+    fun deleteEvent (event: Event): Flow<DataState<Event>>
 
-    fun createAssignment (event: Event): Flow<DataState<Event>>
-
-    fun getAssignmentList (courseId: String): Flow<List<Event>>
-
-    fun deleteAssignment (event: Event): Flow<DataState<Event>>
 }

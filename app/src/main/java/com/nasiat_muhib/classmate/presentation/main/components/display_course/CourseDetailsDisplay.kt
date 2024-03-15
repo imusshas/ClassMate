@@ -29,8 +29,13 @@ fun CourseDetailsDisplay(
 
     courseDetailsDisplayViewModel.setCurrentCourse(course)
     courseDetailsDisplayViewModel.getClassDetailsList()
+    courseDetailsDisplayViewModel.getTermTestsList()
+
     val classes by courseDetailsDisplayViewModel.classes.collectAsState()
     val createClassDialogState by courseDetailsDisplayViewModel.createClassDialogState.collectAsState()
+
+    val termTests by courseDetailsDisplayViewModel.termTests.collectAsState()
+    val createTermTestDialogState by courseDetailsDisplayViewModel.createTermTestDialogState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -70,8 +75,21 @@ fun CourseDetailsDisplay(
 
         ClickableTitleContainer(
             title = "Term Test +",
-            onTitleClick = { /*TODO*/ }
+            onTitleClick = {
+                courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.TermTestTitleClicked)
+            }
         )
+
+        Spacer(modifier = Modifier.height(SmallSpace))
+        CustomSwipeAbleLazyColumn(
+            items = termTests,
+            key = {
+                "${it.department}:${it.courseCode}:${it.eventNo}"
+            }
+        ) {
+            DisplayEvent(event = it, courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
+        }
+
 
         Spacer(modifier = Modifier.height(MediumSpace))
 
@@ -96,6 +114,10 @@ fun CourseDetailsDisplay(
 
         if (createClassDialogState) {
             CreateClassOnDisplay(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
+        }
+
+        if (createTermTestDialogState) {
+            CreateTermTest(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
         }
     }
 
