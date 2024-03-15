@@ -69,8 +69,21 @@ class EventRepositoryImpl @Inject constructor(
             Log.d(TAG, "getEventList: ${it.localizedMessage}")
         }
 
-    override fun deleteEvent(event: Event): Flow<DataState<Event>> {
-        TODO("Not yet implemented")
+    override fun deleteEvent(event: Event): Flow<DataState<Event>> = flow<DataState<Event>> {
+        emit(DataState.Loading)
+
+        val eventId = "${event.department}:${event.courseCode}:${event.eventNo}"
+
+        if (event.type == EVENTS[0]) {
+            termTestCollection.document(eventId).delete().await()
+        } else {
+            assignmentCollection.document(eventId).delete().await()
+        }
+        
+        emit(DataState.Success(event))
+        
+    }.catch {
+        Log.d(TAG, "deleteEvent: ${it.localizedMessage}")
     }
 
 

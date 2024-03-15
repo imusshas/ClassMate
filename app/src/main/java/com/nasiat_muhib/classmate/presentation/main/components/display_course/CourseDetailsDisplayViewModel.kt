@@ -150,13 +150,19 @@ class CourseDetailsDisplayViewModel @Inject constructor(
             }
 
             is CourseDetailsDisplayUIEvent.EventDeleteSwipe -> {
-                eventRepo.deleteEvent(event.event)
+                deleteEvent(event.event)
             }
         }
     }
 
     private fun deleteClass(classDetails: ClassDetails) = viewModelScope.launch {
         classRepo.deleteClass(classDetails).collectLatest {
+
+        }
+    }
+
+    private fun deleteEvent(event: Event) = viewModelScope.launch {
+        eventRepo.deleteEvent(event).collectLatest {
 
         }
     }
