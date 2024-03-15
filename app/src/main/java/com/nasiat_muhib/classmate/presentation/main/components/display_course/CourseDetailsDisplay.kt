@@ -37,6 +37,9 @@ fun CourseDetailsDisplay(
     val termTests by courseDetailsDisplayViewModel.termTests.collectAsState()
     val createTermTestDialogState by courseDetailsDisplayViewModel.createTermTestDialogState.collectAsState()
 
+    val assignment by courseDetailsDisplayViewModel.assignments.collectAsState()
+    val createAssignmentDialogState by courseDetailsDisplayViewModel.createAssignmentDialogState.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -95,7 +98,7 @@ fun CourseDetailsDisplay(
 
         ClickableTitleContainer(
             title = "Assignment +",
-            onTitleClick = { /*TODO*/ }
+            onTitleClick = { courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.AssignmentTitleClicked) }
         )
 
         Spacer(modifier = Modifier.height(MediumSpace))
@@ -118,6 +121,10 @@ fun CourseDetailsDisplay(
 
         if (createTermTestDialogState) {
             CreateTermTest(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
+        }
+
+        if (createAssignmentDialogState) {
+            CreateAssignment(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
         }
     }
 

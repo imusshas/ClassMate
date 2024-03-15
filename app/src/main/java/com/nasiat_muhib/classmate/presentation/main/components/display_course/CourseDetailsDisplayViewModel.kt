@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.presentation.main.components.display_course
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nasiat_muhib.classmate.core.Constants.EVENTS
@@ -8,6 +9,7 @@ import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.Event
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.CourseDetailsDisplayUIEvent
+import com.nasiat_muhib.classmate.domain.event.CreateAssignmentUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateClassUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateTermTestUIEvent
 import com.nasiat_muhib.classmate.domain.repository.ClassDetailsRepository
@@ -403,6 +405,103 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
         _termTestValidationPassed.value = classroomResult.message == null &&
                 dateResult.message == null && hourResult.message == null && minuteResult.message == null
+    }
+
+
+    fun onCreateAssignmentEvent(event: CreateAssignmentUIEvent) {
+
+        when (event) {
+            CreateAssignmentUIEvent.CancelButtonClick -> {
+                _createAssignmentDialogState.value = false
+            }
+            is CreateAssignmentUIEvent.ClassroomChanged -> {
+                _assignmentUIState.value = assignmentUIState.value.copy(classroom = event.classroom)
+            }
+            CreateAssignmentUIEvent.CreateButtonClick -> {
+                createAssignment()
+            }
+            is CreateAssignmentUIEvent.DayChanged -> {
+                val day = if (event.day == "") -1 else event.day.toInt()
+                _assignmentUIState.value = assignmentUIState.value.copy(day = day)
+            }
+            is CreateAssignmentUIEvent.HourChanged -> {
+                val hour = if (event.hour == "") -1 else event.hour.toInt()
+                _assignmentUIState.value = assignmentUIState.value.copy(hour = hour)
+            }
+            is CreateAssignmentUIEvent.MinuteChanged -> {
+                val minute = if (event.minute == "") -1 else event.minute.toInt()
+                _assignmentUIState.value = assignmentUIState.value.copy(minute = minute)
+            }
+            is CreateAssignmentUIEvent.MonthChanged -> {
+                _assignmentUIState.value = assignmentUIState.value.copy(month = event.month)
+            }
+            is CreateAssignmentUIEvent.ShiftChanged -> {
+                _assignmentUIState.value = assignmentUIState.value.copy(shift = event.shift)
+            }
+            is CreateAssignmentUIEvent.YearChanged -> {
+                val year = if (event.year == "") -1 else event.year.toInt()
+                _assignmentUIState.value = assignmentUIState.value.copy(year = year)
+            }
+        }
+    }
+
+    private fun createAssignment() = viewModelScope.launch {
+        validateAssignmentUIDataWithRules()
+        if (assignmentValidationPassed.value) {
+            _createAssignmentDialogState.value = false
+            val lastAssignment =
+                if (assignments.value.isEmpty()) Event() else assignments.value[termTests.value.size - 1]
+            val assignment = Event(
+                type = EVENTS[1],
+                eventNo = lastAssignment.eventNo + 1,
+                department = currentCourse.value.courseDepartment,
+                courseCode = currentCourse.value.courseCode,
+                classroom = assignmentUIState.value.classroom,
+                day = assignmentUIState.value.day,
+                month = assignmentUIState.value.month,
+                year = assignmentUIState.value.year,
+                hour = assignmentUIState.value.hour,
+                minute = assignmentUIState.value.minute,
+                shift = assignmentUIState.value.shift
+            )
+
+            eventRepo.createEvent(assignment).collectLatest {
+
+            }
+        }
+    }
+
+
+    private fun validateAssignmentUIDataWithRules() {
+        val day = if (assignmentUIState.value.day == -1) "" else assignmentUIState.value.day.toString()
+        val year =
+            if (assignmentUIState.value.year == -1) "" else assignmentUIState.value.year.toString()
+        val hour =
+            if (assignmentUIState.value.hour == -1) "" else assignmentUIState.value.hour.toString()
+        val minute =
+            if (assignmentUIState.value.minute == -1) "" else assignmentUIState.value.minute.toString()
+
+        Log.d(TAG, "validateAssignmentUIDataWithRules: $hour")
+
+        val classroomResult =
+            DisplayCourseValidator.validateClassroom(assignmentUIState.value.classroom)
+        val dateResult = DisplayCourseValidator.validateDate(day, assignmentUIState.value.month, year)
+        val hourResult = DisplayCourseValidator.validateHour(hour)
+        val minuteResult = DisplayCourseValidator.validateMinute(minute)
+
+        _assignmentUIState.value = assignmentUIState.value.copy(
+            classroomError = classroomResult.message,
+            dateError = dateResult.message,
+            timeError = hourResult.message ?: minuteResult.message
+        )
+
+        _assignmentValidationPassed.value = classroomResult.message == null &&
+                dateResult.message == null && hourResult.message == null && minuteResult.message == null
+    }
+    
+    
+    companion object {
+        const val TAG = "CourseDetailsDisplayViewModel"
     }
 
 

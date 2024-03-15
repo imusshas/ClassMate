@@ -19,7 +19,7 @@ object DisplayCourseValidator {
         var message: String? = null
         if (hour.isBlank()) message = "Hour can't be empty"
         else if (hour.toInt() !in 1..12) {
-            message = "Invalid Hour"
+            message = "Invalid Hour: $hour"
         }
 
         return DisplayCourseValidationResult(message)
