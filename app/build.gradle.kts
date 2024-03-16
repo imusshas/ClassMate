@@ -121,4 +121,10 @@ dependencies {
 
     // Swipe Action
     implementation ("me.saket.swipe:swipe:1.3.0")
+
+    // Link preview
+    implementation ("org.jsoup:jsoup:1.17.2")
+
+    // Display image
+    implementation ("com.squareup.picasso:picasso:2.8")
 }
