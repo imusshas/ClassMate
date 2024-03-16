@@ -29,6 +29,8 @@ import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
 import com.nasiat_muhib.classmate.presentation.main.create_semester.CreateSemesterViewModel
 import com.nasiat_muhib.classmate.strings.ADD_ICON
 import com.nasiat_muhib.classmate.strings.CLASS_REPRESENTATIVE
+import com.nasiat_muhib.classmate.strings.CREATED_COURSES
+import com.nasiat_muhib.classmate.strings.PENDING_COURSES
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
@@ -73,8 +75,8 @@ fun CreateSemesterContent(
             // TODO: Add Routine
             // TODO: Add Already Created Courses
             TwoTitleContainer(
-                leftTitle = "Created Courses",
-                rightTitle = "Pending Courses",
+                leftTitle = CREATED_COURSES,
+                rightTitle = PENDING_COURSES,
                 leftClick = { courses.value = createdCourses },
                 rightClick = { courses.value = pendingCourses }
             )

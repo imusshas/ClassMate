@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -17,6 +18,14 @@ import com.nasiat_muhib.classmate.components.ClickableTitleContainer
 import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.event.CourseDetailsDisplayUIEvent
+import com.nasiat_muhib.classmate.strings.ADD_ASSIGNMENT
+import com.nasiat_muhib.classmate.strings.ADD_CLASS
+import com.nasiat_muhib.classmate.strings.ADD_RESOURCE
+import com.nasiat_muhib.classmate.strings.ADD_TERM_TEST
+import com.nasiat_muhib.classmate.strings.ASSIGNMENT
+import com.nasiat_muhib.classmate.strings.CLASS
+import com.nasiat_muhib.classmate.strings.RESOURCE
+import com.nasiat_muhib.classmate.strings.TERM_TEST
 import com.nasiat_muhib.classmate.ui.theme.LargeSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
@@ -24,13 +33,15 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 @Composable
 fun CourseDetailsDisplay(
     course: Course,
-    courseDetailsDisplayViewModel: CourseDetailsDisplayViewModel = hiltViewModel()
+    courseDetailsDisplayViewModel: CourseDetailsDisplayViewModel = hiltViewModel(),
 ) {
 
     courseDetailsDisplayViewModel.setCurrentCourse(course)
     courseDetailsDisplayViewModel.getClassDetailsList()
     courseDetailsDisplayViewModel.getTermTestsList()
     courseDetailsDisplayViewModel.getAssignmentList()
+
+    val userState by courseDetailsDisplayViewModel.currentUser.collectAsState()
 
     val classes by courseDetailsDisplayViewModel.classes.collectAsState()
     val createClassDialogState by courseDetailsDisplayViewModel.createClassDialogState.collectAsState()
@@ -43,8 +54,7 @@ fun CourseDetailsDisplay(
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
@@ -59,72 +69,79 @@ fun CourseDetailsDisplay(
 
         Spacer(modifier = Modifier.height(LargeSpace))
 
-        ClickableTitleContainer(
-            title = "Classes +",
-            onTitleClick = {
-                courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.ClassTitleClicked)
-            }
-        )
-        Spacer(modifier = Modifier.height(SmallSpace))
-        CustomSwipeAbleLazyColumn(
-            items = classes,
-            key = {
-                "${it.classDepartment}:${it.classCourseCode}:${it.classNo}"
-            }
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DisplayClass(classDetails = it, courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
-        }
 
-        Spacer(modifier = Modifier.height(MediumSpace))
-
-        ClickableTitleContainer(
-            title = "Term Test +",
-            onTitleClick = {
-                courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.TermTestTitleClicked)
+            ClickableTitleContainer(
+                title = if (userState.data?.email == course.courseCreator || userState.data?.email == course.courseTeacher) ADD_CLASS else CLASS,
+                onTitleClick = {
+                    courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.ClassTitleClicked)
+                }
+            )
+            Spacer(modifier = Modifier.height(SmallSpace))
+            CustomSwipeAbleLazyColumn(
+                items = classes,
+                key = {
+                    "${it.classDepartment}:${it.classCourseCode}:${it.classNo}"
+                }
+            ) {
+                DisplayClass(
+                    classDetails = it,
+                    courseDetailsDisplayViewModel = courseDetailsDisplayViewModel
+                )
             }
-        )
 
-        Spacer(modifier = Modifier.height(SmallSpace))
-        CustomSwipeAbleLazyColumn(
-            items = termTests,
-            key = {
-                "${it.department}:${it.courseCode}:${it.eventNo}"
+            Spacer(modifier = Modifier.height(MediumSpace))
+            ClickableTitleContainer(
+                title = if (userState.data?.email == course.courseCreator || userState.data?.email == course.courseTeacher) ADD_TERM_TEST else TERM_TEST,
+                onTitleClick = {
+                    courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.TermTestTitleClicked)
+                }
+            )
+
+            Spacer(modifier = Modifier.height(SmallSpace))
+            CustomSwipeAbleLazyColumn(
+                items = termTests,
+                key = {
+                    "${it.department}:${it.courseCode}:${it.eventNo}"
+                }
+            ) {
+                DisplayEvent(event = it, courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
             }
-        ) {
-            DisplayEvent(event = it, courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
-        }
 
 
-        Spacer(modifier = Modifier.height(MediumSpace))
+            Spacer(modifier = Modifier.height(MediumSpace))
+            ClickableTitleContainer(
+                title = if (userState.data?.email == course.courseCreator || userState.data?.email == course.courseTeacher) ADD_ASSIGNMENT else ASSIGNMENT,
+                onTitleClick = {
+                    courseDetailsDisplayViewModel.onDisplayEvent(
+                        CourseDetailsDisplayUIEvent.AssignmentTitleClicked
+                    )
+                }
+            )
 
-        ClickableTitleContainer(
-            title = "Assignment +",
-            onTitleClick = { courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.AssignmentTitleClicked) }
-        )
-
-        Spacer(modifier = Modifier.height(SmallSpace))
-        CustomSwipeAbleLazyColumn(
-            items = assignments,
-            key = {
-                "${it.department}:${it.courseCode}:${it.eventNo}"
+            Spacer(modifier = Modifier.height(SmallSpace))
+            CustomSwipeAbleLazyColumn(
+                items = assignments,
+                key = {
+                    "${it.department}:${it.courseCode}:${it.eventNo}"
+                }
+            ) {
+                DisplayEvent(event = it, courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
             }
-        ) {
-            DisplayEvent(event = it, courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
+
+            Spacer(modifier = Modifier.height(MediumSpace))
+
+            ClickableTitleContainer(
+                title = if (userState.data?.email == course.courseCreator || userState.data?.email == course.courseTeacher) ADD_RESOURCE else RESOURCE,
+                onTitleClick = { /* TODO */ }
+            )
+            
+            Spacer(modifier = Modifier.heightIn(LargeSpace))
         }
-
-        Spacer(modifier = Modifier.height(MediumSpace))
-
-        ClickableTitleContainer(
-            title = "Resource Link +",
-            onTitleClick = { /* TODO */ }
-        )
-
-//        CustomSwipeAbleLazyColumn(
-//            items = ,
-//            key =
-//        ) {
-//
-//        }
 
         if (createClassDialogState) {
             CreateClassOnDisplay(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
@@ -144,6 +161,5 @@ fun CourseDetailsDisplay(
 @Preview(showSystemUi = true)
 @Composable
 fun CourseDisplayPreview() {
-
     CourseDetailsDisplay(course = Course())
 }
