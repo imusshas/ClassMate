@@ -108,7 +108,7 @@ fun CourseDisplay(
                 }
             }
         }
-    } else {
+    } else if (isVisible.value) {
         ElevatedCard(
             modifier = Modifier
                 .fillMaxSize()

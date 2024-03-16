@@ -33,13 +33,13 @@ fun HomeScreenContent(
 
     val todayClasses by homeViewModel.todayClasses.collectAsState()
     val tomorrowClasses by homeViewModel.tomorrowClasses.collectAsState()
-    val todayOrTomorrow = rememberSaveable { mutableStateOf(todayClasses) }
+    val todayOrTomorrow = rememberSaveable { mutableStateOf(true) }
 
     val courses by homeViewModel.courses.collectAsState()
     val requestedCourses by homeViewModel.requestedCourses.collectAsState()
 
     val courseOrRequest = rememberSaveable {
-        mutableStateOf(courses)
+        mutableStateOf(true)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -59,11 +59,11 @@ fun HomeScreenContent(
             TwoTitleContainer(
                 leftTitle = "Today's Classes",
                 rightTitle = "Tomorrow's Classes",
-                leftClick = { todayOrTomorrow.value = todayClasses },
-                rightClick = { todayOrTomorrow.value = tomorrowClasses }
+                leftClick = { todayOrTomorrow.value = true },
+                rightClick = { todayOrTomorrow.value = false }
             )
 
-            CustomLazyColumn(items = todayOrTomorrow.value) {
+            CustomLazyColumn(items = if (todayOrTomorrow.value) todayClasses else tomorrowClasses) {
                 ClassDisplay(homeViewModel = homeViewModel, classDetails = it)
             }
 
@@ -71,14 +71,15 @@ fun HomeScreenContent(
                 leftTitle = "Your Courses",
                 rightTitle = "Requested Courses",
                 leftClick = {
-                            courseOrRequest.value = courses
+                            courseOrRequest.value = true
                 },
                 rightClick = {
-                    courseOrRequest.value = requestedCourses
+                    courseOrRequest.value = false
                 }
             )
 
-            CustomSwipeAbleLazyColumn(items = courseOrRequest.value, key = {
+            CustomSwipeAbleLazyColumn(items = if (courseOrRequest.value) courses else requestedCourses,
+                key = {
                 "${it.courseDepartment}:${it.courseCode}"
             }) {
                 CourseDisplay(course = it, homeViewModel = homeViewModel, isRequested = requestedCourses.contains(it))

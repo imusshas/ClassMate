@@ -35,14 +35,6 @@ class CourseRepositoryImpl @Inject constructor(
     private val termTestsCollection = firestoreRef.collection(TERM_TESTS_COLLECTION)
     private val assignmentsCollection = firestoreRef.collection(ASSIGNMENTS_COLLECTION)
 
-
-
-
-
-    companion object {
-        const val TAG = "CourseRepositoryImpl"
-    }
-
     override fun createCourse(
         course: Course,
         classDetailsSet: Set<ClassDetails>,
@@ -268,24 +260,29 @@ class CourseRepositoryImpl @Inject constructor(
         usersCollection.document(course.courseTeacher).get().addOnSuccessListener {
             if (it.exists() && it != null) {
                 val requestedCourses = if (it[REQUESTED_COURSES] != null) it[REQUESTED_COURSES] as MutableList<String> else mutableListOf()
-                val courses = if (it[COURSES] != null) it[COURSES] as MutableList<String> else mutableListOf()
 
                 requestedCourses.remove(courseId)
+                usersCollection.document(course.courseTeacher).update(REQUESTED_COURSES, requestedCourses).addOnFailureListener {
+                    return@addOnFailureListener
+                }
+            }
+        }.await()
+
+        usersCollection.document(course.courseTeacher).get().addOnSuccessListener {
+            if (it.exists() && it != null) {
+                val courses = if (it[COURSES] != null) it[COURSES] as MutableList<String> else mutableListOf()
                 courses.add(courseId)
 
                 usersCollection.document(course.courseTeacher).update(COURSES, courses).addOnFailureListener {
                     return@addOnFailureListener
                 }
-                usersCollection.document(course.courseTeacher).update(REQUESTED_COURSES, requestedCourses).addOnFailureListener {
-                    return@addOnFailureListener
-                }
             }
-        }
+        }.await()
 
         // Change course pending status
         coursesCollection.document(courseId).update(PENDING_STATUS, false).addOnSuccessListener {
             return@addOnSuccessListener
-        }
+        }.await()
 
     }.catch {
         Log.d(TAG, "acceptCourse: ${it.localizedMessage}")
@@ -298,44 +295,42 @@ class CourseRepositoryImpl @Inject constructor(
 
         // Delete the course from teacher
         usersCollection.document(course.courseTeacher).get().addOnSuccessListener { courseIds ->
-            val courses = if (courseIds[COURSES]  != null) courseIds[COURSES] as MutableList<String> else mutableListOf()
             val requestedCourses = if (courseIds[REQUESTED_COURSES] != null) courseIds[REQUESTED_COURSES] as MutableList<String> else mutableListOf()
-            courses.remove(courseId)
+
             requestedCourses.remove(courseId)
-            usersCollection.document(course.courseTeacher).update(COURSES, course).addOnFailureListener {
-                Log.d(TAG, "deleteCourse from teacher: ${it.localizedMessage}")
-                return@addOnFailureListener
-            }
             usersCollection.document(course.courseTeacher).update(REQUESTED_COURSES, requestedCourses).addOnFailureListener {
                 Log.d(TAG, "deleteCourse from teacher: ${it.localizedMessage}")
                 return@addOnFailureListener
             }
-        }
+        }.await()
 
 
         // Delete the course from creator
         usersCollection.document(course.courseCreator).get().addOnSuccessListener { courseIds ->
             val courses = if (courseIds[COURSES]  != null) courseIds[COURSES] as MutableList<String> else mutableListOf()
-            val requestedCourses = if (courseIds[REQUESTED_COURSES] != null) courseIds[REQUESTED_COURSES] as MutableList<String> else mutableListOf()
             courses.remove(courseId)
-            requestedCourses.remove(courseId)
             usersCollection.document(course.courseCreator).update(COURSES, course).addOnFailureListener {
                 Log.d(TAG, "deleteCourse from creator: ${it.localizedMessage}")
                 return@addOnFailureListener
             }
+        }.await()
+
+        usersCollection.document(course.courseCreator).get().addOnSuccessListener { courseIds ->
+            val requestedCourses = if (courseIds[REQUESTED_COURSES] != null) courseIds[REQUESTED_COURSES] as MutableList<String> else mutableListOf()
+            requestedCourses.remove(courseId)
             usersCollection.document(course.courseCreator).update(REQUESTED_COURSES, requestedCourses).addOnFailureListener {
                 Log.d(TAG, "deleteCourse from creator: ${it.localizedMessage}")
                 return@addOnFailureListener
             }
-        }
+        }.await()
 
         // Delete the course from enrolled students
-        course.enrolledStudents.forEach { students ->
-            usersCollection.document(students).get().addOnSuccessListener { courseIds ->
+        course.enrolledStudents.forEach { student ->
+            usersCollection.document(student).get().addOnSuccessListener { courseIds ->
                 val courses = if (courseIds[COURSES]  != null) courseIds[COURSES] as MutableList<String> else mutableListOf()
                 courses.remove(courseId)
 
-                usersCollection.document(students).update(COURSES, course).addOnFailureListener {
+                usersCollection.document(student).update(COURSES, course).addOnFailureListener {
                     Log.d(TAG, "deleteCourse from students: ${it.localizedMessage}")
                     return@addOnFailureListener
                 }
@@ -353,7 +348,7 @@ class CourseRepositoryImpl @Inject constructor(
                     }
                 }
             }
-        }
+        }.await()
 
         // Delete the course term tests
         termTestsCollection.get().addOnSuccessListener { querySnapshot ->
@@ -365,7 +360,7 @@ class CourseRepositoryImpl @Inject constructor(
                     }
                 }
             }
-        }
+        }.await()
 
         // Delete the course assignments
         assignmentsCollection.get().addOnSuccessListener { querySnapshot ->
@@ -377,14 +372,14 @@ class CourseRepositoryImpl @Inject constructor(
                     }
                 }
             }
-        }
+        }.await()
 
         /*TODO: Consider deleting course related posts */
 
         // Delete the course
         coursesCollection.document(courseId).delete().addOnFailureListener {
             Log.d(TAG, "deleteCourse: ${it.localizedMessage}")
-        }
+        }.await()
 
 
     }.catch {
@@ -398,4 +393,9 @@ class CourseRepositoryImpl @Inject constructor(
     override fun deleteClass(classDetails: ClassDetails): Flow<DataState<ClassDetails>> {
         TODO("Not yet implemented")
     }
+
+    companion object {
+        const val TAG = "CourseRepositoryImpl"
+    }
+
 }
