@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import okhttp3.internal.wait
+import java.lang.Exception
 import javax.inject.Inject
 
 class AuthenticationRepositoryImpl @Inject constructor(
@@ -48,7 +49,13 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     override fun signOut(): Flow<DataState<Boolean>> = flow {
         emit(DataState.Loading)
-        signOutFromFirebase()
+        try {
+            auth.signOut()
+            ClassMateAppRouter.navigateTo(Screen.SignInScreen)
+            emit(DataState.Success(true))
+        } catch (e: Exception) {
+            emit(DataState.Error(e.message.toString()))
+        }
         emit(DataState.Success(true))
     }.catch {
         emit(DataState.Error("Unable To Sign Out"))
@@ -145,15 +152,16 @@ class AuthenticationRepositoryImpl @Inject constructor(
         var isSuccessful = false
 
         auth.signOut()
+        ClassMateAppRouter.navigateTo(Screen.SignInScreen)
 
-        val authStateListener = FirebaseAuth.AuthStateListener {
-            if (it.currentUser == null) {
-                ClassMateAppRouter.navigateTo(Screen.SignInScreen)
-                isSuccessful = true
-            }
-        }
-
-        auth.addAuthStateListener(authStateListener)
+//        val authStateListener = FirebaseAuth.AuthStateListener {
+//            if (it.currentUser == null) {
+//                ClassMateAppRouter.navigateTo(Screen.SignInScreen)
+//                isSuccessful = true
+//            }
+//        }
+//
+//        auth.addAuthStateListener(authStateListener)
 
         return isSuccessful
     }

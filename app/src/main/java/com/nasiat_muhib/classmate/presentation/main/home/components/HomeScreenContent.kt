@@ -42,7 +42,10 @@ fun HomeScreenContent(
         mutableStateOf(true)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
         ClassMateTabRow(tab = TabItem.Home)
         Spacer(modifier = Modifier.heightIn(SmallSpace))
@@ -71,7 +74,7 @@ fun HomeScreenContent(
                 leftTitle = "Your Courses",
                 rightTitle = "Requested Courses",
                 leftClick = {
-                            courseOrRequest.value = true
+                    courseOrRequest.value = true
                 },
                 rightClick = {
                     courseOrRequest.value = false
@@ -80,9 +83,13 @@ fun HomeScreenContent(
 
             CustomSwipeAbleLazyColumn(items = if (courseOrRequest.value) courses else requestedCourses,
                 key = {
-                "${it.courseDepartment}:${it.courseCode}"
-            }) {
-                CourseDisplay(course = it, homeViewModel = homeViewModel, isRequested = requestedCourses.contains(it))
+                    "${it.courseDepartment}:${it.courseCode}"
+                }) {
+                CourseDisplay(
+                    course = it,
+                    homeViewModel = homeViewModel,
+                    isRequested = requestedCourses.contains(it)
+                )
             }
 
         }

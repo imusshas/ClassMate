@@ -16,8 +16,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.nasiat_muhib.classmate.domain.event.EnrollCourseUIEvent
-import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateCourseViewModel
+import com.nasiat_muhib.classmate.domain.event.SearchUIEvent
+import com.nasiat_muhib.classmate.strings.ENROLL_BUTTON
 import com.nasiat_muhib.classmate.strings.REQUEST_BUTTON
 import com.nasiat_muhib.classmate.strings.SEARCH
 import com.nasiat_muhib.classmate.ui.theme.ExtraSmallSpace
@@ -27,11 +27,11 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 import com.nasiat_muhib.classmate.ui.theme.TitleStyle
 
 @Composable
-fun SearchTeacherScreen(
+fun SearchCourseScreen(
     searchViewModel: SearchCourseViewModel = hiltViewModel(),
 ) {
     val searchText = searchViewModel.searchText.collectAsState()
-    val users = searchViewModel.users.collectAsState()
+    val users = searchViewModel.courses.collectAsState()
 
 
     Column(
@@ -39,7 +39,9 @@ fun SearchTeacherScreen(
     ) {
         TextField(
             value = searchText.value,
-            onValueChange = searchViewModel::onSearch,
+            onValueChange = { searchText ->
+                searchViewModel.onSearch(SearchUIEvent.SearchTextChanged(searchText))
+            },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(text = SEARCH) }
         )
@@ -81,7 +83,7 @@ fun SearchTeacherScreen(
                             },
                             shape = MediumRounded
                         ) {
-                            Text(text = REQUEST_BUTTON)
+                            Text(text = ENROLL_BUTTON)
                         }
                     }
                 }

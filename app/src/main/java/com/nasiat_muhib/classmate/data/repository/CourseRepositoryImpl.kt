@@ -48,13 +48,13 @@ class CourseRepositoryImpl @Inject constructor(
                 val creatorEmail = courseSnapshot[COURSE_CREATOR].toString()
                 usersCollection.document(creatorEmail).get().addOnSuccessListener { creator ->
                     if (creator.exists() && creator != null) {
-                        val requestedCourses = if (creator[REQUESTED_COURSES] == null) mutableListOf() else creator[REQUESTED_COURSES] as MutableList<String>
+                        val requestedCourses = if (creator[REQUESTED_COURSES] == null) creator[REQUESTED_COURSES] as MutableList<String>  else mutableListOf()
                         requestedCourses.add(courseId)
                         usersCollection.document(creatorEmail).update(REQUESTED_COURSES,requestedCourses).addOnFailureListener {
-                            Log.d(TAG, "searchForExistenceAndSendRequest: request update: ${it.localizedMessage}")
+                            Log.d(TAG, "createCourse: request update: ${it.localizedMessage}")
                         }.addOnFailureListener {
 //                            Log.d(TAG, "createCourse: ${it.localizedMessage}")
-                            Log.d(TAG, "searchForExistenceAndSendRequest: ${it.localizedMessage}")
+                            Log.d(TAG, "createCourse: ${it.localizedMessage}")
                         }
                     }
                 }.addOnFailureListener {
@@ -65,13 +65,13 @@ class CourseRepositoryImpl @Inject constructor(
         }.addOnFailureListener {
 //            Log.d(TAG, "createCourse: ${it.localizedMessage}")
             return@addOnFailureListener
-        }
+        }.await()
 
 
         // Send Teacher request
         usersCollection.document(course.courseTeacher).get().addOnSuccessListener { creator ->
             if (creator.exists() && creator != null) {
-                val requestedCourses = if (creator[REQUESTED_COURSES] == null) mutableListOf() else creator[REQUESTED_COURSES] as MutableList<String>
+                val requestedCourses = if (creator[REQUESTED_COURSES] != null)  creator[REQUESTED_COURSES] as MutableList<String> else  mutableListOf()
                 requestedCourses.add(courseId)
                 usersCollection.document(course.courseTeacher).update(REQUESTED_COURSES,requestedCourses).addOnFailureListener {
 //                    Log.d(TAG, "createCourse: ${it.localizedMessage}")
@@ -86,7 +86,7 @@ class CourseRepositoryImpl @Inject constructor(
         // Update Creators Course List
         usersCollection.document(course.courseCreator).get().addOnSuccessListener { creator ->
             if (creator.exists() && creator != null) {
-                val creatorCourses = if (creator[COURSES] == null) mutableListOf() else creator[COURSES] as MutableList<String>
+                val creatorCourses = if (creator[COURSES] != null) creator[COURSES] as MutableList<String>  else mutableListOf()
                 creatorCourses.add(courseId)
                 usersCollection.document(course.courseCreator).update(COURSES,creatorCourses).addOnFailureListener {
 //                    Log.d(TAG, "createCourse: ${it.localizedMessage}")

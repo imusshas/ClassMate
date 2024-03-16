@@ -74,6 +74,6 @@ class SearchTeacherViewModel @Inject constructor(
     }
 
     companion object {
-        const val TAG = "SearchViewModel"
+        const val TAG = "SearchTeacherViewModel"
     }
 }

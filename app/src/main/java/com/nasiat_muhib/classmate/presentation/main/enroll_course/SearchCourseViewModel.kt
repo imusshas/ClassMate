@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nasiat_muhib.classmate.data.model.Course
-import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.SearchUIEvent
 import com.nasiat_muhib.classmate.domain.repository.SearchRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,7 +35,7 @@ class SearchCourseViewModel @Inject constructor(
     private val _courses = MutableStateFlow<Set<Course>>(emptySet())
 
     @OptIn(FlowPreview::class)
-    val users = searchText
+    val courses = searchText
         .debounce(500L)
         .onEach { _isSearching.update { true } }
         .combine(_courses) { text, usersList ->
@@ -56,7 +55,7 @@ class SearchCourseViewModel @Inject constructor(
 
 
     init {
-        getAllTeachers()
+        getAllCourses()
     }
 
     fun onSearch(event: SearchUIEvent) {
@@ -67,11 +66,7 @@ class SearchCourseViewModel @Inject constructor(
         }
     }
 
-    fun onSearch(text: String) {
-        _searchText.value = text
-    }
-
-    private fun getAllTeachers() = viewModelScope.launch(Dispatchers.IO) {
+    private fun getAllCourses() = viewModelScope.launch(Dispatchers.IO) {
         searchRepo.getAllCourses().collectLatest {
             Log.d(TAG, "getAllTeachers: $it")
             _courses.value = it
@@ -79,6 +74,6 @@ class SearchCourseViewModel @Inject constructor(
     }
 
     companion object {
-        const val TAG = "SearchViewModel"
+        const val TAG = "SearchCourseViewModel"
     }
 }
