@@ -1,28 +1,33 @@
 package com.nasiat_muhib.classmate.presentation.main.enroll_course
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import com.nasiat_muhib.classmate.components.TitleContainer
-import com.nasiat_muhib.classmate.navigation.TabItem
-import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.nasiat_muhib.classmate.components.LoadingScreen
+import com.nasiat_muhib.classmate.domain.state.DataState
+import com.nasiat_muhib.classmate.presentation.main.enroll_course.components.EnrollCourseScreenContent
+import com.nasiat_muhib.classmate.presentation.main.enroll_course.components.SearchCourseScreen
+import com.nasiat_muhib.classmate.ui.theme.LargeSpace
+import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
 @Composable
-fun EnrollCourseScreen() {
-    Column (
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-        ClassMateTabRow(tab = TabItem.EnrollCourse)
-        Column (modifier = Modifier.weight(1f)) {
-            SearchCourseScreen()
-        }
-        Column (modifier = Modifier.weight(1f)) {
-            TitleContainer(title = "Already Enrolled")
+fun EnrollCourseScreen(
+    enrollCourseViewModel: EnrollCourseViewModel = hiltViewModel(),
+) {
 
+    val userState by enrollCourseViewModel.userState.collectAsState()
+
+    when (userState) {
+        is DataState.Error -> TODO()
+        DataState.Loading -> {
+            LoadingScreen()
+        }
+
+        is DataState.Success -> {
+            userState.data?.let {
+                EnrollCourseScreenContent(enrollCourseViewModel, user = it)
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.nasiat_muhib.classmate.presentation.main.enroll_course
+package com.nasiat_muhib.classmate.presentation.main.enroll_course.components
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -25,12 +25,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.log
 
 @HiltViewModel
 class SearchCourseViewModel @Inject constructor(
     private val searchRepo: SearchRepository,
     private val courseRepo: CourseRepository,
-    private val userRepo: UserRepository
+    private val userRepo: UserRepository,
 ) : ViewModel() {
 
     private val _searchText = MutableStateFlow("")
@@ -60,19 +61,11 @@ class SearchCourseViewModel @Inject constructor(
             _courses.value
         )
 
-    private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
-    val userState = _userState.asStateFlow()
-
-
-    init {
-        getAllCourses()
-    }
 
     fun onSearchCourseEvent(event: SearchCourseUIEvent) {
         when (event) {
             is SearchCourseUIEvent.EnrollButtonClicked -> {
-                getUser()
-                enrollCourse(event.courseId)
+                enrollCourse(event.courseId, event.email)
             }
         }
     }
@@ -85,26 +78,26 @@ class SearchCourseViewModel @Inject constructor(
         }
     }
 
-    private fun getAllCourses() = viewModelScope.launch(Dispatchers.IO) {
-        searchRepo.getAllCourses().collectLatest {
-            Log.d(TAG, "getAllTeachers: $it")
-            _courses.value = it
+    fun getAllCourses(user: User) = viewModelScope.launch(Dispatchers.IO) {
+        searchRepo.getAllCourses().collectLatest { courseSet ->
+            val searchableCourse = mutableSetOf<Course>()
+            courseSet.forEach { course ->
+                val courseId = "${course.courseDepartment}:${course.courseCode}"
+                if (course.courseCreator != user.email && course.courseTeacher != user.role && !user.courses.contains(courseId)) {
+                    searchableCourse.add(course)
+                }
+            }
+
+            _courses.value = searchableCourse
         }
+
     }
 
+    private fun enrollCourse(courseId: String, email: String) = viewModelScope.launch {
 
-    private fun getUser() = viewModelScope.launch {
-        val currentUser = userRepo.currentUser
-        userRepo.getUser(currentUser.email!!).collectLatest {
-            _userState.value = it
+        courseRepo.enrollCourse(courseId, email).collectLatest {
+
         }
-    }
-
-    private fun enrollCourse(courseId: String) = viewModelScope.launch {
-        userState.value.data?.let {
-            courseRepo.enrollCourse(courseId, it.email)
-        }
-
     }
 
     companion object {

@@ -1,4 +1,4 @@
-package com.nasiat_muhib.classmate.presentation.main.enroll_course
+package com.nasiat_muhib.classmate.presentation.main.enroll_course.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
+import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.SearchCourseUIEvent
 import com.nasiat_muhib.classmate.domain.event.SearchUIEvent
 import com.nasiat_muhib.classmate.strings.ENROLL_BUTTON
@@ -30,7 +30,9 @@ import com.nasiat_muhib.classmate.ui.theme.TitleStyle
 @Composable
 fun SearchCourseScreen(
     searchViewModel: SearchCourseViewModel = hiltViewModel(),
+    user: User
 ) {
+    searchViewModel.getAllCourses(user)
     val searchText = searchViewModel.searchText.collectAsState()
     val courses = searchViewModel.courses.collectAsState()
 
@@ -81,7 +83,12 @@ fun SearchCourseScreen(
                         Button(
                             onClick = {
                                 val courseId = "${it.courseDepartment}:${it.courseCode}"
-                                      searchViewModel.onSearchCourseEvent(SearchCourseUIEvent.EnrollButtonClicked(courseId))
+                                searchViewModel.onSearchCourseEvent(
+                                    SearchCourseUIEvent.EnrollButtonClicked(
+                                        courseId,
+                                        user.email
+                                    )
+                                )
                             },
                             shape = MediumRounded
                         ) {

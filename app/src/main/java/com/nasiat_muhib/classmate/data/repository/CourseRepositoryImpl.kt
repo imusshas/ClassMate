@@ -403,6 +403,24 @@ class CourseRepositoryImpl @Inject constructor(
         Log.d(TAG, "enrollCourse: ${it.localizedMessage}")
     }
 
+    override fun leaveCourse(courseId: String, email: String): Flow<DataState<Boolean>> = flow<DataState<Boolean>> {
+        emit(DataState.Loading)
+        usersCollection.document(email).get().addOnSuccessListener { user ->
+            if (user.exists() && user != null) {
+                val alreadyEnrolled = if (user[COURSES] != null) user[COURSES] as MutableList<String> else mutableListOf()
+                alreadyEnrolled.remove(courseId)
+                usersCollection.document(email).update(COURSES, alreadyEnrolled).addOnFailureListener {
+                    Log.d(TAG, "leaveCourse: ${it.localizedMessage}")
+                }
+            }
+        }.await()
+
+        emit(DataState.Success(true))
+
+    }.catch {
+        Log.d(TAG, "leaveCourse: ${it.localizedMessage}")
+    }
+
     override fun updateClassStatus(details: ClassDetails): Flow<DataState<ClassDetails>> = flow {
 
         emit(DataState.Loading)
