@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import com.nasiat_muhib.classmate.components.CustomLazyColumn
 import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.components.TwoTitleContainer
+import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
 import com.nasiat_muhib.classmate.presentation.main.home.HomeViewModel
@@ -29,7 +30,14 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 @Composable
 fun HomeScreenContent(
     homeViewModel: HomeViewModel,
+    user: User
 ) {
+
+    homeViewModel.getTodayClasses()
+    homeViewModel.getTomorrowClasses()
+    homeViewModel.getClassDetails()
+    homeViewModel.getCourseList(user.courses)
+    homeViewModel.getRequestedCourseList(user.requestedCourses)
 
     val todayClasses by homeViewModel.todayClasses.collectAsState()
     val tomorrowClasses by homeViewModel.tomorrowClasses.collectAsState()

@@ -8,6 +8,7 @@ import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.HomeUIEvent
 import com.nasiat_muhib.classmate.domain.repository.AuthenticationRepository
+import com.nasiat_muhib.classmate.domain.repository.ClassDetailsRepository
 import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import com.nasiat_muhib.classmate.domain.state.DataState
@@ -26,6 +27,7 @@ class HomeViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val courseRepo: CourseRepository,
     private val authRepo: AuthenticationRepository,
+    private val classDetailsRepo: ClassDetailsRepository
 ) : ViewModel() {
 
     private val currentUser = userRepo.currentUser
@@ -72,27 +74,13 @@ class HomeViewModel @Inject constructor(
         Log.d(TAG, "signOut: ${currentUser.email}")
     }
 
-
-    fun getCourseList(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
-        courseRepo.getCourses(courseIds).collectLatest {
-            _courses.value = it
-        }
-    }
-
-
-    fun getRequestedCourseList(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
-        courseRepo.getRequestedCourses(courseIds).collectLatest {
-            _requestedCourses.value = it
-        }
-    }
-
     fun getClassDetails() = viewModelScope.launch(Dispatchers.IO) {
 
         val classesList: MutableMap<String, List<ClassDetails>> = mutableMapOf()
         courses.value.forEach { course ->
             val id = "${course.courseDepartment}:${course.courseCode}"
 
-            courseRepo.getClassDetailsList(id).collectLatest {
+            classDetailsRepo.getClasses(id).collectLatest {
                 classesList[id] = it
             }
         }

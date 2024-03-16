@@ -243,13 +243,6 @@ class CourseRepositoryImpl @Inject constructor(
 //        Log.d(TAG, "getPendingCourseList: $it")
     }
 
-    override fun getClassDetailsList(courseId: String): Flow<List<ClassDetails>> {
-        TODO("Not yet implemented")
-    }
-
-    override fun updateCourse(): Flow<DataState<Course>> {
-        TODO("Not yet implemented")
-    }
 
     override fun acceptCourse(course: Course): Flow<DataState<Course>> = flow<DataState<Course>> {
         emit(DataState.Loading)
@@ -387,10 +380,6 @@ class CourseRepositoryImpl @Inject constructor(
     }
 
     override fun updateClassStatus(details: ClassDetails): Flow<DataState<ClassDetails>> {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteClass(classDetails: ClassDetails): Flow<DataState<ClassDetails>> {
         TODO("Not yet implemented")
     }
 

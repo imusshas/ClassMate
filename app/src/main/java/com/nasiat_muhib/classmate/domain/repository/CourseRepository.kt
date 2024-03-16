@@ -13,14 +13,8 @@ interface CourseRepository {
 
     // Enrolled Courses
     fun getCourses(courseIds: List<String>): Flow<List<Course>>
-
-
-    fun getClassDetailsList(courseId: String): Flow<List<ClassDetails>>
-    fun updateCourse(): Flow<DataState<Course>>
     fun acceptCourse(course: Course): Flow<DataState<Course>>
     fun deleteCourse(course: Course): Flow<DataState<Course>>
     fun updateClassStatus(details: ClassDetails): Flow<DataState<ClassDetails>>
-
-    fun deleteClass(classDetails: ClassDetails): Flow<DataState<ClassDetails>>
 
 }
