@@ -74,6 +74,20 @@ class HomeViewModel @Inject constructor(
         Log.d(TAG, "signOut: ${currentUser.email}")
     }
 
+
+    fun getCourseList(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
+        courseRepo.getCourses(courseIds).collectLatest {
+            _courses.value = it
+        }
+    }
+
+
+    fun getRequestedCourseList(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
+        courseRepo.getRequestedCourses(courseIds).collectLatest {
+            _requestedCourses.value = it
+        }
+    }
+
     fun getClassDetails() = viewModelScope.launch(Dispatchers.IO) {
 
         val classesList: MutableMap<String, List<ClassDetails>> = mutableMapOf()

@@ -80,8 +80,13 @@ fun CreateSemesterContent(
             TwoTitleContainer(
                 leftTitle = CREATED_COURSES,
                 rightTitle = PENDING_COURSES,
-                leftClick = { courses.value = createdCourses },
-                rightClick = { courses.value = pendingCourses }
+                leftClick = {
+                    createSemesterViewModel.getCreatedCourses()
+                    courses.value = createdCourses
+                            },
+                rightClick = {
+                    createSemesterViewModel.getPendingCourses()
+                    courses.value = pendingCourses }
             )
 
             CustomSwipeAbleLazyColumn(

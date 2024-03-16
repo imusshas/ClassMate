@@ -36,8 +36,6 @@ fun HomeScreenContent(
     homeViewModel.getTodayClasses()
     homeViewModel.getTomorrowClasses()
     homeViewModel.getClassDetails()
-    homeViewModel.getCourseList(user.courses)
-    homeViewModel.getRequestedCourseList(user.requestedCourses)
 
     val todayClasses by homeViewModel.todayClasses.collectAsState()
     val tomorrowClasses by homeViewModel.tomorrowClasses.collectAsState()
@@ -82,9 +80,11 @@ fun HomeScreenContent(
                 leftTitle = "Your Courses",
                 rightTitle = "Requested Courses",
                 leftClick = {
+                    homeViewModel.getCourseList(user.courses)
                     courseOrRequest.value = true
                 },
                 rightClick = {
+                    homeViewModel.getRequestedCourseList(user.requestedCourses)
                     courseOrRequest.value = false
                 }
             )
