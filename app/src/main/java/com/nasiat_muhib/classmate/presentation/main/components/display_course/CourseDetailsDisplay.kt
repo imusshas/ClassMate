@@ -20,6 +20,7 @@ import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.components.TitleContainer
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.event.CourseDetailsDisplayUIEvent
+import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.strings.ADD_ASSIGNMENT
 import com.nasiat_muhib.classmate.strings.ADD_CLASS
 import com.nasiat_muhib.classmate.strings.ADD_TERM_TEST
@@ -34,6 +35,7 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 @Composable
 fun CourseDetailsDisplay(
     course: Course,
+    screen: Screen,
     courseDetailsDisplayViewModel: CourseDetailsDisplayViewModel = hiltViewModel(),
 ) {
 
@@ -62,7 +64,7 @@ fun CourseDetailsDisplay(
         CourseDetailsDisplayTopBar(
             courseCode = course.courseCode,
             onBackIconClick = {
-                courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.CourseDetailsDisplayTopBarBackButtonClicked)
+                courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.CourseDetailsDisplayTopBarBackButtonClicked(screen))
             }
         )
 
@@ -179,5 +181,5 @@ fun CourseDetailsDisplay(
 @Preview(showSystemUi = true)
 @Composable
 fun CourseDisplayPreview() {
-    CourseDetailsDisplay(course = Course())
+//    CourseDetailsDisplay(course = Course())
 }

@@ -54,7 +54,7 @@ class CreateSemesterViewModel @Inject constructor(
             }
 
             is CreateSemesterUIEvent.DisplayCourseSwipe -> {
-                ClassMateAppRouter.navigateTo(Screen.CourseDetailsDisplay(event.course))
+                ClassMateAppRouter.navigateTo(Screen.CourseDetailsDisplay(event.course, event.screen))
             }
         }
 

@@ -135,8 +135,8 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     fun onDisplayEvent(event: CourseDetailsDisplayUIEvent) {
 
         when (event) {
-            CourseDetailsDisplayUIEvent.CourseDetailsDisplayTopBarBackButtonClicked -> {
-                ClassMateAppRouter.navigateTo(Screen.CreateSemesterScreen)
+            is CourseDetailsDisplayUIEvent.CourseDetailsDisplayTopBarBackButtonClicked -> {
+                ClassMateAppRouter.navigateTo(event.screen)
             }
 
             CourseDetailsDisplayUIEvent.ClassTitleClicked -> {

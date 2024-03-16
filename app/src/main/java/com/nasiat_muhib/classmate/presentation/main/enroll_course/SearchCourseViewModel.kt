@@ -4,8 +4,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nasiat_muhib.classmate.data.model.Course
+import com.nasiat_muhib.classmate.data.model.User
+import com.nasiat_muhib.classmate.domain.event.SearchCourseUIEvent
 import com.nasiat_muhib.classmate.domain.event.SearchUIEvent
+import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.repository.SearchRepository
+import com.nasiat_muhib.classmate.domain.repository.UserRepository
+import com.nasiat_muhib.classmate.domain.state.DataState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -24,6 +29,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchCourseViewModel @Inject constructor(
     private val searchRepo: SearchRepository,
+    private val courseRepo: CourseRepository,
+    private val userRepo: UserRepository
 ) : ViewModel() {
 
     private val _searchText = MutableStateFlow("")
@@ -53,9 +60,21 @@ class SearchCourseViewModel @Inject constructor(
             _courses.value
         )
 
+    private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
+    val userState = _userState.asStateFlow()
+
 
     init {
         getAllCourses()
+    }
+
+    fun onSearchCourseEvent(event: SearchCourseUIEvent) {
+        when (event) {
+            is SearchCourseUIEvent.EnrollButtonClicked -> {
+                getUser()
+                enrollCourse(event.courseId)
+            }
+        }
     }
 
     fun onSearch(event: SearchUIEvent) {
@@ -71,6 +90,21 @@ class SearchCourseViewModel @Inject constructor(
             Log.d(TAG, "getAllTeachers: $it")
             _courses.value = it
         }
+    }
+
+
+    private fun getUser() = viewModelScope.launch {
+        val currentUser = userRepo.currentUser
+        userRepo.getUser(currentUser.email!!).collectLatest {
+            _userState.value = it
+        }
+    }
+
+    private fun enrollCourse(courseId: String) = viewModelScope.launch {
+        userState.value.data?.let {
+            courseRepo.enrollCourse(courseId, it.email)
+        }
+
     }
 
     companion object {

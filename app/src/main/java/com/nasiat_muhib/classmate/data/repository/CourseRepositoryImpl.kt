@@ -7,6 +7,7 @@ import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.state.DataState
+import com.nasiat_muhib.classmate.strings.ACTIVE_STATUS
 import com.nasiat_muhib.classmate.strings.ASSIGNMENTS_COLLECTION
 import com.nasiat_muhib.classmate.strings.CLASSES_COLLECTION
 import com.nasiat_muhib.classmate.strings.COURSES
@@ -379,8 +380,40 @@ class CourseRepositoryImpl @Inject constructor(
         Log.d(TAG, "deleteCourse: catch block: ${it.localizedMessage}")
     }
 
-    override fun updateClassStatus(details: ClassDetails): Flow<DataState<ClassDetails>> {
-        TODO("Not yet implemented")
+    override fun enrollCourse(courseId: String, email: String): Flow<DataState<Boolean>> = flow {
+        emit(DataState.Loading)
+        usersCollection.document(email).get().addOnSuccessListener { user ->
+            if (user.exists() && user != null) {
+                val alreadyEnrolled = if (user[COURSES] != null) user[COURSES] as List<String> else listOf()
+                val set = mutableSetOf<String>()
+                alreadyEnrolled.forEach {
+                    set.add(it)
+                }
+                set.add(courseId)
+
+                usersCollection.document().update(COURSES, set.toList()).addOnFailureListener {
+                    Log.d(TAG, "enrollCourse: ${it.localizedMessage}")
+                }
+            }
+        }.await()
+        emit(DataState.Success(true))
+
+    }.catch {
+        emit(DataState.Error(it.localizedMessage!!))
+        Log.d(TAG, "enrollCourse: ${it.localizedMessage}")
+    }
+
+    override fun updateClassStatus(details: ClassDetails): Flow<DataState<ClassDetails>> = flow {
+
+        emit(DataState.Loading)
+        val classId = "${details.classDepartment}:${details.classCourseCode}:${details.classNo}"
+        classesCollection.document(classId).update(ACTIVE_STATUS, details.isActive).addOnFailureListener {
+            Log.d(TAG, "updateClassStatus: ${it.localizedMessage}")
+        }
+        emit(DataState.Success(details))
+    }.catch {
+        emit(DataState.Error(it.localizedMessage!!))
+        Log.d(TAG, "updateClassStatus: ${it.localizedMessage}")
     }
 
     companion object {

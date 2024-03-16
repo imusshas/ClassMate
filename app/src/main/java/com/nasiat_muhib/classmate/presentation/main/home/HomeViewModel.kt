@@ -12,6 +12,8 @@ import com.nasiat_muhib.classmate.domain.repository.ClassDetailsRepository
 import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import com.nasiat_muhib.classmate.domain.state.DataState
+import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
+import com.nasiat_muhib.classmate.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -175,6 +177,10 @@ class HomeViewModel @Inject constructor(
             }
             is HomeUIEvent.DeleteCourseRequest -> {
                 deleteRequest(event.course)
+            }
+
+            is HomeUIEvent.DisplayCourse -> {
+                ClassMateAppRouter.navigateTo(Screen.CourseDetailsDisplay(event.course, event.screen))
             }
         }
     }

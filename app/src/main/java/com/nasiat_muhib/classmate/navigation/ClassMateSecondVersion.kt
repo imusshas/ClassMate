@@ -69,7 +69,7 @@ fun ClassMateSecondVersion() {
                 }
 
                 is Screen.CourseDetailsDisplay -> {
-                    CourseDetailsDisplay(course = (it.value as Screen.CourseDetailsDisplay).course)
+                    CourseDetailsDisplay(course = (it.value as Screen.CourseDetailsDisplay).course, screen = (it.value as Screen.CourseDetailsDisplay).screen )
                 }
             }
         }
