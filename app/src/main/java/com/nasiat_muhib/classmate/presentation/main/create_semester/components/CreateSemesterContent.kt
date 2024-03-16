@@ -39,6 +39,9 @@ fun CreateSemesterContent(
     createSemesterViewModel: CreateSemesterViewModel,
 ) {
 
+    createSemesterViewModel.getCreatedCourses()
+    createSemesterViewModel.getPendingCourses()
+
     val user by createSemesterViewModel.userState.collectAsState()
     val createdCourses by createSemesterViewModel.cratedCourses.collectAsState()
     val pendingCourses by createSemesterViewModel.pendingCourses.collectAsState()
