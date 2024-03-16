@@ -390,8 +390,8 @@ class CourseRepositoryImpl @Inject constructor(
                     set.add(it)
                 }
                 set.add(courseId)
-
-                usersCollection.document().update(COURSES, set.toList()).addOnFailureListener {
+                Log.d(TAG, "enrollCourse: $email : $set")
+                usersCollection.document(email).update(COURSES, set.toList()).addOnFailureListener {
                     Log.d(TAG, "enrollCourse: ${it.localizedMessage}")
                 }
             }

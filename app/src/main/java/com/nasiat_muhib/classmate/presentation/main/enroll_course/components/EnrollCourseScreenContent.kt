@@ -38,15 +38,15 @@ fun EnrollCourseScreenContent(
         Spacer(modifier = Modifier.height(LargeSpace))
         Column (modifier = Modifier.weight(1f)) {
             TitleContainer(title = "Already Enrolled")
-        }
-        Spacer(modifier = Modifier.height(SmallSpace))
-        CustomSwipeAbleLazyColumn(
-            items = alreadyEnrolledCourses,
-            key = {
-                "${it.courseDepartment}:${it.courseCode}"
+            Spacer(modifier = Modifier.height(SmallSpace))
+            CustomSwipeAbleLazyColumn(
+                items = alreadyEnrolledCourses,
+                key = {
+                    "${it.courseDepartment}:${it.courseCode}"
+                }
+            ) {
+                CourseDisplayOnEnrollCourse(course = it, enrollCourseViewModel = enrollCourseViewModel)
             }
-        ) {
-            CourseDisplayOnEnrollCourse(course = it, enrollCourseViewModel = enrollCourseViewModel)
         }
     }
 }
