@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.presentation.main.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nasiat_muhib.classmate.data.model.ClassDetails
@@ -59,6 +60,7 @@ class HomeViewModel @Inject constructor(
     private fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
         userRepo.getUser(email).collectLatest {
             _userState.value = it
+            Log.d(TAG, "getUser: $email: ${it.data}")
         }
     }
 
@@ -66,6 +68,8 @@ class HomeViewModel @Inject constructor(
         authRepo.signOut().collectLatest {
 
         }
+
+        Log.d(TAG, "signOut: ${currentUser.email}")
     }
 
 
