@@ -2,6 +2,7 @@ package com.nasiat_muhib.classmate.domain.event
 
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
+import com.nasiat_muhib.classmate.data.model.Post
 import com.nasiat_muhib.classmate.navigation.Screen
 
 sealed class HomeUIEvent {
@@ -14,4 +15,6 @@ sealed class HomeUIEvent {
     data class DisplayCourse(val course: Course, val screen: Screen): HomeUIEvent()
 
     data object PostButtonClicked : HomeUIEvent()
+
+    data class DeletePostSwipe(val post: Post): HomeUIEvent()
 }

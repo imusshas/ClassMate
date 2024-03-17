@@ -73,7 +73,7 @@ fun CreatePostDialog(
                 CustomClickableText(text = POST_BUTTON, onClick = {
                     homeViewModel.onPostEvent(
                         PostUIEvent.PostButtonClicked(
-                            timestamp = Timestamp(System.currentTimeMillis()),
+                            timestamp = System.currentTimeMillis(),
                             creator = user.email,
                             firstName = user.firstName,
                             lastName = user.lastName

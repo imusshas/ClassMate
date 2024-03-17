@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -104,15 +106,13 @@ fun HomeScreenContent(
                 )
             }
 
-        }
+            Spacer(modifier = Modifier.height(LargeSpace))
+            CustomElevatedButton(text = "Create Post", onClick = { homeViewModel.onHomeEvent(HomeUIEvent.PostButtonClicked) })
+            Spacer(modifier = Modifier.height(MediumSpace))
+            posts.forEach {
+                PostDisplay(post = it, homeViewModel = homeViewModel, isCreator = it.creator == user.email)
+            }
 
-        Spacer(modifier = Modifier.height(LargeSpace))
-        CustomElevatedButton(text = "Create Post", onClick = { homeViewModel.onHomeEvent(HomeUIEvent.PostButtonClicked) })
-        Spacer(modifier = Modifier.height(MediumSpace))
-        posts.forEach {
-            PostDisplay(post = it,
-                homeViewModel = homeViewModel,
-                isCreator = it.creator == user.email)
         }
 
         if (createPostDialogState) {

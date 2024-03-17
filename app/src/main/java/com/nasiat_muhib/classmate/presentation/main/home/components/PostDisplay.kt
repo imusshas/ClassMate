@@ -58,7 +58,7 @@ fun PostDisplay(
 
     val delete = SwipeAction(
         onSwipe = {
-//            homeViewModel.onHomeEvent(HomeUIEvent.DeleteCourseRequest(course))
+            homeViewModel.onHomeEvent(HomeUIEvent.DeletePostSwipe(post))
             isVisible.value = false
         },
         icon = {

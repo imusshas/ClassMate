@@ -10,7 +10,7 @@ import java.sql.Timestamp
 
 data class Post(
     val creator: String = "",
-    val timestamp: Timestamp = Timestamp(System.currentTimeMillis()),
+    val timestamp: Long = 0L,
     val firstName: String = "",
     val lastName: String = "",
     val courseCode: String = "",

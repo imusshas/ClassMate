@@ -219,20 +219,15 @@ object GetModelFromDocument {
 
     fun getPostFromFirestoreDocument(snapshot: DocumentSnapshot): Post {
         val creator = snapshot[POST_CREATOR].toString()
-        val dateTime = snapshot[POST_TIMESTAMP].toString()
+        val timestamp = if (snapshot[POST_TIMESTAMP] != null) snapshot[POST_TIMESTAMP] as Long else 0L
         val firstName = snapshot[POST_CREATOR_FIRST_NAME].toString()
         val lastName = snapshot[POST_CREATOR_LAST_NAME].toString()
         val courseCode = snapshot[POST_COURSE_CODE].toString()
         val description = snapshot[POST_DESCRIPTION].toString()
-        Log.d(TAG, "getPostFromFirestoreDocument: $dateTime")
-
-        val format = "yyyy-MM-dd HH:mm:ss"
-        val dateFormat = SimpleDateFormat(format, Locale.getDefault())
-//        val timestamp = dateFormat.parse(dateTime)
 
         return Post(
             creator = creator,
-//            timestamp = Timestamp(timestamp!!.time),
+            timestamp = timestamp,
             firstName = firstName,
             lastName = lastName,
             courseCode = courseCode,

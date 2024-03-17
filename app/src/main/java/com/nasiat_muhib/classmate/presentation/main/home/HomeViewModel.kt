@@ -171,6 +171,10 @@ class HomeViewModel @Inject constructor(
             HomeUIEvent.PostButtonClicked -> {
                 _createPostDialogState.value = true
             }
+
+            is HomeUIEvent.DeletePostSwipe -> {
+                deletePost(event.post)
+            }
         }
     }
 
@@ -194,6 +198,12 @@ class HomeViewModel @Inject constructor(
 
             }
         }
+
+    private fun deletePost(post: Post)  = viewModelScope.launch {
+        postRepo.deletePost(post).collectLatest {
+
+        }
+    }
 
 
     fun onPostEvent(event: PostUIEvent) {
@@ -228,7 +238,7 @@ class HomeViewModel @Inject constructor(
 
 
     private fun onPost(
-        timestamp: Timestamp,
+        timestamp: Long,
         creator: String,
         firstName: String,
         lastName: String

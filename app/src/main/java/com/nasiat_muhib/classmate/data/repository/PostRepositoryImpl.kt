@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.data.repository
 
+import android.icu.text.SimpleDateFormat
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.nasiat_muhib.classmate.core.GetModelFromDocument.getPostFromFirestoreDocument
@@ -13,6 +14,8 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
@@ -22,6 +25,10 @@ class PostRepositoryImpl @Inject constructor(
     override fun createPost(post: Post): Flow<DataState<Post>> = flow {
         emit(DataState.Loading)
         val postId = "${post.creator}:${post.timestamp}"
+        val date = Date(post.timestamp)
+        val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()) // Define your desired format
+        val dateTimeString = formatter.format(date)
+        Log.d(TAG, "createPost: $dateTimeString")
         postsCollection.document(postId).set(post.toMap()).await()
         emit(DataState.Success(post))
     }.catch {
@@ -34,7 +41,6 @@ class PostRepositoryImpl @Inject constructor(
             value?.documents?.forEach {
                 val post = getPostFromFirestoreDocument(it)
                 posts.add(post)
-                Log.d(TAG, "getPosts: $post")
             }
 
             trySend(posts).isSuccess
