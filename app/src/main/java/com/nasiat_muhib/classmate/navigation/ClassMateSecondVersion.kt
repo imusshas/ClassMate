@@ -18,6 +18,7 @@ import com.nasiat_muhib.classmate.presentation.main.home.HomeScreen
 import com.nasiat_muhib.classmate.presentation.main.menu.MenuScreen
 import com.nasiat_muhib.classmate.presentation.main.menu.profile.ProfileScreen
 import com.nasiat_muhib.classmate.presentation.main.menu.routine.RoutineScreen
+import com.nasiat_muhib.classmate.presentation.main.notification.NotificationScreen
 
 @Composable
 fun ClassMateSecondVersion() {
@@ -52,7 +53,9 @@ fun ClassMateSecondVersion() {
                 Screen.MenuScreen -> {
                     MenuScreen()
                 }
-                Screen.NotificationScreen -> TODO()
+                Screen.NotificationScreen -> {
+                    NotificationScreen()
+                }
                 /***************** Tab Items *************/
 
 

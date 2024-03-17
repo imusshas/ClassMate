@@ -16,6 +16,8 @@ sealed class Screen {
     data object EnrollCourseScreen: Screen()
     data object NotificationScreen: Screen()
     data object MenuScreen: Screen()
+
+
     data object CreateCourse: Screen()
     data object SearchTeacher: Screen()
 

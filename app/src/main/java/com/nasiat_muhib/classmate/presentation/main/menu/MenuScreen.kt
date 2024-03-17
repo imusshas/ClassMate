@@ -13,6 +13,7 @@ import com.nasiat_muhib.classmate.navigation.MenuItem
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
 import com.nasiat_muhib.classmate.presentation.main.menu.components.MenuItem
+import com.nasiat_muhib.classmate.presentation.main.menu.components.SignOutItem
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
 
@@ -32,7 +33,7 @@ fun MenuScreen(menuViewModel: MenuViewModel = hiltViewModel()) {
             menuViewModel.onMenuEvent(MenuUIEvent.RoutineButtonClicked)
         })
         Spacer(modifier = Modifier.height(MediumSpace))
-        MenuItem(menuItem = MenuItem.SignOut, onClick = {
+        SignOutItem(menuItem = MenuItem.SignOut, onClick = {
             menuViewModel.onMenuEvent(MenuUIEvent.SignOutButtonClicked)
         })
     }

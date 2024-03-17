@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -19,6 +21,7 @@ import com.nasiat_muhib.classmate.domain.event.EditProfileUIEvent
 import com.nasiat_muhib.classmate.presentation.main.menu.profile.ProfileViewModel
 import com.nasiat_muhib.classmate.strings.TEACHER
 import com.nasiat_muhib.classmate.ui.theme.LargeSpace
+import com.nasiat_muhib.classmate.ui.theme.MediumRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
@@ -106,7 +109,10 @@ fun ProfileContent(profileViewModel: ProfileViewModel, user: User) {
             },
             errorMessage = editUserState.phoneNoError,
             readOnly = !editState,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done)
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            )
         )
 
         // Email
@@ -118,16 +124,18 @@ fun ProfileContent(profileViewModel: ProfileViewModel, user: User) {
         )
 
         Spacer(modifier = Modifier.height(LargeSpace))
-        CustomElevatedButton(
-            text = if (editState) "Done" else "Edit",
+        Button(
             onClick = {
                 if (editState) {
                     profileViewModel.onEditProfileEvent(EditProfileUIEvent.DoneButtonClicked)
                 } else {
                     profileViewModel.onEditProfileEvent(EditProfileUIEvent.EditButtonClicked)
                 }
-            }
-        )
+            },
+            shape = MediumRounded
+        ) {
+            Text(text = if (editState) "Done" else "Edit")
+        }
     }
 
 }

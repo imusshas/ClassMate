@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -20,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.nasiat_muhib.classmate.components.CustomElevatedButton
 import com.nasiat_muhib.classmate.components.CustomLazyColumn
-import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.components.TwoTitleContainer
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.HomeUIEvent
@@ -56,7 +53,7 @@ fun HomeScreenContent(
     ) {
 
         ClassMateTabRow(tab = TabItem.Home)
-        Spacer(modifier = Modifier.heightIn(SmallSpace))
+        Spacer(modifier = Modifier.height(SmallSpace))
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -74,7 +71,7 @@ fun HomeScreenContent(
                 rightClick = { todayOrTomorrow.value = false }
             )
 
-            CustomLazyColumn(items = if (todayOrTomorrow.value) todayClasses else tomorrowClasses) {
+            FixedHeightLazyColumn(items = if (todayOrTomorrow.value) todayClasses else tomorrowClasses) {
                 ClassDisplay(
                     homeViewModel = homeViewModel,
                     classDetails = it,
@@ -95,7 +92,7 @@ fun HomeScreenContent(
                 }
             )
 
-            CustomSwipeAbleLazyColumn(items = if (courseOrRequest.value) courses else requestedCourses,
+            FixedHeightSwipeAbleLazyColumn(items = if (courseOrRequest.value) courses else requestedCourses,
                 key = {
                     "${it.courseDepartment}:${it.courseCode}"
                 }) {
