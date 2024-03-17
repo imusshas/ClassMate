@@ -2,11 +2,14 @@ package com.nasiat_muhib.classmate.data.repository
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.nasiat_muhib.classmate.core.GetModelFromDocument.getClassDetailsFromFirestoreDocument
 import com.nasiat_muhib.classmate.core.GetModelFromDocument.getCourseFromFirestoreDocument
 import com.nasiat_muhib.classmate.core.GetModelFromDocument.getUserFromFirestoreDocument
+import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.repository.SearchRepository
+import com.nasiat_muhib.classmate.strings.CLASSES_COLLECTION
 import com.nasiat_muhib.classmate.strings.COURSES_COLLECTION
 import com.nasiat_muhib.classmate.strings.TEACHER
 import com.nasiat_muhib.classmate.strings.USERS_COLLECTION
@@ -76,6 +79,24 @@ class SearchRepositoryImpl @Inject constructor(
         }
     }.catch {
         Log.d(TAG, "getAllCourses: $it")
+    }
+
+    override fun getAllClasses(): Flow<Set<ClassDetails>> = callbackFlow {
+        val snapshotListener = firestoreRef.collection(CLASSES_COLLECTION)
+            .addSnapshotListener { value, error ->
+                val classSet = mutableSetOf<ClassDetails>()
+                value?.documents?.forEach {
+                    val details = getClassDetailsFromFirestoreDocument(it)
+                    classSet.add(details)
+                }
+                trySend(classSet).isSuccess
+            }
+
+        awaitClose {
+            snapshotListener.remove()
+        }
+    }.catch {
+        Log.d(TAG, "getAllClasses: ${it.localizedMessage}")
     }
 
 

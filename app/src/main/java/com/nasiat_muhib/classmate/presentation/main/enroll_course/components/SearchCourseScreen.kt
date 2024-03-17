@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nasiat_muhib.classmate.data.model.User
@@ -23,6 +26,7 @@ import com.nasiat_muhib.classmate.strings.ENROLL_BUTTON
 import com.nasiat_muhib.classmate.strings.SEARCH
 import com.nasiat_muhib.classmate.ui.theme.ExtraSmallSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumRounded
+import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 import com.nasiat_muhib.classmate.ui.theme.TitleStyle
@@ -46,54 +50,59 @@ fun SearchCourseScreen(
                 searchViewModel.onSearch(SearchUIEvent.SearchTextChanged(searchText))
             },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(text = SEARCH) }
+            placeholder = { Text(text = SEARCH)
+            },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(MediumSpace))
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            courses.value.forEach {
-                item {
-                    Row(
+            items(
+                items = courses.value.toList(),
+                key =  {
+                    "${it.courseDepartment}:${it.courseCode}"
+                }
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(NormalHeight)
+                        .padding(horizontal = SmallSpace)
+                ) {
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(NormalHeight)
-                            .padding(horizontal = SmallSpace)
+                            .weight(1f)
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                        ) {
-                            Text(
-                                text = it.courseCode,
-                                style = TitleStyle
-                            )
-                            Spacer(modifier = Modifier.height(ExtraSmallSpace))
-                            Text(
-                                text = it.courseTitle,
-                            )
-                            Spacer(modifier = Modifier.height(ExtraSmallSpace))
-                            Text(
-                                text = it.courseDepartment,
-                            )
-                        }
+                        Text(
+                            text = it.courseCode,
+                            style = TitleStyle
+                        )
+                        Spacer(modifier = Modifier.height(ExtraSmallSpace))
+                        Text(
+                            text = it.courseTitle,
+                        )
+                        Spacer(modifier = Modifier.height(ExtraSmallSpace))
+                        Text(
+                            text = it.courseDepartment,
+                        )
+                    }
 
-                        Button(
-                            onClick = {
-                                val courseId = "${it.courseDepartment}:${it.courseCode}"
-                                searchViewModel.onSearchCourseEvent(
-                                    SearchCourseUIEvent.EnrollButtonClicked(
-                                        courseId,
-                                        user.email
-                                    )
+                    Button(
+                        onClick = {
+                            val courseId = "${it.courseDepartment}:${it.courseCode}"
+                            searchViewModel.onSearchCourseEvent(
+                                SearchCourseUIEvent.EnrollButtonClicked(
+                                    courseId,
+                                    user.email
                                 )
-                            },
-                            shape = MediumRounded
-                        ) {
-                            Text(text = ENROLL_BUTTON)
-                        }
+                            )
+                        },
+                        shape = MediumRounded
+                    ) {
+                        Text(text = ENROLL_BUTTON)
                     }
                 }
             }

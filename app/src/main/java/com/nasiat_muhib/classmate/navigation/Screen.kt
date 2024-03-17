@@ -24,6 +24,7 @@ sealed class Screen {
 
 
     data object ProfileScreen: Screen()
+    data object RoutineScreen: Screen()
 
 }
 

@@ -45,4 +45,17 @@ data class ClassDetails(
         END_SHIFT to endShift,
         ACTIVE_STATUS to isActive
     )
+
+    fun doesMatchSearchQuery(query: String, weekDay: String): Boolean {
+        val matchingCombinations = listOf(
+            "${classroom.first()}${classroom.last()}",
+            classroom,
+        )
+
+        return matchingCombinations.any { it.contains(query, ignoreCase = true) || query.contains(it, ignoreCase = true) } && weekDay == this.weekDay
+    }
+
+    fun doesMatchWeekDay(weekDay: String): Boolean {
+        return weekDay == this.weekDay
+    }
 }

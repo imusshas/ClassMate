@@ -29,7 +29,7 @@ fun MenuScreen(menuViewModel: MenuViewModel = hiltViewModel()) {
         })
         Spacer(modifier = Modifier.height(MediumSpace))
         MenuItem(menuItem = MenuItem.Routine, onClick = {
-
+            menuViewModel.onMenuEvent(MenuUIEvent.RoutineButtonClicked)
         })
         Spacer(modifier = Modifier.height(MediumSpace))
         MenuItem(menuItem = MenuItem.SignOut, onClick = {

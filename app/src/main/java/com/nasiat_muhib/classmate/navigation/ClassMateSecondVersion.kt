@@ -17,6 +17,7 @@ import com.nasiat_muhib.classmate.presentation.main.enroll_course.EnrollCourseSc
 import com.nasiat_muhib.classmate.presentation.main.home.HomeScreen
 import com.nasiat_muhib.classmate.presentation.main.menu.MenuScreen
 import com.nasiat_muhib.classmate.presentation.main.menu.profile.ProfileScreen
+import com.nasiat_muhib.classmate.presentation.main.menu.routine.RoutineScreen
 
 @Composable
 fun ClassMateSecondVersion() {
@@ -70,6 +71,10 @@ fun ClassMateSecondVersion() {
 
                 Screen.ProfileScreen -> {
                     ProfileScreen()
+                }
+
+                Screen.RoutineScreen -> {
+                    RoutineScreen()
                 }
             }
         }

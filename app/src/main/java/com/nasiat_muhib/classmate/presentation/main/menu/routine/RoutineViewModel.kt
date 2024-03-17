@@ -1,16 +1,20 @@
-package com.nasiat_muhib.classmate.presentation.main.enroll_course.components
+package com.nasiat_muhib.classmate.presentation.main.menu.routine
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
+import com.nasiat_muhib.classmate.domain.event.RoutineUIEvent
 import com.nasiat_muhib.classmate.domain.event.SearchCourseUIEvent
 import com.nasiat_muhib.classmate.domain.event.SearchUIEvent
 import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.repository.SearchRepository
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import com.nasiat_muhib.classmate.domain.state.DataState
+import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
+import com.nasiat_muhib.classmate.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -28,74 +32,63 @@ import javax.inject.Inject
 import kotlin.math.log
 
 @HiltViewModel
-class SearchCourseViewModel @Inject constructor(
+class RoutineViewModel @Inject constructor(
     private val searchRepo: SearchRepository,
-    private val courseRepo: CourseRepository,
 ) : ViewModel() {
 
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 
+    private val _weekDay = MutableStateFlow("")
+    val weekDay = _weekDay.asStateFlow()
+
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching.asStateFlow()
 
-    private val _courses = MutableStateFlow<Set<Course>>(emptySet())
+    private val _classes = MutableStateFlow<Set<ClassDetails>>(emptySet())
+
 
     @OptIn(FlowPreview::class)
-    val courses = searchText
+    val classes = searchText
         .debounce(500L)
         .onEach { _isSearching.update { true } }
-        .combine(_courses) { text, usersList ->
+        .combine(_classes) { text, classList ->
             if (text.isBlank()) {
-                usersList
+                classList.filter {
+                    it.doesMatchWeekDay(it.weekDay)
+                }
             } else {
-                usersList.filter {
-                    it.doesMatchSearchQuery(text)
+                classList.filter {
+                    it.doesMatchSearchQuery(query = text, weekDay =  it.weekDay)
                 }
             }
         }.onEach { _isSearching.update { false } }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
-            _courses.value
+            _classes.value
         )
+    init {
+        getAllClasses()
+    }
 
+    private fun getAllClasses() = viewModelScope.launch {
+        searchRepo.getAllClasses().collectLatest {
+            _classes.value = it
+        }
+    }
 
-    fun onSearchCourseEvent(event: SearchCourseUIEvent) {
+    fun onRoutineEvent(event: RoutineUIEvent) {
         when (event) {
-            is SearchCourseUIEvent.EnrollButtonClicked -> {
-                enrollCourse(event.courseId, event.email)
+            RoutineUIEvent.RoutineBackButtonClicked -> {
+                ClassMateAppRouter.navigateTo(Screen.MenuScreen)
             }
-        }
-    }
-
-    fun onSearch(event: SearchUIEvent) {
-        when (event) {
-            is SearchUIEvent.SearchTextChanged -> {
-                _searchText.value = event.searchText
+            is RoutineUIEvent.SearchTextChanged -> {
+                _searchText.value = event.text
             }
-        }
-    }
-
-    fun getAllCourses(user: User) = viewModelScope.launch(Dispatchers.IO) {
-        searchRepo.getAllCourses().collectLatest { courseSet ->
-            val searchableCourse = mutableSetOf<Course>()
-            courseSet.forEach { course ->
-                val courseId = "${course.courseDepartment}:${course.courseCode}"
-                if (course.courseCreator != user.email && course.courseTeacher != user.role && !user.courses.contains(courseId)) {
-                    searchableCourse.add(course)
-                }
+            is RoutineUIEvent.WeekDayChanged -> {
+                _weekDay.value = event.weekDay
             }
-
-            _courses.value = searchableCourse
-        }
-
-    }
-
-    private fun enrollCourse(courseId: String, email: String) = viewModelScope.launch {
-
-        courseRepo.enrollCourse(courseId, email).collectLatest {
-
         }
     }
 

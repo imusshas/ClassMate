@@ -22,7 +22,9 @@ class MenuViewModel @Inject constructor(
             MenuUIEvent.ProfileButtonClicked -> {
                 ClassMateAppRouter.navigateTo(Screen.ProfileScreen)
             }
-            MenuUIEvent.RoutineButtonClicked -> TODO()
+            MenuUIEvent.RoutineButtonClicked -> {
+                ClassMateAppRouter.navigateTo(Screen.RoutineScreen)
+            }
             MenuUIEvent.SignOutButtonClicked -> {
                 signOut()
             }
