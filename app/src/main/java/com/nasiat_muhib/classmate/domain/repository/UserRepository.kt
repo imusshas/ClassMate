@@ -11,5 +11,5 @@ interface UserRepository {
 
     fun getUser(email: String): Flow<DataState<User>>
 
-    fun updateUser(email: String, user: User): Flow<DataState<User>>
+    fun updateUser(user: User): Flow<DataState<User>>
 }

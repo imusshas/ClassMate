@@ -16,6 +16,7 @@ import com.nasiat_muhib.classmate.presentation.main.create_semester.components.c
 import com.nasiat_muhib.classmate.presentation.main.enroll_course.EnrollCourseScreen
 import com.nasiat_muhib.classmate.presentation.main.home.HomeScreen
 import com.nasiat_muhib.classmate.presentation.main.menu.MenuScreen
+import com.nasiat_muhib.classmate.presentation.main.menu.profile.ProfileScreen
 
 @Composable
 fun ClassMateSecondVersion() {
@@ -63,16 +64,12 @@ fun ClassMateSecondVersion() {
                     SearchTeacherScreen()
                 }
 
-                is Screen.EditCourse -> {
-
-                }
-
-                is Screen.EditSearchTeacher -> {
-
-                }
-
                 is Screen.CourseDetailsDisplay -> {
                     CourseDetailsDisplay(course = (it.value as Screen.CourseDetailsDisplay).course, screen = (it.value as Screen.CourseDetailsDisplay).screen )
+                }
+
+                Screen.ProfileScreen -> {
+                    ProfileScreen()
                 }
             }
         }

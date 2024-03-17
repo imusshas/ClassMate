@@ -19,10 +19,11 @@ sealed class Screen {
     data object CreateCourse: Screen()
     data object SearchTeacher: Screen()
 
-    data class EditCourse(val course: Course): Screen()
-    data class EditSearchTeacher(val courseTeacherEmail: Screen) : Screen()
 
     data class CourseDetailsDisplay(val course: Course, val screen: Screen): Screen()
+
+
+    data object ProfileScreen: Screen()
 
 }
 

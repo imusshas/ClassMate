@@ -12,6 +12,7 @@ import com.nasiat_muhib.classmate.strings.USERS_COLLECTION
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -29,9 +30,9 @@ class UserRepositoryImpl @Inject constructor(
     override fun getUser(email: String): Flow<DataState<User>> = callbackFlow {
         var response: DataState<User> = DataState.Loading
 
-        val snapshotListener =  usersCollection.document(email)
+        val snapshotListener = usersCollection.document(email)
             .addSnapshotListener { value, error ->
-                if(value != null) {
+                if (value != null) {
                     Log.d(TAG, "getUser: Document: ${value.data}")
                     val user = getUserFromFirestoreDocument(value)
                     Log.d(TAG, "getUser: User: $user")
@@ -52,105 +53,17 @@ class UserRepositoryImpl @Inject constructor(
     }
 
 
-    override fun updateUser(email: String, user: User): Flow<DataState<User>> = callbackFlow {
+    override fun updateUser(user: User): Flow<DataState<User>> = flow {
 
-        var response: DataState<User> = DataState.Loading
+        emit(DataState.Loading)
+        usersCollection.document(user.email).update(user.toMap()).await()
+        emit(DataState.Success(user))
+    }.catch {
 
-        val isSuccessful = updateUserToFirestore(email, user)
-
-        response = if (isSuccessful) {
-            DataState.Success(user)
-        } else {
-            DataState.Error("Unable to update user")
-        }
-
-        trySend(response).isSuccess
-
-        awaitClose {
-
-        }
-    }
-
-
-    private suspend fun updateUserToFirestore(email: String, user: User): Boolean {
-
-        var isSuccessful = false
-
-        usersCollection.document(email).get().addOnSuccessListener { userSnapshot ->
-            val document = usersCollection.document(email)
-            if (userSnapshot.exists()) {
-                document.update(user.toMap()).addOnCompleteListener {
-                    isSuccessful = it.isSuccessful
-                }
-            } else {
-                Log.d(TAG, "updateUserToFirestore: User doesn't exist")
-            }
-        }.addOnFailureListener {
-            Log.d(TAG, "updateUserToFirestore: ${it.localizedMessage}")
-        }.await()
-        Log.d(TAG, "updateUserToFirestore: isSuccessful Outside: $isSuccessful")
-        return isSuccessful
+        Log.d(TAG, "updateUser: ${it.localizedMessage}")
     }
 
     companion object {
         private const val TAG = "UserRepositoryImpl"
     }
 }
-
-
-
-
-//callbackFlow {
-//    var response: DataState<User> = DataState.Loading
-//
-//            val snapshotListener =  usersCollection.document(email)
-//                .addSnapshotListener { value, error ->
-//                if(value != null) {
-//                    Log.d(TAG, "getUser: Document: ${value.data}")
-//                    val user = getUserFromFirestoreDocument(value)
-//                    Log.d(TAG, "getUser: User: $user")
-//                    response = DataState.Success(user)
-//                } else if (error != null) {
-//                    Log.d(TAG, "getUser: ${error.localizedMessage}")
-//                    response = DataState.Error(error.localizedMessage!!)
-//                } else {
-//                    Log.d(TAG, "getUser: Nothing")
-//                }
-//            }
-//
-//    trySend(response).isSuccess
-//
-//    awaitClose {
-//                snapshotListener.remove()
-//    }
-//}
-
-
-
-
-
-
-
-
-
-
-//flow {
-//    emit(DataState.Loading)
-//    var data = User()
-//    var error: String? = null
-//
-//    usersCollection.document(email).get()
-//        .addOnSuccessListener {
-//            data = getUserFromFirestoreDocument(it)
-//            Log.d(UserRepositoryImpl.TAG, "getUser: ${it.data}")
-//        }.addOnFailureListener {
-//            error = it.localizedMessage
-//            Log.d(UserRepositoryImpl.TAG, "getUser: ${it.localizedMessage}")
-//        }.await()
-//
-//    if (error == null) {
-//        emit(DataState.Success(data))
-//    } else {
-//        emit(DataState.Error(error!!))
-//    }
-//}
