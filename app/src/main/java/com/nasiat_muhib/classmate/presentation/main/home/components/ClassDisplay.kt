@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.presentation.main.home.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,13 +13,17 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.nasiat_muhib.classmate.data.model.ClassDetails
+import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.HomeUIEvent
 import com.nasiat_muhib.classmate.presentation.main.home.HomeViewModel
 import com.nasiat_muhib.classmate.strings.COLON
+import com.nasiat_muhib.classmate.strings.TAG
 import com.nasiat_muhib.classmate.ui.theme.LargeRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
@@ -70,6 +75,8 @@ fun ClassDisplay(
                 Spacer(modifier = Modifier.width(SmallSpace))
                 Text(text = classDetails.endShift, style = SomeStyle)
             }
+
+            Text(text = classDetails.classroom)
 
             Switch(
                 checked = classDetails.isActive,

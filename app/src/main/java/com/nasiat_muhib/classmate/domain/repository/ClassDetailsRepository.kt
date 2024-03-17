@@ -10,5 +10,9 @@ interface ClassDetailsRepository {
 
     fun deleteClass(classDetails: ClassDetails): Flow<DataState<ClassDetails>>
 
-    fun getClasses(courseId: String): Flow<List<ClassDetails>>
+    fun getClassesForSingleCourse(courseId: String): Flow<List<ClassDetails>>
+
+    fun getClassesForMultipleCourse(courseIds: List<String>): Flow<List<ClassDetails>>
+
+    fun changeActiveStatus(classDetails: ClassDetails, status: Boolean): Flow<DataState<ClassDetails>>
 }

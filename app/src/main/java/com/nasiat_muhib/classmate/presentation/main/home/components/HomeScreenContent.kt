@@ -21,6 +21,7 @@ import com.nasiat_muhib.classmate.components.CustomLazyColumn
 import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.components.TwoTitleContainer
 import com.nasiat_muhib.classmate.data.model.User
+import com.nasiat_muhib.classmate.domain.event.HomeUIEvent
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
 import com.nasiat_muhib.classmate.presentation.main.home.HomeViewModel
@@ -30,23 +31,18 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 @Composable
 fun HomeScreenContent(
     homeViewModel: HomeViewModel,
-    user: User
+    user: User,
 ) {
-
-    homeViewModel.getTodayClasses()
-    homeViewModel.getTomorrowClasses()
-    homeViewModel.getClassDetails()
-
+    homeViewModel.getTodayAndTomorrowClassesClasses()
     val todayClasses by homeViewModel.todayClasses.collectAsState()
     val tomorrowClasses by homeViewModel.tomorrowClasses.collectAsState()
+
     val todayOrTomorrow = rememberSaveable { mutableStateOf(true) }
 
     val courses by homeViewModel.courses.collectAsState()
     val requestedCourses by homeViewModel.requestedCourses.collectAsState()
 
-    val courseOrRequest = rememberSaveable {
-        mutableStateOf(true)
-    }
+    val courseOrRequest = rememberSaveable { mutableStateOf(true) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -73,7 +69,10 @@ fun HomeScreenContent(
             )
 
             CustomLazyColumn(items = if (todayOrTomorrow.value) todayClasses else tomorrowClasses) {
-                ClassDisplay(homeViewModel = homeViewModel, classDetails = it)
+                ClassDisplay(
+                    homeViewModel = homeViewModel,
+                    classDetails = it,
+                )
             }
 
             TwoTitleContainer(
@@ -107,5 +106,19 @@ fun HomeScreenContent(
         }) {
             Text(text = "Sign Out")
         }
+
+//        Spacer(modifier = Modifier.height(LargeSpace))
+//        ElevatedButton(onClick = {
+//            homeViewModel.signOut()
+//        }) {
+//            Text(text = "Update +")
+//        }
+//        // Creator -> Email
+//        // Creator -> Firstname
+//        // Creator -> Lastname
+//        // Timestamp
+//        // Course Code
+//        // Description
+
     }
 }

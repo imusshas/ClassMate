@@ -5,6 +5,7 @@ import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.Event
 import com.nasiat_muhib.classmate.data.model.User
+import com.nasiat_muhib.classmate.strings.ACTIVE_STATUS
 import com.nasiat_muhib.classmate.strings.BLOOD_GROUP
 import com.nasiat_muhib.classmate.strings.CLASSROOM
 import com.nasiat_muhib.classmate.strings.CLASS_COURSE_CODE
@@ -157,6 +158,8 @@ object GetModelFromDocument {
         val endMinute: Long = if (snapshot[END_MINUTE] != null) snapshot[END_MINUTE] as Long else -1
         val endShift: String =
             if (snapshot[END_SHIFT] != null) snapshot[END_SHIFT] as String else ""
+        val isActive: Boolean =
+            if (snapshot[ACTIVE_STATUS] != null) snapshot[ACTIVE_STATUS] as Boolean else true
 
         return ClassDetails(
             classDepartment = classDepartment,
@@ -170,7 +173,8 @@ object GetModelFromDocument {
             startShift = startShift,
             endHour = endHour.toInt(),
             endMinute = endMinute.toInt(),
-            endShift = endShift
+            endShift = endShift,
+            isActive = isActive
         )
     }
 

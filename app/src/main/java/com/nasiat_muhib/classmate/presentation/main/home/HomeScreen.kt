@@ -26,13 +26,9 @@ fun HomeScreen(
         }
         is DataState.Success -> {
             userState.data?.let { user ->
-                Log.d(TAG, "HomeScreen: $user")
-                homeViewModel.getClassDetails()
-                homeViewModel.getTodayClasses()
-                homeViewModel.getTomorrowClasses()
                 homeViewModel.getCourseList(user.courses)
                 homeViewModel.getRequestedCourseList(user.requestedCourses)
-                
+                homeViewModel.getClassDetails(user.courses)
                 HomeScreenContent(homeViewModel = homeViewModel, user = user)
             }
         }

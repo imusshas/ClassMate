@@ -6,6 +6,7 @@ import com.nasiat_muhib.classmate.core.GetModelFromDocument.getClassDetailsFromF
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.domain.repository.ClassDetailsRepository
 import com.nasiat_muhib.classmate.domain.state.DataState
+import com.nasiat_muhib.classmate.strings.ACTIVE_STATUS
 import com.nasiat_muhib.classmate.strings.CLASSES_COLLECTION
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -39,7 +40,7 @@ class ClassDetailsRepositoryImpl @Inject constructor(
         Log.d(TAG, "deleteClass: ${it.localizedMessage}")
     }
 
-    override fun getClasses(courseId: String): Flow<List<ClassDetails>> = callbackFlow {
+    override fun getClassesForSingleCourse(courseId: String): Flow<List<ClassDetails>> = callbackFlow {
 
         val snapshotListener = classesCollection.addSnapshotListener { value, error ->
             val classList = mutableListOf<ClassDetails>()
@@ -56,6 +57,42 @@ class ClassDetailsRepositoryImpl @Inject constructor(
         awaitClose {
             snapshotListener.remove()
         }
+    }.catch {
+        Log.d(TAG, "getClasses: ${it.localizedMessage}")
+    }
+
+    override fun getClassesForMultipleCourse(courseIds: List<String>): Flow<List<ClassDetails>> = callbackFlow {
+        val snapshotListener = classesCollection.addSnapshotListener { value, error ->
+            val classList = mutableListOf<ClassDetails>()
+            courseIds.forEach {courseId ->
+                value?.documents?.forEach {
+                    if (it.exists() && it != null && it.id.contains(courseId)) {
+                        val details = getClassDetailsFromFirestoreDocument(it)
+                        classList.add(details)
+                    }
+                }
+            }
+            trySend(classList).isSuccess
+        }
+
+        awaitClose {
+            snapshotListener.remove()
+        }
+    }.catch {
+        Log.d(TAG, "getClassesForMultipleCourse: ${it.localizedMessage}")
+    }
+
+    override fun changeActiveStatus(
+        classDetails: ClassDetails,
+        status: Boolean,
+    ): Flow<DataState<ClassDetails>> = flow {
+        emit(DataState.Loading)
+        val classId = "${classDetails.classDepartment}:${classDetails.classCourseCode}:${classDetails.classNo}"
+        classesCollection.document(classId).update(ACTIVE_STATUS, status).await()
+        emit(DataState.Success(classDetails))
+    }.catch {
+        emit(DataState.Error("Unable to update class status"))
+        Log.d(TAG, "changeActiveStatus: ${it.localizedMessage}")
     }
 
     companion object {

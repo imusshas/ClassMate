@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,7 +28,7 @@ class HomeViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val courseRepo: CourseRepository,
     private val authRepo: AuthenticationRepository,
-    private val classDetailsRepo: ClassDetailsRepository
+    private val classDetailsRepo: ClassDetailsRepository,
 ) : ViewModel() {
 
     private val currentUser = userRepo.currentUser
@@ -43,7 +42,7 @@ class HomeViewModel @Inject constructor(
     private val _requestedCourses = MutableStateFlow<List<Course>>(emptyList())
     val requestedCourses = _requestedCourses.asStateFlow()
 
-    private val _classes = MutableStateFlow<Map<String, List<ClassDetails>>>(emptyMap())
+    private val _classes = MutableStateFlow<List<ClassDetails>>(emptyList())
     val classes = _classes.asStateFlow()
 
     private val _todayClasses = MutableStateFlow<List<ClassDetails>>(emptyList())
@@ -51,7 +50,6 @@ class HomeViewModel @Inject constructor(
 
     private val _tomorrowClasses = MutableStateFlow<List<ClassDetails>>(emptyList())
     val tomorrowClasses = _tomorrowClasses.asStateFlow()
-
 
 
     init {
@@ -64,7 +62,7 @@ class HomeViewModel @Inject constructor(
     private fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
         userRepo.getUser(email).collectLatest {
             _userState.value = it
-            Log.d(TAG, "getUser: $email: ${it.data}")
+//            Log.d(TAG, "getUser: $email: ${it.data}")
         }
     }
 
@@ -73,7 +71,7 @@ class HomeViewModel @Inject constructor(
 
         }
 
-        Log.d(TAG, "signOut: ${currentUser.email}")
+//        Log.d(TAG, "signOut: ${currentUser.email}")
     }
 
 
@@ -90,58 +88,30 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getClassDetails() = viewModelScope.launch(Dispatchers.IO) {
-
-        val classesList: MutableMap<String, List<ClassDetails>> = mutableMapOf()
-        courses.value.forEach { course ->
-            val id = "${course.courseDepartment}:${course.courseCode}"
-
-            classDetailsRepo.getClasses(id).collectLatest {
-                classesList[id] = it
-            }
+    fun getClassDetails(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
+        classDetailsRepo.getClassesForMultipleCourse(courseIds).collectLatest {
+            _classes.value = it
         }
-        _classes.value = classesList
     }
 
-    fun getTodayClasses() = viewModelScope.launch (Dispatchers.IO) {
+    fun getTodayAndTomorrowClassesClasses() = viewModelScope.launch(Dispatchers.IO) {
 
         val todayClassList = mutableListOf<ClassDetails>()
-        classes.value.values.forEach { details ->
-            details.forEach {
-                if (it.weekDay.uppercase(Locale.ROOT) == LocalDate.now().dayOfWeek.toString()) {
-                    todayClassList.add(it)
-                }
-            }
-        }
-
-        _todayClasses.value = todayClassList
-
-    }
-
-
-    fun getTomorrowClasses() = viewModelScope.launch (Dispatchers.IO) {
+        val today = LocalDate.now().dayOfWeek.toString()
 
         val tomorrowClassList = mutableListOf<ClassDetails>()
-        classes.value.values.forEach { details ->
-            details.forEach {
-                if (it.weekDay.uppercase(Locale.ROOT) == LocalDate.now().plusDays(1).dayOfWeek.toString()) {
-                    tomorrowClassList.add(it)
-                }
+        val tomorrow = LocalDate.now().dayOfWeek.plus(1).toString()
+
+        classes.value.forEach {
+            if (today.contains(it.weekDay, ignoreCase = true)) {
+                todayClassList.add(it)
+            }
+            if (tomorrow.contains(it.weekDay, ignoreCase = true)) {
+                tomorrowClassList.add(it)
             }
         }
+        _todayClasses.value = todayClassList
         _tomorrowClasses.value = tomorrowClassList
-    }
-
-    private fun deleteRequest(course: Course) = viewModelScope.launch {
-        courseRepo.deleteCourse(course).collectLatest {
-
-        }
-    }
-
-    private fun acceptCourse (course: Course) = viewModelScope.launch {
-        courseRepo.acceptCourse(course).collectLatest {
-
-        }
     }
 
 
@@ -149,41 +119,62 @@ class HomeViewModel @Inject constructor(
 
         when (event) {
             is HomeUIEvent.ClassStatusChange -> {
-                todayClasses.value.forEach {
-                    if (it == event.classDetails) {
-                        if (it.isActive != event.isActive) {
-                            val details = it.copy(
-                                isActive = event.isActive
-                            )
-                            courseRepo.updateClassStatus(details)
+                userState.value.data?.let { user ->
+                    courses.value.forEach { course ->
+                        if (
+                            event.classDetails.classDepartment == course.courseDepartment &&
+                            event.classDetails.classCourseCode == course.courseCode &&
+                            (course.courseTeacher == user.email || course.courseCreator == user.email)
+                        ) {
+                            Log.d(TAG, "onHomeEvent: $course")
+                            changeActiveStatus(event.classDetails, event.activeStatus)
+                            getTodayAndTomorrowClassesClasses()
                         }
-                    }
-                }
 
-                tomorrowClasses.value.forEach {
-                    if (it == event.classDetails) {
-                        if (it.isActive != event.isActive) {
-                            val details = it.copy(
-                                isActive = event.isActive
-                            )
-                            courseRepo.updateClassStatus(details)
-                        }
                     }
+
                 }
             }
 
             is HomeUIEvent.AcceptCourseRequest -> {
-                acceptCourse(event.course)
+                acceptCourseRequest(event.course)
             }
+
             is HomeUIEvent.DeleteCourseRequest -> {
-                deleteRequest(event.course)
+                deleteCourseRequest(event.course)
             }
 
             is HomeUIEvent.DisplayCourse -> {
-                ClassMateAppRouter.navigateTo(Screen.CourseDetailsDisplay(event.course, event.screen))
+                ClassMateAppRouter.navigateTo(
+                    Screen.CourseDetailsDisplay(
+                        event.course,
+                        event.screen
+                    )
+                )
             }
         }
     }
+
+
+    private fun deleteCourseRequest(course: Course) = viewModelScope.launch {
+        courseRepo.deleteCourse(course).collectLatest {
+
+        }
+    }
+
+    private fun acceptCourseRequest(course: Course) = viewModelScope.launch {
+        courseRepo.acceptCourse(course).collectLatest {
+
+        }
+    }
+
+
+    private fun changeActiveStatus(classDetails: ClassDetails, status: Boolean) =
+        viewModelScope.launch {
+            classDetailsRepo.changeActiveStatus(classDetails, status).collectLatest {
+
+            }
+        }
 
     companion object {
         const val TAG = "HomeScreenViewModel"

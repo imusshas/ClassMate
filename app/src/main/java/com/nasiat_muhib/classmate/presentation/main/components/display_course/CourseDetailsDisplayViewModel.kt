@@ -21,7 +21,6 @@ import com.nasiat_muhib.classmate.domain.state.CreateClassUIState
 import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.domain.state.EventUIState
 import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
-import com.nasiat_muhib.classmate.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -110,7 +109,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
     fun getClassDetailsList() = viewModelScope.launch {
         val courseId = "${currentCourse.value.courseDepartment}:${currentCourse.value.courseCode}"
-        classRepo.getClasses(courseId)
+        classRepo.getClassesForSingleCourse(courseId)
             .collectLatest {
                 _classes.value = it
             }
