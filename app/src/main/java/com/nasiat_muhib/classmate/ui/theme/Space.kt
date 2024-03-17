@@ -16,3 +16,4 @@ val SixtyHeight = 60.dp
 val LargeHeight = 80.dp
 val SmallHeight = 36.dp
 val ExtraSmallHeight = 24.dp
+val PostHeight = 200.dp

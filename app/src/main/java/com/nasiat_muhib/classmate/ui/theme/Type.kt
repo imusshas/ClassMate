@@ -56,9 +56,7 @@ val SmallPickerStyle = TextStyle(
 )
 
 val ClickableTextStyle = SpanStyle(
-    fontWeight = FontWeight.W200,
-    textDecoration = TextDecoration.Underline,
-    color = Color.Unspecified,
+    fontWeight = FontWeight.Bold,
 )
 
 val SomeStyle = TextStyle(

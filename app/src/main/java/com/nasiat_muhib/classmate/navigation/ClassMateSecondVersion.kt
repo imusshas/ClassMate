@@ -15,6 +15,7 @@ import com.nasiat_muhib.classmate.presentation.main.create_semester.components.c
 import com.nasiat_muhib.classmate.presentation.main.create_semester.components.create.SearchTeacherScreen
 import com.nasiat_muhib.classmate.presentation.main.enroll_course.EnrollCourseScreen
 import com.nasiat_muhib.classmate.presentation.main.home.HomeScreen
+import com.nasiat_muhib.classmate.presentation.main.menu.MenuScreen
 
 @Composable
 fun ClassMateSecondVersion() {
@@ -46,7 +47,9 @@ fun ClassMateSecondVersion() {
                 Screen.EnrollCourseScreen -> {
                     EnrollCourseScreen()
                 }
-                Screen.MenuScreen -> TODO()
+                Screen.MenuScreen -> {
+                    MenuScreen()
+                }
                 Screen.NotificationScreen -> TODO()
                 /***************** Tab Items *************/
 

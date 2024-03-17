@@ -22,8 +22,10 @@ import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.HomeUIEvent
 import com.nasiat_muhib.classmate.presentation.main.home.HomeViewModel
+import com.nasiat_muhib.classmate.strings.CLASS_REPRESENTATIVE
 import com.nasiat_muhib.classmate.strings.COLON
 import com.nasiat_muhib.classmate.strings.TAG
+import com.nasiat_muhib.classmate.strings.TEACHER
 import com.nasiat_muhib.classmate.ui.theme.LargeRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
@@ -34,6 +36,7 @@ import com.nasiat_muhib.classmate.ui.theme.SomeStyle
 fun ClassDisplay(
     homeViewModel: HomeViewModel,
     classDetails: ClassDetails,
+    user: User
 ) {
 
     ElevatedCard(
@@ -82,7 +85,8 @@ fun ClassDisplay(
                 checked = classDetails.isActive,
                 onCheckedChange = {activeStatus ->
                     homeViewModel.onHomeEvent(HomeUIEvent.ClassStatusChange(classDetails, activeStatus))
-                }
+                },
+                enabled = user.role == TEACHER || user.role == CLASS_REPRESENTATIVE
             )
         }
     }

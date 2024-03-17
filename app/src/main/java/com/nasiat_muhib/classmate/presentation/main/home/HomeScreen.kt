@@ -29,6 +29,7 @@ fun HomeScreen(
                 homeViewModel.getCourseList(user.courses)
                 homeViewModel.getRequestedCourseList(user.requestedCourses)
                 homeViewModel.getClassDetails(user.courses)
+                homeViewModel.getPosts()
                 HomeScreenContent(homeViewModel = homeViewModel, user = user)
             }
         }

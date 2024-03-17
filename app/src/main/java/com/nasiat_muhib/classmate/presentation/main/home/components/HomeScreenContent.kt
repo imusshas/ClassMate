@@ -5,11 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -17,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.nasiat_muhib.classmate.components.CustomElevatedButton
 import com.nasiat_muhib.classmate.components.CustomLazyColumn
 import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.components.TwoTitleContainer
@@ -25,6 +25,7 @@ import com.nasiat_muhib.classmate.domain.event.HomeUIEvent
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
 import com.nasiat_muhib.classmate.presentation.main.home.HomeViewModel
+import com.nasiat_muhib.classmate.ui.theme.LargeSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
@@ -43,6 +44,9 @@ fun HomeScreenContent(
     val requestedCourses by homeViewModel.requestedCourses.collectAsState()
 
     val courseOrRequest = rememberSaveable { mutableStateOf(true) }
+
+    val posts by homeViewModel.posts.collectAsState()
+    val createPostDialogState by homeViewModel.createPostDialogState.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -72,6 +76,7 @@ fun HomeScreenContent(
                 ClassDisplay(
                     homeViewModel = homeViewModel,
                     classDetails = it,
+                    user = user
                 )
             }
 
@@ -101,24 +106,17 @@ fun HomeScreenContent(
 
         }
 
-        ElevatedButton(onClick = {
-            homeViewModel.signOut()
-        }) {
-            Text(text = "Sign Out")
+        Spacer(modifier = Modifier.height(LargeSpace))
+        CustomElevatedButton(text = "Create Post", onClick = { homeViewModel.onHomeEvent(HomeUIEvent.PostButtonClicked) })
+        Spacer(modifier = Modifier.height(MediumSpace))
+        posts.forEach {
+            PostDisplay(post = it,
+                homeViewModel = homeViewModel,
+                isCreator = it.creator == user.email)
         }
 
-//        Spacer(modifier = Modifier.height(LargeSpace))
-//        ElevatedButton(onClick = {
-//            homeViewModel.signOut()
-//        }) {
-//            Text(text = "Update +")
-//        }
-//        // Creator -> Email
-//        // Creator -> Firstname
-//        // Creator -> Lastname
-//        // Timestamp
-//        // Course Code
-//        // Description
-
+        if (createPostDialogState) {
+            CreatePostDialog(homeViewModel = homeViewModel, user = user)
+        }
     }
 }

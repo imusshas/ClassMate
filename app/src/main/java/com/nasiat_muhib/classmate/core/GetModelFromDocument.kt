@@ -1,9 +1,11 @@
 package com.nasiat_muhib.classmate.core
 
+import android.util.Log
 import com.google.firebase.firestore.DocumentSnapshot
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.Event
+import com.nasiat_muhib.classmate.data.model.Post
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.strings.ACTIVE_STATUS
 import com.nasiat_muhib.classmate.strings.BLOOD_GROUP
@@ -40,6 +42,12 @@ import com.nasiat_muhib.classmate.strings.FIRST_NAME
 import com.nasiat_muhib.classmate.strings.LAST_NAME
 import com.nasiat_muhib.classmate.strings.PENDING_STATUS
 import com.nasiat_muhib.classmate.strings.PHONE_NO
+import com.nasiat_muhib.classmate.strings.POST_COURSE_CODE
+import com.nasiat_muhib.classmate.strings.POST_CREATOR
+import com.nasiat_muhib.classmate.strings.POST_CREATOR_FIRST_NAME
+import com.nasiat_muhib.classmate.strings.POST_CREATOR_LAST_NAME
+import com.nasiat_muhib.classmate.strings.POST_DESCRIPTION
+import com.nasiat_muhib.classmate.strings.POST_TIMESTAMP
 import com.nasiat_muhib.classmate.strings.REQUESTED_COURSES
 import com.nasiat_muhib.classmate.strings.ROLE
 import com.nasiat_muhib.classmate.strings.SECTION
@@ -48,6 +56,9 @@ import com.nasiat_muhib.classmate.strings.START_HOUR
 import com.nasiat_muhib.classmate.strings.START_MINUTE
 import com.nasiat_muhib.classmate.strings.START_SHIFT
 import com.nasiat_muhib.classmate.strings.WEEKDAY
+import java.sql.Timestamp
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 object GetModelFromDocument {
     fun getUserFromFirestoreDocument(snapshot: DocumentSnapshot): User {
@@ -203,6 +214,29 @@ object GetModelFromDocument {
             hour = hour.toInt(),
             minute = minute.toInt(),
             shift = shift
+        )
+    }
+
+    fun getPostFromFirestoreDocument(snapshot: DocumentSnapshot): Post {
+        val creator = snapshot[POST_CREATOR].toString()
+        val dateTime = snapshot[POST_TIMESTAMP].toString()
+        val firstName = snapshot[POST_CREATOR_FIRST_NAME].toString()
+        val lastName = snapshot[POST_CREATOR_LAST_NAME].toString()
+        val courseCode = snapshot[POST_COURSE_CODE].toString()
+        val description = snapshot[POST_DESCRIPTION].toString()
+        Log.d(TAG, "getPostFromFirestoreDocument: $dateTime")
+
+        val format = "yyyy-MM-dd HH:mm:ss"
+        val dateFormat = SimpleDateFormat(format, Locale.getDefault())
+//        val timestamp = dateFormat.parse(dateTime)
+
+        return Post(
+            creator = creator,
+//            timestamp = Timestamp(timestamp!!.time),
+            firstName = firstName,
+            lastName = lastName,
+            courseCode = courseCode,
+            description = description
         )
     }
 

@@ -12,4 +12,6 @@ sealed class HomeUIEvent {
     data class DeleteCourseRequest(val course: Course): HomeUIEvent()
 
     data class DisplayCourse(val course: Course, val screen: Screen): HomeUIEvent()
+
+    data object PostButtonClicked : HomeUIEvent()
 }
