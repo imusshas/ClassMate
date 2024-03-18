@@ -155,7 +155,7 @@ class HomeViewModel @Inject constructor(
         val postsSet = mutableSetOf<Post>()
         courses.value.forEach { course ->
             allPosts.value.forEach { post ->
-                if (post.creator == course.courseCreator || post.creator == course.courseTeacher) {
+                if ((post.creator == course.courseCreator || post.creator == course.courseTeacher) && post.courseCode == course.courseCode) {
                     postsSet.add(post)
                 }
             }
