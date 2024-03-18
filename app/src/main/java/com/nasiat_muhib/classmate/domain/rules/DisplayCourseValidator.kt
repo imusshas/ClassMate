@@ -1,6 +1,9 @@
 package com.nasiat_muhib.classmate.domain.rules
 
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.time.LocalDate
 
 object DisplayCourseValidator {
@@ -78,7 +81,23 @@ object DisplayCourseValidator {
 
     fun validateLink(link: String): DisplayCourseValidationResult {
         var message: String? = null
+
         if (link.isBlank()) message = "Link can't be empty"
+        else {
+            try {
+
+                val client = OkHttpClient()
+                val request = Request.Builder().url(link).head().build()
+                val  response = client.newCall(request).execute()
+                if (!response.isSuccessful) {
+                    message = "Invalid Link"
+                }
+            } catch (e: Exception) {
+                Log.d(TAG, "validateLink: ${e.localizedMessage}")
+                if (e.localizedMessage != null)
+                message = "Invalid Link. Link must contain http:// or https://"
+            }
+        }
 
         return DisplayCourseValidationResult(message)
     }
@@ -88,5 +107,7 @@ object DisplayCourseValidator {
     data class DisplayCourseValidationResult(
         val message: String? = null
     )
+
+    const val TAG = "DisplayCourseValidator"
 
 }

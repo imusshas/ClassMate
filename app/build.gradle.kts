@@ -127,4 +127,7 @@ dependencies {
 
     // Display image
     implementation ("com.squareup.picasso:picasso:2.8")
+
+    //OkHTTP3
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }

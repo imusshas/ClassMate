@@ -26,6 +26,7 @@ import com.nasiat_muhib.classmate.domain.state.EventUIState
 import com.nasiat_muhib.classmate.domain.state.ResourceUIState
 import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -572,7 +573,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
         }
     }
 
-    private fun validateAllResourceUIDataWithRules() {
+    private fun validateAllResourceUIDataWithRules() = viewModelScope.launch(Dispatchers.IO) {
         val titleResult = DisplayCourseValidator.validateTitle(resourceUIState.value.title)
         val linkResult = DisplayCourseValidator.validateLink(resourceUIState.value.link)
 
