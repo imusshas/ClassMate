@@ -86,7 +86,7 @@ fun CourseDetailsDisplay(
                 ClickableTitleContainer(
                     title = ADD_CLASS_TITLE,
                     onTitleClick = {
-                        courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.TermTestTitleClicked)
+                        courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.ClassTitleClicked)
                     }
                 )
             } else {
@@ -139,7 +139,7 @@ fun CourseDetailsDisplay(
                 ClickableTitleContainer(
                     title = ADD_ASSIGNMENT_TITLE,
                     onTitleClick = {
-                        courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.TermTestTitleClicked)
+                        courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.AssignmentTitleClicked)
                     }
                 )
             } else {
