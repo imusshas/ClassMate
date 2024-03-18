@@ -102,11 +102,11 @@ fun PostDisplay(
 
                         val minute = timeString.substringAfter(":").toInt()
                         val timeFormatterForSecond = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-                        val timeStringForSecond = timeFormatter.format(date)
+                        val timeStringForSecond = timeFormatterForSecond.format(date)
                         val second = timeStringForSecond.substringAfterLast(":").toInt()
 
                         val shift = if (hours < 12) AM else PM
-                        Text(text = "${post.firstName} ${post.firstName}", fontWeight = FontWeight.Black)
+                        Text(text = "${post.firstName} ${post.lastName}", fontWeight = FontWeight.Black)
                         Text(text = dateString, fontWeight = FontWeight.Light)
                         Text(text = "$hour:$minute:$second $shift", fontWeight = FontWeight.Light)
                         Spacer(modifier = Modifier.height(LargeSpace))
