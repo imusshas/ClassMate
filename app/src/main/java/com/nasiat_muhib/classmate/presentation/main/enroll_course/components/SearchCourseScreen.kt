@@ -24,6 +24,7 @@ import com.nasiat_muhib.classmate.domain.event.SearchCourseUIEvent
 import com.nasiat_muhib.classmate.domain.event.SearchUIEvent
 import com.nasiat_muhib.classmate.strings.ENROLL_BUTTON
 import com.nasiat_muhib.classmate.strings.SEARCH
+import com.nasiat_muhib.classmate.strings.TEACHER
 import com.nasiat_muhib.classmate.ui.theme.ExtraSmallSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
@@ -90,19 +91,21 @@ fun SearchCourseScreen(
                         )
                     }
 
-                    Button(
-                        onClick = {
-                            val courseId = "${it.courseDepartment}:${it.courseCode}"
-                            searchViewModel.onSearchCourseEvent(
-                                SearchCourseUIEvent.EnrollButtonClicked(
-                                    courseId,
-                                    user.email
+                    if (user.role != TEACHER) {
+                        Button(
+                            onClick = {
+                                val courseId = "${it.courseDepartment}:${it.courseCode}"
+                                searchViewModel.onSearchCourseEvent(
+                                    SearchCourseUIEvent.EnrollButtonClicked(
+                                        courseId,
+                                        user.email
+                                    )
                                 )
-                            )
-                        },
-                        shape = MediumRounded
-                    ) {
-                        Text(text = ENROLL_BUTTON)
+                            },
+                            shape = MediumRounded
+                        ) {
+                            Text(text = ENROLL_BUTTON)
+                        }
                     }
                 }
             }

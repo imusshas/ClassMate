@@ -14,6 +14,7 @@ import com.nasiat_muhib.classmate.strings.COURSES
 import com.nasiat_muhib.classmate.strings.COURSES_COLLECTION
 import com.nasiat_muhib.classmate.strings.COURSE_CREATOR
 import com.nasiat_muhib.classmate.strings.EMAIL
+import com.nasiat_muhib.classmate.strings.ENROLLED_STUDENTS
 import com.nasiat_muhib.classmate.strings.PENDING_STATUS
 import com.nasiat_muhib.classmate.strings.REQUESTED_COURSES
 import com.nasiat_muhib.classmate.strings.TERM_TESTS_COLLECTION
@@ -384,7 +385,7 @@ class CourseRepositoryImpl @Inject constructor(
         emit(DataState.Loading)
         usersCollection.document(email).get().addOnSuccessListener { user ->
             if (user.exists() && user != null) {
-                val alreadyEnrolled = if (user[COURSES] != null) user[COURSES] as List<String> else listOf()
+                val alreadyEnrolled = if (user[COURSES] != null) user[COURSES] as List<String> else emptyList()
                 val set = mutableSetOf<String>()
                 alreadyEnrolled.forEach {
                     set.add(it)
@@ -396,6 +397,21 @@ class CourseRepositoryImpl @Inject constructor(
                 }
             }
         }.await()
+
+        coursesCollection.document(courseId).get().addOnSuccessListener { course ->
+            if (course.exists() && course != null) {
+                val enrolledStudents = if (course[ENROLLED_STUDENTS] != null) course[ENROLLED_STUDENTS] as List<String> else emptyList()
+                val set = mutableSetOf<String>()
+                enrolledStudents.forEach {
+                    set.add(it)
+                }
+                set.add(email)
+                coursesCollection.document(courseId).update(ENROLLED_STUDENTS, set.toList()).addOnFailureListener {
+                    Log.d(TAG, "enrollCourse: ${it.localizedMessage}")
+                }
+            }
+        }.await()
+
         emit(DataState.Success(true))
 
     }.catch {
@@ -414,6 +430,20 @@ class CourseRepositoryImpl @Inject constructor(
                 }
             }
         }.await()
+
+        coursesCollection.document(courseId).get().addOnSuccessListener { course ->
+            if (course.exists() && course != null) {
+                val enrolledStudents = if (course[ENROLLED_STUDENTS] != null) course[ENROLLED_STUDENTS] as List<String> else emptyList()
+                val set = mutableSetOf<String>()
+                enrolledStudents.forEach {
+                    set.add(it)
+                }
+                set.remove(email)
+                coursesCollection.document(courseId).update(ENROLLED_STUDENTS, set.toList()).addOnFailureListener {
+                    Log.d(TAG, "enrollCourse: ${it.localizedMessage}")
+                }
+            }
+        }
 
         emit(DataState.Success(true))
 
