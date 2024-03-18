@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.sql.Timestamp
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -56,8 +55,11 @@ class HomeViewModel @Inject constructor(
     private val _tomorrowClasses = MutableStateFlow<List<ClassDetails>>(emptyList())
     val tomorrowClasses = _tomorrowClasses.asStateFlow()
 
-    private val _posts = MutableStateFlow<List<Post>>(emptyList())
-    val posts = _posts.asStateFlow()
+    private val _allPosts = MutableStateFlow<List<Post>>(emptyList())
+    val allPosts = _allPosts.asStateFlow()
+
+    private val _userPost = MutableStateFlow<List<Post>>(emptyList())
+    val userPost = _userPost.asStateFlow()
 
     private val _createPostUIState = MutableStateFlow(CreatePostUIState())
     val createPostUIState = _createPostUIState.asStateFlow()
@@ -143,10 +145,22 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getPosts() = viewModelScope.launch {
+    fun getAllPosts() = viewModelScope.launch {
         postRepo.getPosts().collectLatest { postList ->
-            _posts.value = postList.sortedByDescending { post -> post.timestamp }
+            _allPosts.value = postList.sortedByDescending { post -> post.timestamp }
         }
+    }
+
+    fun getUserPosts() {
+        val postsSet = mutableSetOf<Post>()
+        courses.value.forEach { course ->
+            allPosts.value.forEach { post ->
+                if (post.creator == course.courseCreator || post.creator == course.courseTeacher) {
+                    postsSet.add(post)
+                }
+            }
+        }
+        _userPost.value = postsSet.toList()
     }
 
 
@@ -251,7 +265,7 @@ class HomeViewModel @Inject constructor(
                     firstName = event.firstName,
                     lastName = event.lastName
                 )
-                getPosts()
+                getAllPosts()
             }
         }
     }

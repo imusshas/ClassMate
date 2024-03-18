@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -17,7 +16,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.nasiat_muhib.classmate.components.CustomElevatedButton
-import com.nasiat_muhib.classmate.components.CustomLazyColumn
 import com.nasiat_muhib.classmate.components.TwoTitleContainer
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.HomeUIEvent
@@ -45,7 +43,8 @@ fun HomeScreenContent(
 
     val courseOrRequest = rememberSaveable { mutableStateOf(true) }
 
-    val posts by homeViewModel.posts.collectAsState()
+    homeViewModel.getUserPosts()
+    val posts by homeViewModel.userPost.collectAsState()
     val createPostDialogState by homeViewModel.createPostDialogState.collectAsState()
 
     Column(
