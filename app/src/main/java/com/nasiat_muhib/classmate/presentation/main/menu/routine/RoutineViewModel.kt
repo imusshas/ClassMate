@@ -3,6 +3,7 @@ package com.nasiat_muhib.classmate.presentation.main.menu.routine
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nasiat_muhib.classmate.core.Constants.WEEK_DAYS
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
@@ -39,35 +40,38 @@ class RoutineViewModel @Inject constructor(
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 
-    private val _weekDay = MutableStateFlow("")
+    private val _weekDay = MutableStateFlow(WEEK_DAYS[0])
     val weekDay = _weekDay.asStateFlow()
-
-    private val _isSearching = MutableStateFlow(false)
-    val isSearching = _isSearching.asStateFlow()
 
     private val _classes = MutableStateFlow<Set<ClassDetails>>(emptySet())
 
-
-    @OptIn(FlowPreview::class)
-    val classes = searchText
-        .debounce(500L)
-        .onEach { _isSearching.update { true } }
-        .combine(_classes) { text, classList ->
-            if (text.isBlank()) {
-                classList.filter {
-                    it.doesMatchWeekDay(it.weekDay)
-                }
-            } else {
-                classList.filter {
-                    it.doesMatchSearchQuery(query = text, weekDay =  it.weekDay)
-                }
+    private val _weekDayClasses = weekDay
+        .combine(_classes) { weekDay, classList ->
+            classList.filter {
+                it.weekDay == weekDay
             }
-        }.onEach { _isSearching.update { false } }
-        .stateIn(
+        }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             _classes.value
         )
+
+
+    val classes = searchText
+        .combine(_weekDayClasses) { text, classList ->
+            if (text.isBlank()) {
+                classList
+            } else {
+                classList.filter {
+                    it.doesMatchSearchQuery(text)
+                }
+            }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            _weekDayClasses.value
+        )
+
     init {
         getAllClasses()
     }
@@ -88,11 +92,12 @@ class RoutineViewModel @Inject constructor(
             }
             is RoutineUIEvent.WeekDayChanged -> {
                 _weekDay.value = event.weekDay
+//                Log.d(TAG, "onRoutineEvent: ${event.weekDay}")
             }
         }
     }
 
     companion object {
-        const val TAG = "SearchCourseViewModel"
+        const val TAG = "RoutineViewModel"
     }
 }

@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.data.model
 
+import android.util.Log
 import com.nasiat_muhib.classmate.core.Constants.WEEK_DAYS
 import com.nasiat_muhib.classmate.strings.ACTIVE_STATUS
 import com.nasiat_muhib.classmate.strings.CLASSROOM
@@ -46,16 +47,15 @@ data class ClassDetails(
         ACTIVE_STATUS to isActive
     )
 
-    fun doesMatchSearchQuery(query: String, weekDay: String): Boolean {
+    fun doesMatchSearchQuery(query: String): Boolean {
         val matchingCombinations = listOf(
             "${classroom.first()}${classroom.last()}",
             classroom,
         )
 
-        return matchingCombinations.any { it.contains(query, ignoreCase = true) || query.contains(it, ignoreCase = true) } && weekDay == this.weekDay
+        return matchingCombinations.any { it.contains(query, ignoreCase = true) || query.contains(it, ignoreCase = true) }
     }
-
-    fun doesMatchWeekDay(weekDay: String): Boolean {
-        return weekDay == this.weekDay
+    companion object {
+        const val TAG = "ClassDetails"
     }
 }

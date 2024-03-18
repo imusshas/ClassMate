@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -26,6 +27,8 @@ import com.nasiat_muhib.classmate.domain.event.RoutineUIEvent
 import com.nasiat_muhib.classmate.presentation.main.menu.routine.components.RoutineTopBar
 import com.nasiat_muhib.classmate.strings.COLON
 import com.nasiat_muhib.classmate.strings.SEARCH
+import com.nasiat_muhib.classmate.ui.theme.ExtraSmallHeight
+import com.nasiat_muhib.classmate.ui.theme.ExtraSmallSpace
 import com.nasiat_muhib.classmate.ui.theme.LargeRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
@@ -64,46 +67,56 @@ fun RoutineScreen(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
         )
         Spacer(modifier = Modifier.height(MediumSpace))
-        LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(ExtraSmallSpace)
+        ) {
             items(
                 items = classes.value.toList(),
                 key = {
                     "${it.classDepartment}:${it.classCourseCode}:${it.classNo}"
                 }
             ) { classDetails ->
-                Row(
+                ElevatedCard(
                     modifier = Modifier
-                        .clip(LargeRounded)
                         .fillMaxWidth()
                         .height(NormalHeight),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
+                    shape = LargeRounded
                 ) {
-                    Text(text = classDetails.classDepartment, style = SomeStyle)
-                    Text(text = classDetails.classCourseCode, style = SomeStyle)
-                    Text(text = classDetails.section, style = SomeStyle)
                     Row(
-                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .clip(LargeRounded)
+                            .fillMaxSize(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = classDetails.startHour.toString(), style = SomeStyle)
-                        Text(text = COLON, style = SomeStyle)
-                        Text(text = classDetails.startMinute.toString(), style = SomeStyle)
-                        Spacer(modifier = Modifier.width(SmallSpace))
-                        Text(text = classDetails.startShift, style = SomeStyle)
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = classDetails.endHour.toString(), style = SomeStyle)
-                        Text(text = COLON, style = SomeStyle)
-                        Text(text = classDetails.endMinute.toString(), style = SomeStyle)
-                        Spacer(modifier = Modifier.width(SmallSpace))
-                        Text(text = classDetails.endShift, style = SomeStyle)
+                        Text(text = classDetails.weekDay, style = SomeStyle, modifier = Modifier.weight(1f))
+                        Text(text = classDetails.classroom, style = SomeStyle, modifier = Modifier.weight(1f))
+                        Text(text = classDetails.section, style = SomeStyle, modifier = Modifier.weight(1f))
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(text = classDetails.startHour.toString(), style = SomeStyle)
+                            Text(text = COLON, style = SomeStyle)
+                            Text(text = classDetails.startMinute.toString(), style = SomeStyle)
+                            Spacer(modifier = Modifier.width(SmallSpace))
+                            Text(text = classDetails.startShift, style = SomeStyle)
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(text = classDetails.endHour.toString(), style = SomeStyle)
+                            Text(text = COLON, style = SomeStyle)
+                            Text(text = classDetails.endMinute.toString(), style = SomeStyle)
+                            Spacer(modifier = Modifier.width(SmallSpace))
+                            Text(text = classDetails.endShift, style = SomeStyle)
+                        }
                     }
                 }
-
             }
         }
     }

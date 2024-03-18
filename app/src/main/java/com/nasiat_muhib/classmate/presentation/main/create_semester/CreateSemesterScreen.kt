@@ -25,6 +25,8 @@ fun CreateSemesterScreen(
 
         is DataState.Success ->  {
             userState.data?.let {
+                createSemesterViewModel.getCreatedCourses()
+                createSemesterViewModel.getPendingCourses()
                 CreateSemesterContent(
                     createSemesterViewModel = createSemesterViewModel,
                 )

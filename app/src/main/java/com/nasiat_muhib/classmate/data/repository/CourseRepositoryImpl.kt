@@ -13,7 +13,6 @@ import com.nasiat_muhib.classmate.strings.CLASSES_COLLECTION
 import com.nasiat_muhib.classmate.strings.COURSES
 import com.nasiat_muhib.classmate.strings.COURSES_COLLECTION
 import com.nasiat_muhib.classmate.strings.COURSE_CREATOR
-import com.nasiat_muhib.classmate.strings.EMAIL
 import com.nasiat_muhib.classmate.strings.ENROLLED_STUDENTS
 import com.nasiat_muhib.classmate.strings.PENDING_STATUS
 import com.nasiat_muhib.classmate.strings.REQUESTED_COURSES
@@ -44,30 +43,34 @@ class CourseRepositoryImpl @Inject constructor(
         emit(Pair(DataState.Loading, DataState.Loading))
         val courseId = "${course.courseDepartment}:${course.courseCode}"
 
-        // Send course Delete request
-        coursesCollection.document(courseId).get().addOnSuccessListener { courseSnapshot ->
-            if (courseSnapshot.exists() && courseSnapshot != null) {
-                val creatorEmail = courseSnapshot[COURSE_CREATOR].toString()
-                usersCollection.document(creatorEmail).get().addOnSuccessListener { creator ->
+        // Send Course Delete Request
+        val firestoreCourse = coursesCollection.document(courseId).get().await()
+        if (firestoreCourse != null) {
+            val courseFromFirestore = getCourseFromFirestoreDocument(firestoreCourse)
+            if (courseFromFirestore.courseCreator == course.courseCreator) {
+                Log.d(TAG, "createCourse: Returning for same creator")
+                emit(Pair(DataState.Success(course), DataState.Success(classDetailsSet.toList())))
+                return@flow
+            } else {
+                usersCollection.document(courseFromFirestore.courseCreator).get().addOnSuccessListener { creator ->
                     if (creator.exists() && creator != null) {
                         val requestedCourses = if (creator[REQUESTED_COURSES] == null) creator[REQUESTED_COURSES] as MutableList<String>  else mutableListOf()
                         requestedCourses.add(courseId)
-                        usersCollection.document(creatorEmail).update(REQUESTED_COURSES,requestedCourses).addOnFailureListener {
+                        usersCollection.document(courseFromFirestore.courseCreator).update(REQUESTED_COURSES,requestedCourses).addOnFailureListener {
                             Log.d(TAG, "createCourse: request update: ${it.localizedMessage}")
                         }.addOnFailureListener {
 //                            Log.d(TAG, "createCourse: ${it.localizedMessage}")
                             Log.d(TAG, "createCourse: ${it.localizedMessage}")
                         }
                     }
-                }.addOnFailureListener {
-                    Log.d(TAG, "createCourse: ${it.localizedMessage}")
-                    return@addOnFailureListener
-                }
+                }.await()
+                emit(Pair(DataState.Success(course), DataState.Success(classDetailsSet.toList())))
+                Log.d(TAG, "createCourse: Returning by sending request")
+                return@flow
             }
-        }.addOnFailureListener {
-//            Log.d(TAG, "createCourse: ${it.localizedMessage}")
-            return@addOnFailureListener
-        }.await()
+        }
+
+        Log.d(TAG, "createCourse: Not returning")
 
 
         // Send Teacher request
@@ -469,3 +472,31 @@ class CourseRepositoryImpl @Inject constructor(
     }
 
 }
+
+
+
+
+// Send course Delete request
+//coursesCollection.document(courseId).get().addOnSuccessListener { courseSnapshot ->
+//    if (courseSnapshot.exists() && courseSnapshot != null) {
+//        val creatorEmail = courseSnapshot[COURSE_CREATOR].toString()
+//        usersCollection.document(creatorEmail).get().addOnSuccessListener { creator ->
+//            if (creator.exists() && creator != null) {
+//                val requestedCourses = if (creator[REQUESTED_COURSES] == null) creator[REQUESTED_COURSES] as MutableList<String>  else mutableListOf()
+//                requestedCourses.add(courseId)
+//                usersCollection.document(creatorEmail).update(REQUESTED_COURSES,requestedCourses).addOnFailureListener {
+//                    Log.d(CourseRepositoryImpl.TAG, "createCourse: request update: ${it.localizedMessage}")
+//                }.addOnFailureListener {
+////                            Log.d(TAG, "createCourse: ${it.localizedMessage}")
+//                    Log.d(CourseRepositoryImpl.TAG, "createCourse: ${it.localizedMessage}")
+//                }
+//            }
+//        }.addOnFailureListener {
+//            Log.d(CourseRepositoryImpl.TAG, "createCourse: ${it.localizedMessage}")
+//            return@addOnFailureListener
+//        }
+//    }
+//}.addOnFailureListener {
+////            Log.d(TAG, "createCourse: ${it.localizedMessage}")
+//    return@addOnFailureListener
+//}.await()
