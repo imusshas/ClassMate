@@ -119,13 +119,33 @@ class HomeViewModel @Inject constructor(
                 tomorrowClassList.add(it)
             }
         }
-        _todayClasses.value = todayClassList
-        _tomorrowClasses.value = tomorrowClassList
+        _todayClasses.value = todayClassList.sortedWith { class1, class2 ->
+            val shiftComparison =
+                class1.startShift.uppercase().compareTo(class2.startShift.uppercase())
+            if (shiftComparison != 0) {
+                shiftComparison
+            } else if (class1.startHour != class2.startHour) {
+                class1.startHour - class2.startHour
+            } else {
+                class1.startMinute - class2.startMinute
+            }
+        }
+        _tomorrowClasses.value = tomorrowClassList.sortedWith { class1, class2 ->
+            val shiftComparison =
+                class1.startShift.uppercase().compareTo(class2.startShift.uppercase())
+            if (shiftComparison != 0) {
+                shiftComparison
+            } else if (class1.startHour != class2.startHour) {
+                class1.startHour - class2.startHour
+            } else {
+                class1.startMinute - class2.startMinute
+            }
+        }
     }
 
     fun getPosts() = viewModelScope.launch {
-        postRepo.getPosts().collectLatest {
-            _posts.value = it
+        postRepo.getPosts().collectLatest { postList ->
+            _posts.value = postList.sortedByDescending { post -> post.timestamp }
         }
     }
 
@@ -199,7 +219,7 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-    private fun deletePost(post: Post)  = viewModelScope.launch {
+    private fun deletePost(post: Post) = viewModelScope.launch {
         postRepo.deletePost(post).collectLatest {
 
         }
@@ -241,7 +261,7 @@ class HomeViewModel @Inject constructor(
         timestamp: Long,
         creator: String,
         firstName: String,
-        lastName: String
+        lastName: String,
     ) =
         viewModelScope.launch {
             validateAllCreatePostUIDataWithRules()

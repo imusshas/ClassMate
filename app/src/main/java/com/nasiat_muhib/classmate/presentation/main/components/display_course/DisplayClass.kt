@@ -2,7 +2,6 @@ package com.nasiat_muhib.classmate.presentation.main.components.display_course
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,8 +25,6 @@ import androidx.compose.ui.res.painterResource
 import com.nasiat_muhib.classmate.R
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.domain.event.CourseDetailsDisplayUIEvent
-import com.nasiat_muhib.classmate.domain.event.CreateCourseUIEvent
-import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateCourseViewModel
 import com.nasiat_muhib.classmate.strings.COLON
 import com.nasiat_muhib.classmate.ui.theme.ExtraSmallHeight
 import com.nasiat_muhib.classmate.ui.theme.LargeHeight
@@ -43,13 +40,18 @@ import me.saket.swipe.SwipeableActionsBox
 fun DisplayClass(
     classDetails: ClassDetails,
     courseDetailsDisplayViewModel: CourseDetailsDisplayViewModel,
+    isSwipeAble: Boolean,
 ) {
 
     val isVisible = rememberSaveable { mutableStateOf(true) }
 
     val delete = SwipeAction(
         onSwipe = {
-            courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.ClassDeleteSwipe(classDetails))
+            courseDetailsDisplayViewModel.onDisplayEvent(
+                CourseDetailsDisplayUIEvent.ClassDeleteSwipe(
+                    classDetails
+                )
+            )
             isVisible.value = false
         },
         icon = {
@@ -64,54 +66,96 @@ fun DisplayClass(
         background = Color.Red
     )
 
-    SwipeableActionsBox(
-        endActions = listOf(delete),
-        swipeThreshold = LargeHeight,
-        modifier = Modifier
-            .clip(LargeRounded)
-            .fillMaxWidth()
-            .height(NormalHeight)
-            .padding(horizontal = MediumSpace),
-    ) {
-        AnimatedVisibility(
-            visible = isVisible.value,
-            exit =  shrinkHorizontally()
+    if (isSwipeAble) {
+        SwipeableActionsBox(
+            endActions = listOf(delete),
+            swipeThreshold = LargeHeight,
+            modifier = Modifier
+                .clip(LargeRounded)
+                .fillMaxWidth()
+                .height(NormalHeight)
+                .padding(horizontal = MediumSpace),
         ) {
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxSize(),
-                shape = LargeRounded
+            AnimatedVisibility(
+                visible = isVisible.value,
+                exit = shrinkHorizontally()
             ) {
-                Row(
+                ElevatedCard(
                     modifier = Modifier
-                        .clip(LargeRounded)
                         .fillMaxSize(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    shape = LargeRounded
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .clip(LargeRounded)
+                            .fillMaxSize(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = classDetails.weekDay, style = SomeStyle)
+                        Text(text = classDetails.classroom, style = SomeStyle)
+                        Text(text = classDetails.section, style = SomeStyle)
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = classDetails.startHour.toString(), style = SomeStyle)
+                            Text(text = COLON, style = SomeStyle)
+                            Text(text = classDetails.startMinute.toString(), style = SomeStyle)
+                            Spacer(modifier = Modifier.width(SmallSpace))
+                            Text(text = classDetails.startShift, style = SomeStyle)
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = classDetails.endHour.toString(), style = SomeStyle)
+                            Text(text = COLON, style = SomeStyle)
+                            Text(text = classDetails.endMinute.toString(), style = SomeStyle)
+                            Spacer(modifier = Modifier.width(SmallSpace))
+                            Text(text = classDetails.endShift, style = SomeStyle)
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(NormalHeight)
+                .padding(horizontal = MediumSpace),
+            shape = LargeRounded
+        ) {
+            Row(
+                modifier = Modifier
+                    .clip(LargeRounded)
+                    .fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = classDetails.weekDay, style = SomeStyle)
+                Text(text = classDetails.classroom, style = SomeStyle)
+                Text(text = classDetails.section, style = SomeStyle)
+                Row(
+                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = classDetails.weekDay, style = SomeStyle)
-                    Text(text = classDetails.classroom, style = SomeStyle)
-                    Text(text = classDetails.section, style = SomeStyle)
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = classDetails.startHour.toString(), style = SomeStyle)
-                        Text(text = COLON, style = SomeStyle)
-                        Text(text = classDetails.startMinute.toString(), style = SomeStyle)
-                        Spacer(modifier = Modifier.width(SmallSpace))
-                        Text(text = classDetails.startShift, style = SomeStyle)
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = classDetails.endHour.toString(), style = SomeStyle)
-                        Text(text = COLON, style = SomeStyle)
-                        Text(text = classDetails.endMinute.toString(), style = SomeStyle)
-                        Spacer(modifier = Modifier.width(SmallSpace))
-                        Text(text = classDetails.endShift, style = SomeStyle)
-                    }
+                    Text(text = classDetails.startHour.toString(), style = SomeStyle)
+                    Text(text = COLON, style = SomeStyle)
+                    Text(text = classDetails.startMinute.toString(), style = SomeStyle)
+                    Spacer(modifier = Modifier.width(SmallSpace))
+                    Text(text = classDetails.startShift, style = SomeStyle)
+                }
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = classDetails.endHour.toString(), style = SomeStyle)
+                    Text(text = COLON, style = SomeStyle)
+                    Text(text = classDetails.endMinute.toString(), style = SomeStyle)
+                    Spacer(modifier = Modifier.width(SmallSpace))
+                    Text(text = classDetails.endShift, style = SomeStyle)
                 }
             }
         }

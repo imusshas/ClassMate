@@ -82,7 +82,7 @@ fun CourseDetailsDisplay(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            if (userState.data != null) {
+            if (userState.data != null && (userState.data!!.email == course.courseTeacher || userState.data!!.email == course.courseCreator)) {
                 ClickableTitleContainer(
                     title = ADD_CLASS_TITLE,
                     onTitleClick = {
@@ -102,7 +102,8 @@ fun CourseDetailsDisplay(
             ) {
                 DisplayClass(
                     classDetails = it,
-                    courseDetailsDisplayViewModel = courseDetailsDisplayViewModel
+                    courseDetailsDisplayViewModel = courseDetailsDisplayViewModel,
+                    isSwipeAble = course.courseCreator == userState.data?.email || course.courseTeacher == userState.data?.email
                 )
             }
 
@@ -125,7 +126,11 @@ fun CourseDetailsDisplay(
                     "${it.department}:${it.courseCode}:${it.eventNo}"
                 }
             ) {
-                DisplayEvent(event = it, courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
+                DisplayEvent(
+                    event = it,
+                    courseDetailsDisplayViewModel = courseDetailsDisplayViewModel,
+                    isSwipeAble = course.courseCreator == userState.data?.email || course.courseTeacher == userState.data?.email
+                )
             }
 
 
@@ -148,7 +153,11 @@ fun CourseDetailsDisplay(
                     "${it.department}:${it.courseCode}:${it.eventNo}"
                 }
             ) {
-                DisplayEvent(event = it, courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
+                DisplayEvent(
+                    event = it,
+                    courseDetailsDisplayViewModel = courseDetailsDisplayViewModel,
+                    isSwipeAble = course.courseCreator == userState.data?.email || course.courseTeacher == userState.data?.email
+                )
             }
 
             Spacer(modifier = Modifier.height(MediumSpace))

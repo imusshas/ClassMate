@@ -41,6 +41,7 @@ import me.saket.swipe.SwipeableActionsBox
 fun DisplayEvent(
     event: Event,
     courseDetailsDisplayViewModel: CourseDetailsDisplayViewModel,
+    isSwipeAble: Boolean
 ) {
 
     val isVisible = rememberSaveable { mutableStateOf(true) }
@@ -66,53 +67,93 @@ fun DisplayEvent(
         background = Color.Red
     )
 
-    SwipeableActionsBox(
-        endActions = listOf(delete),
-        swipeThreshold = LargeHeight,
-        modifier = Modifier
-            .clip(LargeRounded)
-            .fillMaxWidth()
-            .height(NormalHeight)
-            .padding(horizontal = MediumSpace),
-    ) {
-        AnimatedVisibility(
-            visible = isVisible.value,
-            exit = shrinkHorizontally()
+    if (isSwipeAble) {
+        SwipeableActionsBox(
+            endActions = listOf(delete),
+            swipeThreshold = LargeHeight,
+            modifier = Modifier
+                .clip(LargeRounded)
+                .fillMaxWidth()
+                .height(NormalHeight)
+                .padding(horizontal = MediumSpace),
         ) {
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxSize(),
-                shape = LargeRounded
+            AnimatedVisibility(
+                visible = isVisible.value,
+                exit = shrinkHorizontally()
             ) {
-                Row(
+                ElevatedCard(
                     modifier = Modifier
-                        .clip(LargeRounded)
                         .fillMaxSize(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
+                    shape = LargeRounded
                 ) {
                     Row(
-                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .clip(LargeRounded)
+                            .fillMaxSize(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = event.day.toString(), style = SomeStyle)
-                        Text(text = COLON, style = SomeStyle)
-                        Text(text = event.month, style = SomeStyle)
-                        Text(text = COLON, style = SomeStyle)
-                        Text(text = event.year.toString(), style = SomeStyle)
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = event.day.toString(), style = SomeStyle)
+                            Text(text = COLON, style = SomeStyle)
+                            Text(text = event.month, style = SomeStyle)
+                            Text(text = COLON, style = SomeStyle)
+                            Text(text = event.year.toString(), style = SomeStyle)
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = event.hour.toString(), style = SomeStyle)
+                            Text(text = COLON, style = SomeStyle)
+                            Text(text = event.minute.toString(), style = SomeStyle)
+                            Spacer(modifier = Modifier.width(SmallSpace))
+                            Text(text = event.shift, style = SomeStyle)
+                        }
+                        Text(text = event.classroom, style = SomeStyle)
                     }
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = event.hour.toString(), style = SomeStyle)
-                        Text(text = COLON, style = SomeStyle)
-                        Text(text = event.minute.toString(), style = SomeStyle)
-                        Spacer(modifier = Modifier.width(SmallSpace))
-                        Text(text = event.shift, style = SomeStyle)
-                    }
-                    Text(text = event.classroom, style = SomeStyle)
                 }
+            }
+        }
+    } else {
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(NormalHeight)
+                .padding(horizontal = MediumSpace),
+            shape = LargeRounded
+        ) {
+            Row(
+                modifier = Modifier
+                    .clip(LargeRounded)
+                    .fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = event.day.toString(), style = SomeStyle)
+                    Text(text = COLON, style = SomeStyle)
+                    Text(text = event.month, style = SomeStyle)
+                    Text(text = COLON, style = SomeStyle)
+                    Text(text = event.year.toString(), style = SomeStyle)
+                }
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = event.hour.toString(), style = SomeStyle)
+                    Text(text = COLON, style = SomeStyle)
+                    Text(text = event.minute.toString(), style = SomeStyle)
+                    Spacer(modifier = Modifier.width(SmallSpace))
+                    Text(text = event.shift, style = SomeStyle)
+                }
+                Text(text = event.classroom, style = SomeStyle)
             }
         }
     }
