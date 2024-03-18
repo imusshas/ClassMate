@@ -7,6 +7,7 @@ import com.nasiat_muhib.classmate.data.repository.ClassDetailsRepositoryImpl
 import com.nasiat_muhib.classmate.data.repository.CourseRepositoryImpl
 import com.nasiat_muhib.classmate.data.repository.EventRepositoryImpl
 import com.nasiat_muhib.classmate.data.repository.PostRepositoryImpl
+import com.nasiat_muhib.classmate.data.repository.ResourceLinkRepositoryImpl
 import com.nasiat_muhib.classmate.data.repository.UserRepositoryImpl
 import com.nasiat_muhib.classmate.domain.repository.AuthenticationRepository
 import com.nasiat_muhib.classmate.data.repository.SearchRepositoryImpl
@@ -14,6 +15,7 @@ import com.nasiat_muhib.classmate.domain.repository.ClassDetailsRepository
 import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.repository.EventRepository
 import com.nasiat_muhib.classmate.domain.repository.PostRepository
+import com.nasiat_muhib.classmate.domain.repository.ResourceLinkRepository
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import com.nasiat_muhib.classmate.domain.repository.SearchRepository
 import dagger.Module
@@ -72,4 +74,10 @@ class RepositoryModule {
     fun providesPostRepository (
         firestoreRef: FirebaseFirestore
     ): PostRepository = PostRepositoryImpl(firestoreRef)
+
+    @Provides
+    @Singleton
+    fun providesResourceLinkRepository(
+        firestoreRef: FirebaseFirestore
+    ): ResourceLinkRepository = ResourceLinkRepositoryImpl(firestoreRef)
 }

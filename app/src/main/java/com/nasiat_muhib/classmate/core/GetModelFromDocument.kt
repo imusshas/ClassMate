@@ -6,6 +6,7 @@ import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.Event
 import com.nasiat_muhib.classmate.data.model.Post
+import com.nasiat_muhib.classmate.data.model.ResourceLink
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.strings.ACTIVE_STATUS
 import com.nasiat_muhib.classmate.strings.BLOOD_GROUP
@@ -49,6 +50,11 @@ import com.nasiat_muhib.classmate.strings.POST_CREATOR_LAST_NAME
 import com.nasiat_muhib.classmate.strings.POST_DESCRIPTION
 import com.nasiat_muhib.classmate.strings.POST_TIMESTAMP
 import com.nasiat_muhib.classmate.strings.REQUESTED_COURSES
+import com.nasiat_muhib.classmate.strings.RESOURCE_COURSE_CODE
+import com.nasiat_muhib.classmate.strings.RESOURCE_DEPARTMENT
+import com.nasiat_muhib.classmate.strings.RESOURCE_LINK
+import com.nasiat_muhib.classmate.strings.RESOURCE_NO
+import com.nasiat_muhib.classmate.strings.RESOURCE_TITLE
 import com.nasiat_muhib.classmate.strings.ROLE
 import com.nasiat_muhib.classmate.strings.SECTION
 import com.nasiat_muhib.classmate.strings.SESSION
@@ -73,20 +79,6 @@ object GetModelFromDocument {
         val email = if (snapshot[EMAIL] != null) snapshot[EMAIL] as String else ""
         val courses = if (snapshot[COURSES] != null && snapshot[COURSES] is List<*>) snapshot[COURSES] as List<String> else emptyList()
         val requestedCourses = if (snapshot[REQUESTED_COURSES] != null) snapshot[REQUESTED_COURSES] as List<String> else emptyList()
-
-//        val user = User(
-//            firstName = firstName,
-//            lastName = lastName,
-//            role = role,
-//            department = department,
-//            session = session,
-//            bloodGroup = bloodGroup,
-//            phoneNo = phoneNo,
-//            email = email,
-//            courses = courses,
-//            requestedCourses = requestedCourses
-//        )
-//        Log.d(TAG, "getUserFromFirestoreDocument: $user")
 
         return User(
             firstName = firstName,
@@ -122,18 +114,6 @@ object GetModelFromDocument {
             if (snapshot[PENDING_STATUS] != null) snapshot[PENDING_STATUS] as Boolean else true
         val courseClasses: List<String> =
             if (snapshot[COURSE_CLASSES] != null && snapshot[COURSE_CLASSES] is List<*>) snapshot[COURSE_CLASSES] as List<String> else emptyList()
-
-//        val course = Course(
-//            courseCreator = courseCreator,
-//            courseDepartment = courseDepartment,
-//            courseSemester = courseSemester,
-//            courseCode = courseCode,
-//            courseTitle = courseTitle,
-//            courseCredit = courseCredit,
-//            courseTeacher = courseTeacher
-//        )
-//
-//        Log.d(TAG, "getCourseFromFirestoreDocument: $course")
 
         return Course(
             courseCreator = courseCreator,
@@ -232,6 +212,22 @@ object GetModelFromDocument {
             lastName = lastName,
             courseCode = courseCode,
             description = description
+        )
+    }
+
+    fun getResourceLinkFromFirestoreDocument(snapshot: DocumentSnapshot): ResourceLink {
+        val department = snapshot[RESOURCE_DEPARTMENT].toString()
+        val courseCode = snapshot[RESOURCE_COURSE_CODE].toString()
+        val title = snapshot[RESOURCE_TITLE].toString()
+        val link = snapshot[RESOURCE_LINK].toString()
+        val resourceNo = if (snapshot[RESOURCE_NO] != null) snapshot[RESOURCE_NO] as Long else 0L
+
+        return ResourceLink(
+            resourceDepartment = department,
+            resourceCourseCode = courseCode,
+            title = title,
+            link = link,
+            resourceNo = resourceNo.toInt()
         )
     }
 

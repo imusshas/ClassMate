@@ -59,6 +59,12 @@ val ClickableTextStyle = SpanStyle(
     fontWeight = FontWeight.Bold,
 )
 
+val ClickableLinkStyle = SpanStyle(
+    fontWeight = FontWeight.Bold,
+    textDecoration = TextDecoration.Underline,
+    color = Color.Blue
+)
+
 val SomeStyle = TextStyle(
     textAlign = TextAlign.Center,
     fontSize = 14.sp,

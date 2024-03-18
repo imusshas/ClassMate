@@ -134,10 +134,27 @@ fun PostDisplay(
                 Column(modifier = Modifier
                     .fillMaxSize()
                     .padding(SmallSpace)) {
-                    Text(text = "${post.firstName} ${post.firstName}", fontWeight = FontWeight.Black)
-                    Text(text = post.timestamp.toString(), fontWeight = FontWeight.Light)
+                    val date = Date(post.timestamp)
+                    val dateFormatter = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+                    val dateString = dateFormatter.format(date)
+
+                    val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+                    val timeString = timeFormatter.format(date)
+
+                    val hours = timeString.substringBefore(":").toInt()
+                    val hour = if (hours > 12) hours - 12 else if (hours == 0) 12 else hours
+
+                    val minute = timeString.substringAfter(":").toInt()
+                    val timeFormatterForSecond = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+                    val timeStringForSecond = timeFormatterForSecond.format(date)
+                    val second = timeStringForSecond.substringAfterLast(":").toInt()
+
+                    val shift = if (hours < 12) AM else PM
+                    Text(text = "${post.firstName} ${post.lastName}", fontWeight = FontWeight.Black)
+                    Text(text = dateString, fontWeight = FontWeight.Light)
+                    Text(text = "$hour:$minute:$second $shift", fontWeight = FontWeight.Light)
                     Spacer(modifier = Modifier.height(LargeSpace))
-                    Text(text = post.courseCode, style = MaterialTheme.typography.titleMedium)
+                    Text(text = post.courseCode, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Text(text = post.description)
                 }
             }

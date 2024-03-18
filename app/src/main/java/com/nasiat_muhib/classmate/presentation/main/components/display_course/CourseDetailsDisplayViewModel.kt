@@ -7,19 +7,23 @@ import com.nasiat_muhib.classmate.core.Constants.EVENTS
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.Event
+import com.nasiat_muhib.classmate.data.model.ResourceLink
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.CourseDetailsDisplayUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateAssignmentUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateClassUIEvent
+import com.nasiat_muhib.classmate.domain.event.CreateResourceUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateTermTestUIEvent
 import com.nasiat_muhib.classmate.domain.repository.ClassDetailsRepository
 import com.nasiat_muhib.classmate.domain.repository.EventRepository
+import com.nasiat_muhib.classmate.domain.repository.ResourceLinkRepository
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import com.nasiat_muhib.classmate.domain.rules.CreateCourseValidator
 import com.nasiat_muhib.classmate.domain.rules.DisplayCourseValidator
 import com.nasiat_muhib.classmate.domain.state.CreateClassUIState
 import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.domain.state.EventUIState
+import com.nasiat_muhib.classmate.domain.state.ResourceUIState
 import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +37,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     private val classRepo: ClassDetailsRepository,
     private val eventRepo: EventRepository,
     private val userRepo: UserRepository,
+    private val resourceLinkRepo: ResourceLinkRepository
 ) : ViewModel() {
 
 
@@ -83,8 +88,21 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
     private val _assignmentValidationPassed = MutableStateFlow(false)
     private val assignmentValidationPassed = _assignmentValidationPassed.asStateFlow()
-
     /************************* Assignment ****************************/
+
+    /************************* Resource Link ****************************/
+    private val _resources = MutableStateFlow<List<ResourceLink>>(emptyList())
+    val resources = _resources.asStateFlow()
+
+    private val _createResourceDialogState = MutableStateFlow(false)
+    val createResourceDialogState = _createResourceDialogState.asStateFlow()
+
+    private val _resourceUIState = MutableStateFlow(ResourceUIState())
+    val resourceUIState = _resourceUIState.asStateFlow()
+
+    private val _resourceValidationPassed = MutableStateFlow(false)
+    private val resourceValidationPassed = _resourceValidationPassed.asStateFlow()
+    /************************* Resource Link ****************************/
 
 
     init {
@@ -130,6 +148,13 @@ class CourseDetailsDisplayViewModel @Inject constructor(
         }
     }
 
+    fun getResourceList() = viewModelScope.launch {
+        val courseId = "${currentCourse.value.courseDepartment}:${currentCourse.value.courseCode}"
+        resourceLinkRepo.getResources(courseId).collectLatest {
+            _resources.value = it
+        }
+    }
+
 
     fun onDisplayEvent(event: CourseDetailsDisplayUIEvent) {
 
@@ -164,6 +189,10 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
             CourseDetailsDisplayUIEvent.AssignmentTitleClicked -> {
                 _createAssignmentDialogState.value = true
+            }
+
+            CourseDetailsDisplayUIEvent.ResourceTitleClicked -> {
+                _createResourceDialogState.value = true
             }
         }
     }
@@ -478,7 +507,6 @@ class CourseDetailsDisplayViewModel @Inject constructor(
         }
     }
 
-
     private fun validateAssignmentUIDataWithRules() {
         val day = if (assignmentUIState.value.day == -1) "" else assignmentUIState.value.day.toString()
         val year =
@@ -505,7 +533,56 @@ class CourseDetailsDisplayViewModel @Inject constructor(
         _assignmentValidationPassed.value = classroomResult.message == null &&
                 dateResult.message == null && hourResult.message == null && minuteResult.message == null
     }
-    
+
+
+
+    fun onCreateResourceLinkEvent(event: CreateResourceUIEvent) {
+        when(event) {
+            CreateResourceUIEvent.CancelButtonClicked -> {
+                _createResourceDialogState.value = false
+            }
+            CreateResourceUIEvent.CreateButtonClicked -> {
+                createResource()
+            }
+            is CreateResourceUIEvent.LinkChanged -> {
+                _resourceUIState.value = resourceUIState.value.copy(link = event.link)
+            }
+            is CreateResourceUIEvent.TitleChanged -> {
+                _resourceUIState.value = resourceUIState.value.copy(title = event.title)
+            }
+        }
+    }
+
+    private fun createResource() = viewModelScope.launch {
+        validateAllResourceUIDataWithRules()
+        if (resourceValidationPassed.value) {
+            _createResourceDialogState.value = false
+            val lastResource = if (resources.value.isEmpty()) ResourceLink() else resources.value[resources.value.size -1]
+            val resource = ResourceLink(
+                resourceDepartment = currentCourse.value.courseDepartment,
+                resourceCourseCode = currentCourse.value.courseCode,
+                resourceNo = lastResource.resourceNo + 1,
+                title = resourceUIState.value.title,
+                link = resourceUIState.value.link
+            )
+
+            resourceLinkRepo.createResource(resource).collectLatest {
+
+            }
+        }
+    }
+
+    private fun validateAllResourceUIDataWithRules() {
+        val titleResult = DisplayCourseValidator.validateTitle(resourceUIState.value.title)
+        val linkResult = DisplayCourseValidator.validateLink(resourceUIState.value.link)
+
+        _resourceUIState.value = resourceUIState.value.copy(
+            titleError = titleResult.message,
+            linkError = linkResult.message
+        )
+
+        _resourceValidationPassed.value = titleResult.message == null && linkResult.message == null
+    }
     
     companion object {
         const val TAG = "CourseDetailsDisplayViewModel"

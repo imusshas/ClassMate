@@ -62,12 +62,27 @@ object DisplayCourseValidator {
         return DisplayCourseValidationResult(message)
     }
 
-    /***********************    Date    ***************************/
-
     private fun isLeapYear(year: Int): Boolean {
         return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
     }
+    /***********************    Date    ***************************/
 
+    /***********************    Resource Link    ***************************/
+    fun validateTitle(title: String): DisplayCourseValidationResult {
+        var message: String? = null
+
+        if (title.isBlank()) message = "Title can't be empty"
+
+        return DisplayCourseValidationResult(message)
+    }
+
+    fun validateLink(link: String): DisplayCourseValidationResult {
+        var message: String? = null
+        if (link.isBlank()) message = "Link can't be empty"
+
+        return DisplayCourseValidationResult(message)
+    }
+    /***********************    Resource Link    ***************************/
 
 
     data class DisplayCourseValidationResult(

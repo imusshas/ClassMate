@@ -33,7 +33,7 @@ import com.nasiat_muhib.classmate.presentation.main.create_semester.components.D
 import com.nasiat_muhib.classmate.strings.COURSE_CODE_LABEL
 import com.nasiat_muhib.classmate.strings.COURSE_CREDIT_LABEL
 import com.nasiat_muhib.classmate.strings.COURSE_TITLE_LABEL
-import com.nasiat_muhib.classmate.strings.CREATED_CLASSES
+import com.nasiat_muhib.classmate.strings.CREATED_CLASSES_TITLE
 import com.nasiat_muhib.classmate.strings.CREATE_CLASS_BUTTON
 import com.nasiat_muhib.classmate.strings.SEARCH_COURSE_TEACHER_BUTTON
 import com.nasiat_muhib.classmate.strings.SEMESTER_HARD_CODED
@@ -156,7 +156,7 @@ fun CreateCourse(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            TitleContainer(title = CREATED_CLASSES)
+            TitleContainer(title = CREATED_CLASSES_TITLE)
 
             if (createCourseUIState.createClassError != null) {
                 Text(

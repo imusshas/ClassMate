@@ -21,13 +21,13 @@ import com.nasiat_muhib.classmate.components.TitleContainer
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.event.CourseDetailsDisplayUIEvent
 import com.nasiat_muhib.classmate.navigation.Screen
-import com.nasiat_muhib.classmate.strings.ADD_ASSIGNMENT
-import com.nasiat_muhib.classmate.strings.ADD_CLASS
-import com.nasiat_muhib.classmate.strings.ADD_TERM_TEST
-import com.nasiat_muhib.classmate.strings.ASSIGNMENT
-import com.nasiat_muhib.classmate.strings.CLASS
-import com.nasiat_muhib.classmate.strings.RESOURCE_LINK
-import com.nasiat_muhib.classmate.strings.TERM_TEST
+import com.nasiat_muhib.classmate.strings.ADD_ASSIGNMENT_TITLE
+import com.nasiat_muhib.classmate.strings.ADD_CLASS_TITLE
+import com.nasiat_muhib.classmate.strings.ADD_TERM_TEST_TITLE
+import com.nasiat_muhib.classmate.strings.ASSIGNMENT_TITLE
+import com.nasiat_muhib.classmate.strings.CLASS_TITLE
+import com.nasiat_muhib.classmate.strings.RESOURCE_LINK_TITLE
+import com.nasiat_muhib.classmate.strings.TERM_TEST_TITLE
 import com.nasiat_muhib.classmate.ui.theme.LargeSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
@@ -43,6 +43,7 @@ fun CourseDetailsDisplay(
     courseDetailsDisplayViewModel.getClassDetailsList()
     courseDetailsDisplayViewModel.getTermTestsList()
     courseDetailsDisplayViewModel.getAssignmentList()
+    courseDetailsDisplayViewModel.getResourceList()
 
     val userState by courseDetailsDisplayViewModel.currentUser.collectAsState()
 
@@ -54,6 +55,9 @@ fun CourseDetailsDisplay(
 
     val assignments by courseDetailsDisplayViewModel.assignments.collectAsState()
     val createAssignmentDialogState by courseDetailsDisplayViewModel.createAssignmentDialogState.collectAsState()
+
+    val resources by courseDetailsDisplayViewModel.resources.collectAsState()
+    val createResourceDialogState by courseDetailsDisplayViewModel.createResourceDialogState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -80,13 +84,13 @@ fun CourseDetailsDisplay(
 
             if (userState.data != null) {
                 ClickableTitleContainer(
-                    title = ADD_CLASS,
+                    title = ADD_CLASS_TITLE,
                     onTitleClick = {
                         courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.TermTestTitleClicked)
                     }
                 )
             } else {
-                TitleContainer(title = CLASS)
+                TitleContainer(title = CLASS_TITLE)
             }
 
             Spacer(modifier = Modifier.height(SmallSpace))
@@ -103,15 +107,15 @@ fun CourseDetailsDisplay(
             }
 
             Spacer(modifier = Modifier.height(MediumSpace))
-            if (userState.data != null) {
+            if (userState.data != null && (userState.data!!.email == course.courseTeacher || userState.data!!.email == course.courseCreator)) {
                 ClickableTitleContainer(
-                    title = ADD_TERM_TEST,
+                    title = ADD_TERM_TEST_TITLE,
                     onTitleClick = {
                         courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.TermTestTitleClicked)
                     }
                 )
             } else {
-                TitleContainer(title = TERM_TEST)
+                TitleContainer(title = TERM_TEST_TITLE)
             }
 
             Spacer(modifier = Modifier.height(SmallSpace))
@@ -126,15 +130,15 @@ fun CourseDetailsDisplay(
 
 
             Spacer(modifier = Modifier.height(MediumSpace))
-            if (userState.data != null) {
+            if (userState.data != null && (userState.data!!.email == course.courseTeacher || userState.data!!.email == course.courseCreator)) {
                 ClickableTitleContainer(
-                    title = ADD_ASSIGNMENT,
+                    title = ADD_ASSIGNMENT_TITLE,
                     onTitleClick = {
                         courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.TermTestTitleClicked)
                     }
                 )
             } else {
-                TitleContainer(title = ASSIGNMENT)
+                TitleContainer(title = ASSIGNMENT_TITLE)
             }
 
             Spacer(modifier = Modifier.height(SmallSpace))
@@ -149,15 +153,25 @@ fun CourseDetailsDisplay(
 
             Spacer(modifier = Modifier.height(MediumSpace))
 
-            if (userState.data != null) {
+            if (userState.data != null && (userState.data!!.email == course.courseTeacher || userState.data!!.email == course.courseCreator)) {
                 ClickableTitleContainerWithIcon(
-                    title = RESOURCE_LINK,
+                    title = RESOURCE_LINK_TITLE,
                     onTitleClick = {
-                        courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.TermTestTitleClicked)
+                        courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.ResourceTitleClicked)
                     }
                 )
             } else {
-                TitleContainer(title = RESOURCE_LINK)
+                TitleContainer(title = RESOURCE_LINK_TITLE)
+            }
+            
+            Spacer(modifier = Modifier.height(SmallSpace))
+            CustomSwipeAbleLazyColumn(
+                items = resources, 
+                key = {
+                   "${it.resourceDepartment}:${it.resourceCourseCode}:${it.resourceNo}" 
+                }
+            ) {
+                DisplayResourceLink(it)
             }
             
             Spacer(modifier = Modifier.heightIn(LargeSpace))
@@ -173,6 +187,10 @@ fun CourseDetailsDisplay(
 
         if (createAssignmentDialogState) {
             CreateAssignment(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
+        }
+
+        if (createResourceDialogState) {
+            CreateResourceLink(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
         }
     }
 

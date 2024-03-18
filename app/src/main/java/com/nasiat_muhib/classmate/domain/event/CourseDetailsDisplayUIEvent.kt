@@ -14,4 +14,6 @@ sealed class CourseDetailsDisplayUIEvent {
     data class EventDeleteSwipe(val event: Event): CourseDetailsDisplayUIEvent()
 
     data object AssignmentTitleClicked: CourseDetailsDisplayUIEvent()
+
+    data object ResourceTitleClicked: CourseDetailsDisplayUIEvent()
 }

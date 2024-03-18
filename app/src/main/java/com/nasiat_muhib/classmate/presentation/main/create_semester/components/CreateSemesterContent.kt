@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
@@ -29,8 +27,8 @@ import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
 import com.nasiat_muhib.classmate.presentation.main.create_semester.CreateSemesterViewModel
 import com.nasiat_muhib.classmate.strings.ADD_ICON
 import com.nasiat_muhib.classmate.strings.CLASS_REPRESENTATIVE
-import com.nasiat_muhib.classmate.strings.CREATED_COURSES
-import com.nasiat_muhib.classmate.strings.PENDING_COURSES
+import com.nasiat_muhib.classmate.strings.CREATED_COURSES_TITLE
+import com.nasiat_muhib.classmate.strings.PENDING_COURSES_TITLE
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
@@ -78,8 +76,8 @@ fun CreateSemesterContent(
             // TODO: Add Routine
             // TODO: Add Already Created Courses
             TwoTitleContainer(
-                leftTitle = CREATED_COURSES,
-                rightTitle = PENDING_COURSES,
+                leftTitle = CREATED_COURSES_TITLE,
+                rightTitle = PENDING_COURSES_TITLE,
                 leftClick = {
                     createSemesterViewModel.getCreatedCourses()
                     courses.value = createdCourses
