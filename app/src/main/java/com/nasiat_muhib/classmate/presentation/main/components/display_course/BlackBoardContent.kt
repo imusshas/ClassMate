@@ -26,14 +26,17 @@ fun BlackBoardContent(course: Course) {
     ) {
         Image(painter = painterResource(id = R.drawable.blackboard), contentDescription = null)
 
-        Column (modifier = Modifier.fillMaxWidth().padding(start = SixtyHeight)) {
+        Column (modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = SixtyHeight)) {
             BlackboardRow(title = "Department", text = course.courseDepartment)
             BlackboardRow(title = "Semester", text = course.courseSemester)
             BlackboardRow(title = "Code", text = course.courseCode)
             BlackboardRow(title = "Title", text = course.courseTitle)
             BlackboardRow(title = "Credit", text = course.courseCredit.toString())
             BlackboardRow(title = "Teacher", text = course.courseTeacher)
-            BlackboardRow(title = "Enrolled Students", text = course.enrolledStudents.size.toString())
+            BlackboardRow(title = "Class Representative", text = course.courseCreator)
+            BlackboardRow(title = "Enrolled Students", text = (course.enrolledStudents.size + 1).toString())
         }
     }
 }
@@ -41,7 +44,10 @@ fun BlackBoardContent(course: Course) {
 
 @Composable
 private fun BlackboardRow(title: String, text: String) {
-    Row (modifier = Modifier.fillMaxWidth()){
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ){
         Text(text = "$title: ", style = TitleStyle, color = Color.White)
         Text(text = text, color = Color.White)
     }
