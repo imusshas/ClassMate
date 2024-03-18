@@ -43,16 +43,29 @@ object DisplayCourseValidator {
     /***********************    Date    ***************************/
     fun validateDate(day: String, month: String, year: String): DisplayCourseValidationResult {
         var message: String? = null
-        val months = listOf("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
+        val months = listOf(
+            "JAN",
+            "FEB",
+            "MAR",
+            "APR",
+            "MAY",
+            "JUN",
+            "JUL",
+            "AUG",
+            "SEP",
+            "OCT",
+            "NOV",
+            "DEC"
+        )
         val has30Days = listOf("APR", "JUN", "SEP", "NOV")
 
         if (day.isBlank() || month.isBlank() || year.isBlank()) {
             message = "Date can't be empty"
-        }  else if (month.length != 3) {
+        } else if (month.length != 3) {
             message = "Month must be of 3 capital letters"
         } else if (month !in "A".."Z") {
             message = "Month must contain capital letters only"
-        } else if (day.toInt() !in  1..31 || month !in months || year.toInt() < LocalDate.now().year) {
+        } else if (day.toInt() !in 1..31 || month !in months || year.toInt() < LocalDate.now().year) {
             message = "Invalid date"
         } else if (month !in has30Days && day == "31") {
             message = "$month can't have 31 days"
@@ -88,24 +101,26 @@ object DisplayCourseValidator {
 
                 val client = OkHttpClient()
                 val request = Request.Builder().url(link).head().build()
-                val  response = client.newCall(request).execute()
+                val response = client.newCall(request).execute()
                 if (!response.isSuccessful) {
                     message = "Invalid Link"
                 }
             } catch (e: Exception) {
                 Log.d(TAG, "validateLink: ${e.localizedMessage}")
-                if (e.localizedMessage != null)
-                message = "Invalid Link. Link must contain http:// or https://"
+                if (e.localizedMessage != null) {
+                    message = "Invalid Link. Link must contain http:// or https://"
+                }
             }
         }
 
         return DisplayCourseValidationResult(message)
     }
+
     /***********************    Resource Link    ***************************/
 
 
     data class DisplayCourseValidationResult(
-        val message: String? = null
+        val message: String? = null,
     )
 
     const val TAG = "DisplayCourseValidator"
