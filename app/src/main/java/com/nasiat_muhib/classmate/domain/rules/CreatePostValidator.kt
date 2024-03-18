@@ -1,13 +1,28 @@
 package com.nasiat_muhib.classmate.domain.rules
 
+import android.util.Log
+
 object CreatePostValidator {
 
     fun validateCourseCode(courseCode: String, createdOrTeacher: List<String>): CreatePostValidationResult {
         var message: String? = null
-        val code = getIntCourseCode(courseCode)
+        val intCode = getIntCourseCode(courseCode)
+        var isValid = false
         if (courseCode.isBlank()) message = "Course code can't be empty"
-        else if(code == null) message = "Invalid course code"
-//        else if (!createdOrTeacher.contains(courseCode)) message = "You neither created nor the teacher of the course"
+        else if(intCode == null) message = "Invalid course code"
+        else {
+            createdOrTeacher.forEach {
+                val code = it.substringAfter(":")
+                Log.d(TAG, "validateCourseCode: code from list: $code : courseCode: $courseCode")
+                if (code == courseCode) {
+                    isValid = true
+                }
+            }
+
+            if (!isValid) {
+                message = "You neither created nor the teacher of the course"
+            }
+        }
         return CreatePostValidationResult(message)
     }
 
@@ -32,4 +47,6 @@ object CreatePostValidator {
     data class CreatePostValidationResult (
         val message: String? = null
     )
+
+    private const val TAG = "CreatePostValidator"
 }

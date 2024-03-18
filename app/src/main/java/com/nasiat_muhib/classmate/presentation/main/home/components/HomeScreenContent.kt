@@ -24,6 +24,7 @@ import com.nasiat_muhib.classmate.domain.event.HomeUIEvent
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
 import com.nasiat_muhib.classmate.presentation.main.home.HomeViewModel
+import com.nasiat_muhib.classmate.strings.STUDENT
 import com.nasiat_muhib.classmate.ui.theme.LargeSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
@@ -104,7 +105,9 @@ fun HomeScreenContent(
             }
 
             Spacer(modifier = Modifier.height(LargeSpace))
-            CustomElevatedButton(text = "Create Post", onClick = { homeViewModel.onHomeEvent(HomeUIEvent.PostButtonClicked) })
+            if (user.role != STUDENT) {
+                CustomElevatedButton(text = "Create Post", onClick = { homeViewModel.onHomeEvent(HomeUIEvent.PostButtonClicked) })
+            }
             Spacer(modifier = Modifier.height(MediumSpace))
             posts.forEach {
                 PostDisplay(post = it, homeViewModel = homeViewModel, isCreator = it.creator == user.email)
