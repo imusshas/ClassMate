@@ -35,9 +35,6 @@ class CreateSemesterViewModel @Inject constructor(
     private val _pendingCourses = MutableStateFlow<List<Course>>(listOf())
     val pendingCourses = _pendingCourses.asStateFlow()
 
-    private val _courses = MutableStateFlow<List<Course>>(listOf())
-    val courses = _courses.asStateFlow()
-
     fun onCreateSemesterEvent(event: CreateSemesterUIEvent) {
 
         when (event) {
@@ -76,7 +73,7 @@ class CreateSemesterViewModel @Inject constructor(
     fun getCreatedCourses() = viewModelScope.launch {
         userState.value.data?.let { user ->
             courseRepo.getCreatedCourses(user.courses, user.email).collectLatest {
-                _courses.value = it
+                _createdCourses.value = it
             }
         }
     }
@@ -95,12 +92,6 @@ class CreateSemesterViewModel @Inject constructor(
             .collectLatest {
 
             }
-    }
-
-
-
-    private fun validateAllStates() {
-
     }
 
     companion object {
