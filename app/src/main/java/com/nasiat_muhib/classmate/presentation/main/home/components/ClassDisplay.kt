@@ -84,9 +84,15 @@ fun ClassDisplay(
             Switch(
                 checked = classDetails.isActive,
                 onCheckedChange = {activeStatus ->
-                    homeViewModel.onHomeEvent(HomeUIEvent.ClassStatusChange(classDetails, activeStatus))
+                    if (user.role == TEACHER || user.role == CLASS_REPRESENTATIVE) {
+                        homeViewModel.onHomeEvent(
+                            HomeUIEvent.ClassStatusChange(
+                                classDetails,
+                                activeStatus
+                            )
+                        )
+                    }
                 },
-                enabled = user.role == TEACHER || user.role == CLASS_REPRESENTATIVE
             )
         }
     }

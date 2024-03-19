@@ -60,7 +60,9 @@ class CreateSemesterViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            getUser(userRepo.currentUser.email!!)
+            val currentUser = userRepo.currentUser
+            if (currentUser?.email != null)
+            getUser(currentUser.email!!)
         }
     }
 

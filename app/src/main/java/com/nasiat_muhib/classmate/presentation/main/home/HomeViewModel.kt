@@ -35,8 +35,6 @@ class HomeViewModel @Inject constructor(
     private val postRepo: PostRepository,
 ) : ViewModel() {
 
-    private val currentUser = userRepo.currentUser
-
     private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
     val userState = _userState.asStateFlow()
 
@@ -72,7 +70,9 @@ class HomeViewModel @Inject constructor(
 
 
     init {
-        if (currentUser.email != null) {
+        val currentUser = userRepo.currentUser
+        Log.d(TAG, "init: ${currentUser?.email}")
+        if (currentUser?.email != null) {
             getUser(currentUser.email!!)
         }
     }

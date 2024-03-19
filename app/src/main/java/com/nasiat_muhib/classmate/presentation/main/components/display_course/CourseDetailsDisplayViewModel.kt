@@ -109,7 +109,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     init {
         val currentUser = userRepo.currentUser
 
-        if (currentUser.email != null) {
+        if (currentUser?.email != null) {
             getUser(currentUser.email!!)
         }
     }

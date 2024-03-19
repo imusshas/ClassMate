@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
 
-    val currentUser: FirebaseUser
+    val currentUser: FirebaseUser?
 
     fun getUser(email: String): Flow<DataState<User>>
 

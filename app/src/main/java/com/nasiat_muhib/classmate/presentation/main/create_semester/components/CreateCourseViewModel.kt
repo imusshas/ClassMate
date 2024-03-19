@@ -68,7 +68,7 @@ class CreateCourseViewModel @Inject constructor(
     init {
         val currentUser = userRepo.currentUser
 //        Log.d(TAG, "init: email: ${currentUser.email}")
-        if (currentUser.email != null) {
+        if (currentUser?.email != null) {
             getUser(currentUser.email!!)
         }
     }

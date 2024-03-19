@@ -23,8 +23,8 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
 
     private val usersCollection = firestoreRef.collection(USERS_COLLECTION)
-    override val currentUser: FirebaseUser
-        get() = auth.currentUser!!
+    override val currentUser: FirebaseUser?
+        get() = auth.currentUser
 
 
     override fun getUser(email: String): Flow<DataState<User>> = callbackFlow {
