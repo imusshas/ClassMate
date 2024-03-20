@@ -25,10 +25,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
     override fun signIn(email: String, password: String): Flow<DataState<Boolean>> =
         flow {
             emit(DataState.Loading)
-
-            signInToFirebase(email, password)
-            emit(DataState.Success(true))
-
+            emit(DataState.Success(signInToFirebase(email, password)))
         }.catch {
             emit(DataState.Error("Unable To Sign In"))
             Log.d(TAG, "signIn: ${it.localizedMessage}")
@@ -51,6 +48,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
         emit(DataState.Loading)
         try {
             auth.signOut()
+            Log.d(TAG, "signOut: ${auth.currentUser}")
             ClassMateAppRouter.navigateTo(Screen.SignInScreen)
             emit(DataState.Success(true))
         } catch (e: Exception) {
@@ -84,7 +82,10 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener {
-                isSuccessful = it.isSuccessful
+                if (it.isSuccessful && it.result != null) {
+                    isSuccessful = it.isSuccessful
+                    Log.d(TAG, "signInToFirebase: ${it.result.user?.email}")
+                }
             }.addOnFailureListener {
                 Log.d(TAG, "signInToFirebase: ${it.localizedMessage}")
             }.await()

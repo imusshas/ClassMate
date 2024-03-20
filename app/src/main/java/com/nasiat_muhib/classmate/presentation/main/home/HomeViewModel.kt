@@ -3,6 +3,7 @@ package com.nasiat_muhib.classmate.presentation.main.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.Post
@@ -54,7 +55,7 @@ class HomeViewModel @Inject constructor(
     val tomorrowClasses = _tomorrowClasses.asStateFlow()
 
     private val _allPosts = MutableStateFlow<List<Post>>(emptyList())
-    val allPosts = _allPosts.asStateFlow()
+    private val allPosts = _allPosts.asStateFlow()
 
     private val _userPost = MutableStateFlow<List<Post>>(emptyList())
     val userPost = _userPost.asStateFlow()
@@ -69,22 +70,12 @@ class HomeViewModel @Inject constructor(
     private val allCreatePostValidationPassed = _allCreatePostValidationPassed.asStateFlow()
 
 
-    init {
-        val currentUser = userRepo.currentUser
-        Log.d(TAG, "init: ${currentUser?.email}")
-        if (currentUser?.email != null) {
-            getUser(currentUser.email!!)
-        }
-    }
-
-
-    private fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
-        userRepo.getUser(email).collectLatest {
+    fun getUser() = viewModelScope.launch(Dispatchers.IO) {
+        userRepo.getCurrentUser( "HomeViewModel").collectLatest {
             _userState.value = it
-//            Log.d(TAG, "getUser: $email: ${it.data}")
         }
-    }
 
+    }
 
     fun getCourseList(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
         courseRepo.getCourses(courseIds).collectLatest {

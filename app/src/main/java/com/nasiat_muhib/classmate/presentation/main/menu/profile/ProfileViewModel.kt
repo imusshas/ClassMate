@@ -3,6 +3,7 @@ package com.nasiat_muhib.classmate.presentation.main.menu.profile
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.EditProfileUIEvent
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
@@ -33,17 +34,10 @@ class ProfileViewModel @Inject constructor(
     val editProfileButtonState = _editProfileButtonState.asStateFlow()
 
     private val _allEditProfileValidationPassed = MutableStateFlow(false)
-    val allEditProfileValidationPassed = _allEditProfileValidationPassed.asStateFlow()
+    private val allEditProfileValidationPassed = _allEditProfileValidationPassed.asStateFlow()
 
-    init {
-        val currentUser = userRepo.currentUser
-        if (currentUser?.email != null) {
-            getUser(currentUser.email!!)
-        }
-    }
-
-    private fun getUser(email: String) = viewModelScope.launch {
-        userRepo.getUser(email).collectLatest {
+    fun getUser() = viewModelScope.launch {
+        userRepo.getCurrentUser("ProfileViewModel").collectLatest {
             _userState.value = it
         }
     }

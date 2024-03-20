@@ -2,6 +2,7 @@ package com.nasiat_muhib.classmate.presentation.main.enroll_course
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.EnrollCourseUIEvent
@@ -30,15 +31,8 @@ class EnrollCourseViewModel @Inject constructor(
     val alreadyEnrolled = _alreadyEnrolled.asStateFlow()
 
 
-    init {
-        val currentUser = userRepo.currentUser
-        if (currentUser?.email != null) {
-            getUser(currentUser.email!!)
-        }
-    }
-
-    private fun getUser(email: String) = viewModelScope.launch {
-        userRepo.getUser(email).collectLatest {
+    fun getUser() = viewModelScope.launch {
+        userRepo.getCurrentUser( "EnrollCourseViewModel").collectLatest {
             _userState.value = it
         }
     }

@@ -20,7 +20,6 @@ import kotlin.math.log
 @HiltViewModel
 class MenuViewModel @Inject constructor(
     private val authRepo: AuthenticationRepository,
-    private val userRepo: UserRepository
 ) : ViewModel() {
 
     fun onMenuEvent(event: MenuUIEvent) {
@@ -40,8 +39,6 @@ class MenuViewModel @Inject constructor(
 
     private fun signOut() = viewModelScope.launch {
         authRepo.signOut().collectLatest {
-            Log.d(TAG, "signOut: ${userRepo.currentUser}")
-            Log.d(TAG, "signOut: ${Firebase.auth.currentUser}")
         }
     }
 

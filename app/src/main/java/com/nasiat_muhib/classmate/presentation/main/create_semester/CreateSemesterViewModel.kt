@@ -1,8 +1,8 @@
 package com.nasiat_muhib.classmate.presentation.main.create_semester
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.CreateSemesterUIEvent
@@ -57,17 +57,8 @@ class CreateSemesterViewModel @Inject constructor(
 
     }
 
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            val currentUser = userRepo.currentUser
-            if (currentUser?.email != null)
-            getUser(currentUser.email!!)
-        }
-    }
-
-    private fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
-        userRepo.getUser(email).collect {
+    fun getUser() = viewModelScope.launch(Dispatchers.IO) {
+        userRepo.getCurrentUser( "CreateSemesterViewModel").collect {
             _userState.value = it
         }
     }

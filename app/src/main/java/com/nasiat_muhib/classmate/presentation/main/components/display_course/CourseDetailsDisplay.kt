@@ -39,6 +39,7 @@ fun CourseDetailsDisplay(
     courseDetailsDisplayViewModel: CourseDetailsDisplayViewModel = hiltViewModel(),
 ) {
 
+    courseDetailsDisplayViewModel.getUser()
     courseDetailsDisplayViewModel.setCurrentCourse(course)
     courseDetailsDisplayViewModel.getClassDetailsList()
     courseDetailsDisplayViewModel.getTermTestsList()

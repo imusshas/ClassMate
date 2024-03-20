@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nasiat_muhib.classmate.components.CustomDropDownMenu
 import com.nasiat_muhib.classmate.components.CustomElevatedButton
@@ -44,9 +45,10 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
 @Composable
 fun CreateCourse(
-    createCourseViewModel: CreateCourseViewModel = viewModel(),
+    createCourseViewModel: CreateCourseViewModel = hiltViewModel(),
 ) {
 
+    createCourseViewModel.getUser()
     val createCourseUIState by createCourseViewModel.createCourseUIState.collectAsState()
     val createClassDialogState by createCourseViewModel.createCourseDialogState.collectAsState()
     val classDetailsList by createCourseViewModel.createClassDetailsDataList.collectAsState()

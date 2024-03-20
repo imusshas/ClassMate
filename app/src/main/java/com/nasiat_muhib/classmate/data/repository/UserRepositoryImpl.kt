@@ -23,19 +23,16 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
 
     private val usersCollection = firestoreRef.collection(USERS_COLLECTION)
-    override val currentUser: FirebaseUser?
-        get() = auth.currentUser
 
-
-    override fun getUser(email: String): Flow<DataState<User>> = callbackFlow {
+    override fun getCurrentUser(from: String): Flow<DataState<User>> = callbackFlow {
         var response: DataState<User> = DataState.Loading
 
-        val snapshotListener = usersCollection.document(email)
+        val snapshotListener = usersCollection.document(auth.currentUser?.email!!)
             .addSnapshotListener { value, error ->
                 if (value != null) {
-                    Log.d(TAG, "getUser: Document: ${value.data}")
+//                    Log.d(TAG, "getUser: Document: ${value.data}")
                     val user = getUserFromFirestoreDocument(value)
-                    Log.d(TAG, "getUser: User: $user")
+                    Log.d(TAG, "getUser From: $from : User: $user")
                     response = DataState.Success(user)
                 } else if (error != null) {
                     Log.d(TAG, "getUser: ${error.localizedMessage}")

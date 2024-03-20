@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nasiat_muhib.classmate.components.ErrorScreen
 import com.nasiat_muhib.classmate.components.LoadingScreen
@@ -14,8 +15,9 @@ import com.nasiat_muhib.classmate.presentation.main.create_semester.components.C
 
 @Composable
 fun CreateSemesterScreen(
-    createSemesterViewModel: CreateSemesterViewModel = viewModel()
+    createSemesterViewModel: CreateSemesterViewModel = hiltViewModel()
 ) {
+    createSemesterViewModel.getUser()
     val userState by createSemesterViewModel.userState.collectAsState()
     when (userState) {
 

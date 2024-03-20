@@ -16,6 +16,7 @@ fun EnrollCourseScreen(
     enrollCourseViewModel: EnrollCourseViewModel = hiltViewModel(),
 ) {
 
+    enrollCourseViewModel.getUser()
     val userState by enrollCourseViewModel.userState.collectAsState()
 
     when (userState) {

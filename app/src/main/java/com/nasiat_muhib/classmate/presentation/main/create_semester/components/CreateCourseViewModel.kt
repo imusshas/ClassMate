@@ -3,6 +3,7 @@ package com.nasiat_muhib.classmate.presentation.main.create_semester.components
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
@@ -27,7 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateCourseViewModel @Inject constructor(
     private val courseRepo: CourseRepository,
-    private val userRepo: UserRepository
+    private val userRepo: UserRepository,
 ) : ViewModel() {
 
 
@@ -65,18 +66,9 @@ class CreateCourseViewModel @Inject constructor(
 
 
 
-    init {
-        val currentUser = userRepo.currentUser
-//        Log.d(TAG, "init: email: ${currentUser.email}")
-        if (currentUser?.email != null) {
-            getUser(currentUser.email!!)
-        }
-    }
-
-    private fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
-        userRepo.getUser(email).collectLatest {
+    fun getUser() = viewModelScope.launch(Dispatchers.IO) {
+        userRepo.getCurrentUser("CreateCourseViewModel").collectLatest {
             _userState.value = it
-//            Log.d(TAG, "getUser: $it")
         }
     }
 

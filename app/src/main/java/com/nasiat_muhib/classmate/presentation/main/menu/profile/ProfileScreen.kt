@@ -11,6 +11,7 @@ import com.nasiat_muhib.classmate.presentation.main.menu.profile.components.Prof
 @Composable
 fun ProfileScreen(profileViewModel: ProfileViewModel = hiltViewModel()) {
 
+    profileViewModel.getUser()
     val userState by profileViewModel.userState.collectAsState()
 
     when (userState) {

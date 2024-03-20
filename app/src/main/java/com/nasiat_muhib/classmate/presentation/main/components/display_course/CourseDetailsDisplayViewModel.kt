@@ -3,6 +3,7 @@ package com.nasiat_muhib.classmate.presentation.main.components.display_course
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.core.Constants.EVENTS
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
@@ -38,15 +39,14 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     private val classRepo: ClassDetailsRepository,
     private val eventRepo: EventRepository,
     private val userRepo: UserRepository,
-    private val resourceLinkRepo: ResourceLinkRepository
+    private val resourceLinkRepo: ResourceLinkRepository,
 ) : ViewModel() {
-
 
     private val _currentUser = MutableStateFlow<DataState<User>>(DataState.Success(User()))
     val currentUser = _currentUser.asStateFlow()
 
     private val _currentCourse = MutableStateFlow(Course())
-    val currentCourse = _currentCourse.asStateFlow()
+    private val currentCourse = _currentCourse.asStateFlow()
 
 
     /************************* Class ****************************/
@@ -103,20 +103,12 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
     private val _resourceValidationPassed = MutableStateFlow(false)
     private val resourceValidationPassed = _resourceValidationPassed.asStateFlow()
+
     /************************* Resource Link ****************************/
 
 
-    init {
-        val currentUser = userRepo.currentUser
-
-        if (currentUser?.email != null) {
-            getUser(currentUser.email!!)
-        }
-    }
-
-
-    private fun getUser(email: String) = viewModelScope.launch {
-        userRepo.getUser(email).collectLatest {
+    fun getUser() = viewModelScope.launch {
+        userRepo.getCurrentUser("CourseDetailsDisplayViewModel").collectLatest {
             _currentUser.value = it
         }
     }
@@ -451,30 +443,38 @@ class CourseDetailsDisplayViewModel @Inject constructor(
             CreateAssignmentUIEvent.CancelButtonClick -> {
                 _createAssignmentDialogState.value = false
             }
+
             is CreateAssignmentUIEvent.ClassroomChanged -> {
                 _assignmentUIState.value = assignmentUIState.value.copy(classroom = event.classroom)
             }
+
             CreateAssignmentUIEvent.CreateButtonClick -> {
                 createAssignment()
             }
+
             is CreateAssignmentUIEvent.DayChanged -> {
                 val day = if (event.day == "") -1 else event.day.toInt()
                 _assignmentUIState.value = assignmentUIState.value.copy(day = day)
             }
+
             is CreateAssignmentUIEvent.HourChanged -> {
                 val hour = if (event.hour == "") -1 else event.hour.toInt()
                 _assignmentUIState.value = assignmentUIState.value.copy(hour = hour)
             }
+
             is CreateAssignmentUIEvent.MinuteChanged -> {
                 val minute = if (event.minute == "") -1 else event.minute.toInt()
                 _assignmentUIState.value = assignmentUIState.value.copy(minute = minute)
             }
+
             is CreateAssignmentUIEvent.MonthChanged -> {
                 _assignmentUIState.value = assignmentUIState.value.copy(month = event.month)
             }
+
             is CreateAssignmentUIEvent.ShiftChanged -> {
                 _assignmentUIState.value = assignmentUIState.value.copy(shift = event.shift)
             }
+
             is CreateAssignmentUIEvent.YearChanged -> {
                 val year = if (event.year == "") -1 else event.year.toInt()
                 _assignmentUIState.value = assignmentUIState.value.copy(year = year)
@@ -509,7 +509,8 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     }
 
     private fun validateAssignmentUIDataWithRules() {
-        val day = if (assignmentUIState.value.day == -1) "" else assignmentUIState.value.day.toString()
+        val day =
+            if (assignmentUIState.value.day == -1) "" else assignmentUIState.value.day.toString()
         val year =
             if (assignmentUIState.value.year == -1) "" else assignmentUIState.value.year.toString()
         val hour =
@@ -521,7 +522,8 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
         val classroomResult =
             DisplayCourseValidator.validateClassroom(assignmentUIState.value.classroom)
-        val dateResult = DisplayCourseValidator.validateDate(day, assignmentUIState.value.month, year)
+        val dateResult =
+            DisplayCourseValidator.validateDate(day, assignmentUIState.value.month, year)
         val hourResult = DisplayCourseValidator.validateHour(hour)
         val minuteResult = DisplayCourseValidator.validateMinute(minute)
 
@@ -536,18 +538,20 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     }
 
 
-
     fun onCreateResourceLinkEvent(event: CreateResourceUIEvent) {
-        when(event) {
+        when (event) {
             CreateResourceUIEvent.CancelButtonClicked -> {
                 _createResourceDialogState.value = false
             }
+
             CreateResourceUIEvent.CreateButtonClicked -> {
                 createResource()
             }
+
             is CreateResourceUIEvent.LinkChanged -> {
                 _resourceUIState.value = resourceUIState.value.copy(link = event.link)
             }
+
             is CreateResourceUIEvent.TitleChanged -> {
                 _resourceUIState.value = resourceUIState.value.copy(title = event.title)
             }
@@ -558,7 +562,8 @@ class CourseDetailsDisplayViewModel @Inject constructor(
         validateAllResourceUIDataWithRules()
         if (resourceValidationPassed.value) {
             _createResourceDialogState.value = false
-            val lastResource = if (resources.value.isEmpty()) ResourceLink() else resources.value[resources.value.size -1]
+            val lastResource =
+                if (resources.value.isEmpty()) ResourceLink() else resources.value[resources.value.size - 1]
             val resource = ResourceLink(
                 resourceDepartment = currentCourse.value.courseDepartment,
                 resourceCourseCode = currentCourse.value.courseCode,
@@ -584,7 +589,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
         _resourceValidationPassed.value = titleResult.message == null && linkResult.message == null
     }
-    
+
     companion object {
         const val TAG = "CourseDetailsDisplayViewModel"
     }
