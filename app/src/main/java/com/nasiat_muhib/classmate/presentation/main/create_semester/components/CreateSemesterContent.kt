@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.components.TwoTitleContainer
+import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.CreateSemesterUIEvent
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
@@ -35,21 +36,21 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 @Composable
 fun CreateSemesterContent(
     createSemesterViewModel: CreateSemesterViewModel,
+    user: User
 ) {
 
-    createSemesterViewModel.getCreatedCourses()
-    createSemesterViewModel.getPendingCourses()
+    createSemesterViewModel.getCreatedCourses(user.courses, user.email)
+    createSemesterViewModel.getPendingCourses(user.courses, user.email)
 
-    val user by createSemesterViewModel.userState.collectAsState()
     val createdCourses by createSemesterViewModel.cratedCourses.collectAsState()
     val pendingCourses by createSemesterViewModel.pendingCourses.collectAsState()
 
-    val courses = rememberSaveable { mutableStateOf(createdCourses) }
+    val createdOrPending = rememberSaveable { mutableStateOf(true) }
 
     Scaffold(
         topBar = { ClassMateTabRow(tab = TabItem.CreateSemester) },
         floatingActionButton = {
-            if (user.data?.role == CLASS_REPRESENTATIVE) {
+            if (user.role == CLASS_REPRESENTATIVE) {
                 FloatingActionButton(
                     onClick = {
                         createSemesterViewModel.onCreateSemesterEvent(CreateSemesterUIEvent.CreateSemesterFABClick)
@@ -79,24 +80,22 @@ fun CreateSemesterContent(
                 leftTitle = CREATED_COURSES_TITLE,
                 rightTitle = PENDING_COURSES_TITLE,
                 leftClick = {
-                    createSemesterViewModel.getCreatedCourses()
-                    courses.value = createdCourses
+                    createSemesterViewModel.getCreatedCourses(user.courses, user.email)
+                    createdOrPending.value = true
                             },
                 rightClick = {
-                    createSemesterViewModel.getPendingCourses()
-                    courses.value = pendingCourses }
+                    createSemesterViewModel.getPendingCourses(user.courses, user.email)
+                    createdOrPending.value = false }
             )
 
             CustomSwipeAbleLazyColumn(
-                items = courses.value,
+                items = if (createdOrPending.value) createdCourses else pendingCourses,
                 key = {
                     "${it.courseDepartment}:${it.courseCode}"
                 },
                 modifier = Modifier.fillMaxHeight()
             ) {
-//            courses.value.forEach {
                 DisplayCourse(course = it, createSemesterViewModel = createSemesterViewModel)
-//            }
             }
 
         }

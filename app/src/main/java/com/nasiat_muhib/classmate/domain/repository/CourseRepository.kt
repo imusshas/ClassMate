@@ -9,7 +9,7 @@ interface CourseRepository {
     fun createCourse(course: Course, classDetailsSet: Set<ClassDetails>): Flow<Pair<DataState<Course>, DataState<List<ClassDetails>>>>
     fun getRequestedCourses(courseIds: List<String>): Flow<List<Course>>
     fun getCreatedCourses(courseIds: List<String>, creatorEmail: String): Flow<List<Course>>
-    fun getPendingCourseList(courseIds: List<String>): Flow<List<Course>>
+    fun getPendingCourseList(courseIds: List<String>, creatorEmail: String): Flow<List<Course>>
 
     // Enrolled Courses
     fun getCourses(courseIds: List<String>): Flow<List<Course>>

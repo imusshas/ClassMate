@@ -63,19 +63,15 @@ class CreateSemesterViewModel @Inject constructor(
         }
     }
 
-    fun getCreatedCourses() = viewModelScope.launch {
-        userState.value.data?.let { user ->
-            courseRepo.getCreatedCourses(user.courses, user.email).collectLatest {
-                _createdCourses.value = it
-            }
+    fun getCreatedCourses(courses: List<String>, email: String) = viewModelScope.launch {
+        courseRepo.getCreatedCourses(courses, email).collectLatest {
+            _createdCourses.value = it
         }
     }
 
-    fun getPendingCourses() = viewModelScope.launch {
-        userState.value.data?.let {
-            courseRepo.getPendingCourseList(it.courses).collectLatest {
-                _pendingCourses.value = it
-            }
+    fun getPendingCourses(courses: List<String>, email: String) = viewModelScope.launch {
+        courseRepo.getPendingCourseList(courses, email).collectLatest {
+            _pendingCourses.value = it
         }
     }
 

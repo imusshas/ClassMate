@@ -1,12 +1,10 @@
 package com.nasiat_muhib.classmate.presentation.auth.sign_in
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,7 +37,7 @@ fun SignInScreen(
     signInViewModel: SignInViewModel = hiltViewModel()
 ) {
 
-    val signInState = signInViewModel.signInUIState.collectAsState()
+    val signInUIState = signInViewModel.signInUIState.collectAsState()
     val signInDataState = signInViewModel.signInDataState.collectAsState()
 
     when(signInDataState.value) {
@@ -73,11 +71,11 @@ fun SignInScreen(
                                 SignInUIEvent.EmailChanged(email)
                             )
                         },
-                        errorMessage = signInState.value.emailError
+                        errorMessage = signInUIState.value.emailError
                     )
                     CustomPasswordField(labelValue = PASSWORD_LABEL, onPasswordChange = { password ->
                         signInViewModel.onEvent(SignInUIEvent.PasswordChanged(password))
-                    }, errorMessage = signInState.value.passwordError)
+                    }, errorMessage = signInUIState.value.passwordError)
 
                     CustomElevatedButton(text = SIGN_IN_BUTTON, onClick = {
                         signInViewModel.onEvent(SignInUIEvent.SignInButtonClicked)

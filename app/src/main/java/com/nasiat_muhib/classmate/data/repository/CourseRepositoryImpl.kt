@@ -153,7 +153,7 @@ class CourseRepositoryImpl @Inject constructor(
             }
 
             if (error != null) {
-                Log.d(TAG, "getCourseList: ${error.localizedMessage}")
+                Log.d(TAG, "getCourseCreatedCourses: ${error.localizedMessage}")
             }
         }
 
@@ -165,25 +165,22 @@ class CourseRepositoryImpl @Inject constructor(
 //        Log.d(TAG, "getCourseList: ${it.localizedMessage}")
     }
 
-    override fun getPendingCourseList(courseIds: List<String>): Flow<List<Course>> = callbackFlow {
-//        Log.d(TAG, "getPendingCourseList: $courseIds")
+    override fun getPendingCourseList(courseIds: List<String>, creatorEmail: String): Flow<List<Course>> = callbackFlow {
+
         val snapshotListener = coursesCollection.addSnapshotListener { value, error ->
             val pendingCourses = mutableListOf<Course>()
             value?.documents?.forEach { document ->
-//                Log.d(TAG, "getPendingCourseList: ${document.data}")
                 courseIds.forEach {
-//                    Log.d(TAG, "getPendingCourseList: $it, ${document.id}")
                     val course = getCourseFromFirestoreDocument(document)
-                    if (course.pendingStatus && document.id.contains(it)) {
+                    if (course.pendingStatus && document.id.contains(it) && document[COURSE_CREATOR] == creatorEmail) {
                         pendingCourses.add(course)
-//                        Log.d(TAG, "getPendingCourseList: true")
                     }
                 }
                 trySend(pendingCourses).isSuccess
             }
 
             if (error != null) {
-                Log.d(TAG, "getPendingCourseList: ${error.localizedMessage}")
+                Log.d(TAG, "getCourseCreatedCourses: ${error.localizedMessage}")
             }
         }
 
