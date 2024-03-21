@@ -27,14 +27,11 @@ class SignUpViewModel @Inject constructor(
     private val _signUpUIState = MutableStateFlow(SignUpUIState())
     val signUpUIState = _signUpUIState.asStateFlow()
 
-    private val _signUpDataState = MutableStateFlow<DataState<Boolean>>(DataState.Success(true)) // TODO: Try DataSource.Loading()
+    private val _signUpDataState = MutableStateFlow<DataState<Boolean>>(DataState.Success(false)) // TODO: Try DataSource.Loading()
     val signUpDataState = _signUpDataState.asStateFlow()
 
     private val _allValidationPassed = MutableStateFlow(false)
     private val allValidationPassed = _allValidationPassed.asStateFlow()
-
-    private val _signUpInProgress = MutableStateFlow(false)
-    val signUpInProgress = _signUpInProgress.asStateFlow()
 
 
     fun onEvent(event: SignUpUIEvent) {
@@ -60,7 +57,6 @@ class SignUpViewModel @Inject constructor(
             }
 
             SignUpUIEvent.SignUpButtonClicked ->  {
-                Log.d(TAG, "onEvent: sign up button clicked")
                 signUp()
             }
 
@@ -71,9 +67,6 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun signUp() = viewModelScope.launch (Dispatchers.IO) {
-        _signUpInProgress.value = true
-        Log.d(TAG, "signUp: ${signUpUIState.value}")
-//        Log.d(TAG, "signIn: ${allValidationPassed.value}")
         validateSignUpDataWithRules()
         if(allValidationPassed.value) {
             val user = User (
@@ -93,7 +86,6 @@ class SignUpViewModel @Inject constructor(
                 ClassMateAppRouter.navigateTo(Screen.HomeScreen)
             }
         }
-        _signUpInProgress.value = false
     }
 
     private fun validateSignUpDataWithRules() {

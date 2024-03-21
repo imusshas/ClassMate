@@ -21,8 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
-private val auth: FirebaseAuth,
-    private val authRepo: AuthenticationRepository
+    private val auth: FirebaseAuth,
+    private val authRepo: AuthenticationRepository,
 ) : ViewModel() {
 
     private val _signInUIState = MutableStateFlow(SignInUIState())
@@ -45,8 +45,16 @@ private val auth: FirebaseAuth,
                 _signInUIState.value = _signInUIState.value.copy(password = event.password)
             }
 
-            SignInUIEvent.SignInButtonClicked ->  {
+            SignInUIEvent.SignInButtonClicked -> {
                 signIn()
+            }
+
+            SignInUIEvent.ForgotPasswordButtonClicked -> {
+                ClassMateAppRouter.navigateTo(Screen.ForgotPasswordScreen)
+            }
+
+            SignInUIEvent.SignUpButtonClicked -> {
+                ClassMateAppRouter.navigateTo(Screen.SignUpScreen)
             }
         }
     }
@@ -56,11 +64,11 @@ private val auth: FirebaseAuth,
         Log.d(TAG, "signIn: ${signInUIState.value}")
         validateSignInUIDataWithRules()
 //        Log.d(TAG, "signIn: ${allValidationPassed.value}")
-        if(allValidationPassed.value) {
+        if (allValidationPassed.value) {
             authRepo.signIn(signInUIState.value.email, signInUIState.value.password).collectLatest {
                 _signInDataState.value = it
             }
-            if(signInDataState.value == DataState.Success(true)) {
+            if (signInDataState.value == DataState.Success(true)) {
                 ClassMateAppRouter.navigateTo(Screen.HomeScreen)
             }
         }

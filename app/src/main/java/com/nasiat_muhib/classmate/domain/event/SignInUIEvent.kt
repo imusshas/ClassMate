@@ -5,4 +5,8 @@ sealed class SignInUIEvent {
     data class PasswordChanged(val password: String): SignInUIEvent()
 
     data object SignInButtonClicked: SignInUIEvent()
+
+    data object ForgotPasswordButtonClicked: SignInUIEvent()
+
+    data object SignUpButtonClicked: SignInUIEvent()
 }

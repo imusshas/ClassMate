@@ -22,9 +22,11 @@ import com.nasiat_muhib.classmate.components.CustomDropDownMenu
 import com.nasiat_muhib.classmate.components.CustomElevatedButton
 import com.nasiat_muhib.classmate.components.CustomOutlinedField
 import com.nasiat_muhib.classmate.components.CustomPasswordField
+import com.nasiat_muhib.classmate.components.LoadingScreen
 import com.nasiat_muhib.classmate.components.Logo
 import com.nasiat_muhib.classmate.core.Constants.ROLES
 import com.nasiat_muhib.classmate.domain.event.SignUpUIEvent
+import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.navigation.SystemBackButtonHandler
@@ -42,112 +44,19 @@ import com.nasiat_muhib.classmate.ui.theme.ZeroSpace
 
 @Composable
 fun SignUpScreen(
-    signUpViewModel: SignUpViewModel = hiltViewModel()
+    signUpViewModel: SignUpViewModel = hiltViewModel(),
 ) {
+    val signUpDataState = signUpViewModel.signUpDataState.collectAsState()
 
-    val signUpState = signUpViewModel.signUpUIState.collectAsState()
-    val signUpInProgress = signUpViewModel.signUpInProgress.collectAsState()
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-        Logo()
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-
-                CustomOutlinedField(
-                    labelValue = FIRST_NAME_LABEL,
-                    onValueChange = { firstName ->
-                        signUpViewModel.onEvent(SignUpUIEvent.FirstNameChanged(firstName))
-                    },
-                    errorMessage = signUpState.value.firstNameError,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = ZeroSpace)
-                )
-                CustomOutlinedField(
-                    labelValue = LAST_NAME_LABEL,
-                    onValueChange = { lastName ->
-                        signUpViewModel.onEvent(SignUpUIEvent.LastNameChanged(lastName))
-                    },
-                    errorMessage = signUpState.value.lastNameError,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = ZeroSpace)
-                )
-            }
-
-
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = ROLE_HARDCODED, modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = MediumSpace)
-                )
-                CustomDropDownMenu(
-                    itemList = ROLES,
-                    onItemChange = { role ->
-                        signUpViewModel.onEvent(SignUpUIEvent.RoleChanged(role))
-                    }
-                )
-            }
-
-            CustomOutlinedField(
-                labelValue = COURSE_DEPARTMENT_LABEL,
-                onValueChange = {department ->
-                    signUpViewModel.onEvent(SignUpUIEvent.DepartmentChanged(department))
-                },
-                errorMessage = signUpState.value.departmentError
-            )
-            CustomOutlinedField(
-                labelValue = EMAIL_LABEL,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                ),
-                onValueChange = { email ->
-                    signUpViewModel.onEvent(SignUpUIEvent.EmailChanged(email))
-                },
-                errorMessage = signUpState.value.emailError
-            )
-            CustomPasswordField(labelValue = PASSWORD_LABEL, onPasswordChange = { password ->
-                signUpViewModel.onEvent(SignUpUIEvent.PasswordChanged(password))
-            }, errorMessage = signUpState.value.passwordError)
-
-            CustomElevatedButton(text = SIGN_UP_BUTTON, onClick = {
-                signUpViewModel.onEvent(SignUpUIEvent.SignUpButtonClicked)
-            })
+    when (signUpDataState.value) {
+        is DataState.Error -> {
+            SignUpScreenContent(signUpViewModel = signUpViewModel, error = signUpDataState.value.error)
         }
-
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(text = ALREADY_A_USER_HARDCODED)
-            CustomElevatedButton(text = SIGN_IN_BUTTON, onClick = {
-                ClassMateAppRouter.navigateTo(Screen.SignInScreen)
-            })
-
+        DataState.Loading -> {
+            LoadingScreen()
         }
-    }
-
-
-    if (signUpInProgress.value) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+        is DataState.Success -> {
+            SignUpScreenContent(signUpViewModel = signUpViewModel)
         }
     }
 
