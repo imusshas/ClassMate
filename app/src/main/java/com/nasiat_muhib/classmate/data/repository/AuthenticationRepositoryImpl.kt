@@ -35,9 +35,10 @@ class AuthenticationRepositoryImpl @Inject constructor(
         flow {
             emit(DataState.Loading)
 
-            createUserToFirebase(email, user)
-            signUpToFirebase(email, password)
-            emit(DataState.Success(true))
+            if (signUpToFirebase(email, password)) {
+                createUserToFirebase(email, user)
+                emit(DataState.Success(true))
+            }
 
         }.catch {
             emit(DataState.Error("Unable To Sign Up"))
@@ -96,19 +97,14 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     private suspend fun signUpToFirebase(email: String, password: String): Boolean {
         var isSuccessful = false
-
-//        Log.d(TAG, "signUpToFirebase: calling function")
-
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
                     isSuccessful = true
                 }
-//                Log.d(TAG, "signUpToFirebase: ${it.isSuccessful}")
             }.addOnFailureListener {
                 Log.d(TAG, "signUpToFirebase: ${it.localizedMessage}")
             }.await()
-
         return isSuccessful
 
     }
