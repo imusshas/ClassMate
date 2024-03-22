@@ -38,3 +38,8 @@ fun LoadingHomeScreen() {
         end = Offset(x = translateAnim.value, y = translateAnim.value)
     )
 }
+
+@Composable
+private fun LoadingHomeScreenContent() {
+
+}
