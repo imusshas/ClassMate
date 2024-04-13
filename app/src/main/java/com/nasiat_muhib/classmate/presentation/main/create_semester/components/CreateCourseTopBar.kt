@@ -12,6 +12,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,8 +28,13 @@ import com.nasiat_muhib.classmate.ui.theme.TitleStyle
 
 @Composable
 fun CreateCourseTopBar(
-    createCourseViewModel: CreateCourseViewModel
+    createCourseViewModel: CreateCourseViewModel,
+    navigateBackToCreateSemester: () -> Unit
 ) {
+    val allCreateCourseValidationPassed by createCourseViewModel.allCreateCourseValidationPassed.collectAsState()
+    val allCreateClassValidationPassed by createCourseViewModel.allCreateClassValidationPassed.collectAsState()
+    val createClassDetailsListValidationPassed by createCourseViewModel.createClassDetailsListValidationPassed.collectAsState()
+
     Row (
         modifier = Modifier
             .fillMaxWidth()
@@ -43,6 +50,7 @@ fun CreateCourseTopBar(
             modifier = Modifier
                 .clickable {
                     createCourseViewModel.onCreateCourse(CreateCourseUIEvent.BackButtonClick)
+                    navigateBackToCreateSemester()
                 }
         )
         Text(text = CREATE_COURSE, style = TitleStyle)
@@ -52,6 +60,9 @@ fun CreateCourseTopBar(
             contentDescription = CREATE_ICON,
             modifier = Modifier.clickable {
                 createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CreateClick)
+                if (allCreateCourseValidationPassed && allCreateClassValidationPassed && createClassDetailsListValidationPassed) {
+                    navigateBackToCreateSemester()
+                }
             }
         )
     }
@@ -60,5 +71,5 @@ fun CreateCourseTopBar(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun CreateSemesterTopBarPreview() {
-    CreateCourseTopBar(hiltViewModel())
+//    CreateCourseTopBar(hiltViewModel())
 }

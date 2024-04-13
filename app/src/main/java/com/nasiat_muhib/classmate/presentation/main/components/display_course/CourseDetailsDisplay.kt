@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.presentation.main.components.display_course
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import com.nasiat_muhib.classmate.strings.ADD_TERM_TEST_TITLE
 import com.nasiat_muhib.classmate.strings.ASSIGNMENT_TITLE
 import com.nasiat_muhib.classmate.strings.CLASS_TITLE
 import com.nasiat_muhib.classmate.strings.RESOURCE_LINK_TITLE
+import com.nasiat_muhib.classmate.strings.TAG
 import com.nasiat_muhib.classmate.strings.TERM_TEST_TITLE
 import com.nasiat_muhib.classmate.ui.theme.LargeSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
@@ -34,9 +36,9 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
 @Composable
 fun CourseDetailsDisplay(
-    course: Course,
-    screen: Screen,
     courseDetailsDisplayViewModel: CourseDetailsDisplayViewModel = hiltViewModel(),
+    course: Course,
+    navigateBack: () -> Unit
 ) {
 
     courseDetailsDisplayViewModel.getUser()
@@ -68,9 +70,7 @@ fun CourseDetailsDisplay(
 
         CourseDetailsDisplayTopBar(
             courseCode = course.courseCode,
-            onBackIconClick = {
-                courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.CourseDetailsDisplayTopBarBackButtonClicked(screen))
-            }
+            onBackIconClick = navigateBack
         )
 
         BlackBoardContent(course = course)
@@ -122,7 +122,7 @@ fun CourseDetailsDisplay(
 
             Spacer(modifier = Modifier.height(SmallSpace))
             CustomSwipeAbleLazyColumn(
-                items = termTests,
+                items = termTests.toList(),
                 key = {
                     "${it.department}:${it.courseCode}:${it.eventNo}"
                 }
@@ -149,11 +149,12 @@ fun CourseDetailsDisplay(
 
             Spacer(modifier = Modifier.height(SmallSpace))
             CustomSwipeAbleLazyColumn(
-                items = assignments,
+                items = assignments.toList(),
                 key = {
                     "${it.department}:${it.courseCode}:${it.eventNo}"
                 }
             ) {
+                Log.d(TAG, "CourseDetailsDisplay: ${it.department}:${it.courseCode}:${it.eventNo}")
                 DisplayEvent(
                     event = it,
                     courseDetailsDisplayViewModel = courseDetailsDisplayViewModel,

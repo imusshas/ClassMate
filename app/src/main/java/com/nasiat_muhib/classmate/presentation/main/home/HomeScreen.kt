@@ -7,13 +7,18 @@ import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nasiat_muhib.classmate.components.LoadingScreen
 import com.nasiat_muhib.classmate.domain.state.DataState
+import com.nasiat_muhib.classmate.navigation.NavigationViewModel
+import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.home.components.HomeScreenContent
 import com.nasiat_muhib.classmate.strings.TAG
 
 @Composable
 fun HomeScreen(
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    navigationViewModel: NavigationViewModel,
+    navigateToTab: (TabItem) -> Unit,
+    navigateToCourseDetailsDisplay: () -> Unit
 ) {
-    val homeViewModel: HomeViewModel = hiltViewModel()
     homeViewModel.getUser()
     val userState by homeViewModel.userState.collectAsState()
 
@@ -23,13 +28,19 @@ fun HomeScreen(
             LoadingScreen()
         }
         is DataState.Success -> {
-            Log.d(TAG, "HomeScreen: ${userState.data}")
+//            Log.d(TAG, "HomeScreen: ${userState.data}")
             userState.data?.let { user ->
                 homeViewModel.getCourseList(user.courses)
                 homeViewModel.getRequestedCourseList(user.requestedCourses)
                 homeViewModel.getClassDetails(user.courses)
                 homeViewModel.getAllPosts()
-                HomeScreenContent(homeViewModel = homeViewModel, user = user)
+                HomeScreenContent(
+                    homeViewModel = homeViewModel,
+                    navigationViewModel = navigationViewModel,
+                    user = user,
+                    navigateToTab = navigateToTab,
+                    navigateToCourseDetailsDisplay = navigateToCourseDetailsDisplay
+                )
             }
         }
     }

@@ -27,7 +27,6 @@ import com.nasiat_muhib.classmate.components.Logo
 import com.nasiat_muhib.classmate.core.Constants.ROLES
 import com.nasiat_muhib.classmate.domain.event.SignUpUIEvent
 import com.nasiat_muhib.classmate.domain.state.DataState
-import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.navigation.SystemBackButtonHandler
 import com.nasiat_muhib.classmate.strings.ALREADY_A_USER_HARDCODED
@@ -45,23 +44,29 @@ import com.nasiat_muhib.classmate.ui.theme.ZeroSpace
 @Composable
 fun SignUpScreen(
     signUpViewModel: SignUpViewModel = hiltViewModel(),
+    navigateToHomeScreen: () -> Unit,
+    navigateBackToSignInScreen: () -> Unit,
 ) {
     val signUpDataState = signUpViewModel.signUpDataState.collectAsState()
 
     when (signUpDataState.value) {
         is DataState.Error -> {
-            SignUpScreenContent(signUpViewModel = signUpViewModel, error = signUpDataState.value.error)
+            SignUpScreenContent(
+                signUpViewModel = signUpViewModel,
+                navigateToHomeScreen = navigateToHomeScreen,
+                navigateBackToSignInScreen = navigateBackToSignInScreen,
+                error = signUpDataState.value.error
+            )
         }
         DataState.Loading -> {
             LoadingScreen()
         }
         is DataState.Success -> {
-            SignUpScreenContent(signUpViewModel = signUpViewModel)
+            SignUpScreenContent(
+                signUpViewModel = signUpViewModel,
+                navigateToHomeScreen = navigateToHomeScreen,
+                navigateBackToSignInScreen = navigateBackToSignInScreen,
+            )
         }
-    }
-
-
-    SystemBackButtonHandler {
-        ClassMateAppRouter.navigateTo(Screen.SignInScreen)
     }
 }

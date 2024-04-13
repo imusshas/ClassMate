@@ -12,8 +12,6 @@ sealed class CreateCourseUIEvent {
     data object BackButtonClick: CreateCourseUIEvent()
     data object CreateClassButtonClick: CreateCourseUIEvent()
 
-    data object SearchTeacherButtonClick : CreateCourseUIEvent()
-
     data class SearchUIRequestButtonClick(
         val courseTeacherEmail: String
     ): CreateCourseUIEvent()

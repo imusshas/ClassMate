@@ -3,7 +3,6 @@ package com.nasiat_muhib.classmate.presentation.main.create_semester.components
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
@@ -15,7 +14,6 @@ import com.nasiat_muhib.classmate.domain.rules.CreateCourseValidator
 import com.nasiat_muhib.classmate.domain.state.CreateClassUIState
 import com.nasiat_muhib.classmate.domain.state.CreateCourseUIState
 import com.nasiat_muhib.classmate.domain.state.DataState
-import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import com.nasiat_muhib.classmate.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -42,11 +40,11 @@ class CreateCourseViewModel @Inject constructor(
 
     // Create Course UI Validation
     private val _allCreateCourseValidationPassed = MutableStateFlow(false)
-    private val allCreateCourseValidationPassed = _allCreateCourseValidationPassed.asStateFlow()
+    val allCreateCourseValidationPassed = _allCreateCourseValidationPassed.asStateFlow()
 
     // Create Class Dialog Validation
     private val _allCreateClassValidationPassed = MutableStateFlow(false)
-    private val allCreateClassValidationPassed = _allCreateClassValidationPassed.asStateFlow()
+    val allCreateClassValidationPassed = _allCreateClassValidationPassed.asStateFlow()
 
     // Create Class Dialog State
     private val _createClassDialogState = MutableStateFlow(false)
@@ -58,7 +56,7 @@ class CreateCourseViewModel @Inject constructor(
 
     // Create Class Details List Validation
     private val _createClassDetailsListValidationPassed = MutableStateFlow(false)
-    private val createClassDetailsListValidationPassed = _createClassDetailsListValidationPassed.asStateFlow()
+    val createClassDetailsListValidationPassed = _createClassDetailsListValidationPassed.asStateFlow()
 
     // Current User
     private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
@@ -106,18 +104,13 @@ class CreateCourseViewModel @Inject constructor(
 
             // Back Button
             CreateCourseUIEvent.BackButtonClick -> {
+                _createCourseUIState.value = CreateCourseUIState()
                 _createClassDetailsDataList.value.clear()
-                ClassMateAppRouter.navigateTo(Screen.CreateSemesterScreen)
             }
 
             // Create Class
             CreateCourseUIEvent.CreateClassButtonClick -> {
                 createCourse()
-            }
-
-            // Search Teacher
-            is CreateCourseUIEvent.SearchTeacherButtonClick -> {
-                ClassMateAppRouter.navigateTo(Screen.SearchTeacher)
             }
 
             // Select Teacher Teacher
@@ -126,7 +119,6 @@ class CreateCourseViewModel @Inject constructor(
                     _createCourseUIState.value.copy(
                         courseTeacherEmail = event.courseTeacherEmail
                     )
-                ClassMateAppRouter.navigateTo(Screen.CreateCourse)
             }
 
             // Create Course
@@ -136,7 +128,6 @@ class CreateCourseViewModel @Inject constructor(
 
             is CreateCourseUIEvent.ClassDetailsDeleteSwipe -> {
                 _createClassDetailsDataList.value.remove(event.classDetails)
-                Log.d(TAG, "onCreateCourse: ${createClassDetailsDataList.value}")
             }
         }
     }
@@ -176,8 +167,6 @@ class CreateCourseViewModel @Inject constructor(
                 _createClassDetailsDataList.value.clear()
                 _createCourseUIState.value = CreateCourseUIState()
                 _createClassUIState.value = CreateClassUIState()
-
-                ClassMateAppRouter.navigateTo(Screen.CreateSemesterScreen)
             }
         }
 

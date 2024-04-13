@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.components.TitleContainer
 import com.nasiat_muhib.classmate.data.model.User
+import com.nasiat_muhib.classmate.navigation.NavigationViewModel
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
 import com.nasiat_muhib.classmate.presentation.main.enroll_course.EnrollCourseViewModel
@@ -21,22 +22,25 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 @Composable
 fun EnrollCourseScreenContent(
     enrollCourseViewModel: EnrollCourseViewModel,
-    user: User
+    navigationViewModel: NavigationViewModel,
+    user: User,
+    navigateToTab: (TabItem) -> Unit,
+    navigateToCourseDetailsDisplay: () -> Unit,
 ) {
 
     enrollCourseViewModel.getAlreadyEnrolledCourses()
     val alreadyEnrolledCourses by enrollCourseViewModel.alreadyEnrolled.collectAsState()
 
-    Column (
+    Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ClassMateTabRow(tab = TabItem.EnrollCourse)
-        Column (modifier = Modifier.weight(1f)) {
+        ClassMateTabRow(tab = TabItem.EnrollCourse, navigateToTab = navigateToTab)
+        Column(modifier = Modifier.weight(1f)) {
             SearchCourseScreen(user = user)
         }
         Spacer(modifier = Modifier.height(LargeSpace))
-        Column (modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.weight(1f)) {
             TitleContainer(title = "Already Enrolled")
             Spacer(modifier = Modifier.height(SmallSpace))
             CustomSwipeAbleLazyColumn(
@@ -45,7 +49,12 @@ fun EnrollCourseScreenContent(
                     "${it.courseDepartment}:${it.courseCode}"
                 }
             ) {
-                CourseDisplayOnEnrollCourse(course = it, enrollCourseViewModel = enrollCourseViewModel)
+                CourseDisplayOnEnrollCourse(
+                    course = it,
+                    enrollCourseViewModel = enrollCourseViewModel,
+                    navigationViewModel = navigationViewModel,
+                    navigateToCourseDetailsDisplay = navigateToCourseDetailsDisplay
+                )
             }
         }
     }

@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import com.nasiat_muhib.classmate.R
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.event.CreateSemesterUIEvent
+import com.nasiat_muhib.classmate.navigation.NavigationViewModel
 import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.presentation.main.create_semester.CreateSemesterViewModel
 import com.nasiat_muhib.classmate.ui.theme.ExtraSmallHeight
@@ -39,13 +40,16 @@ import me.saket.swipe.SwipeableActionsBox
 @Composable
 fun DisplayCourse(
     course: Course,
-    createSemesterViewModel: CreateSemesterViewModel
+    createSemesterViewModel: CreateSemesterViewModel,
+    navigationViewModel: NavigationViewModel,
+    navigateToCourseDetailsDisplay: () -> Unit
 ) {
     val isVisible = rememberSaveable { mutableStateOf(true) }
 
     val display = SwipeAction(
         onSwipe = {
-            createSemesterViewModel.onCreateSemesterEvent(CreateSemesterUIEvent.DisplayCourseSwipe(course, Screen.CreateSemesterScreen))
+            navigateToCourseDetailsDisplay()
+            navigationViewModel.setCourse(course)
         },
         icon = {
             Icon(

@@ -10,5 +10,4 @@ sealed class EditProfileUIEvent {
     data class PhoneNoChanged(val phoneNo: String): EditProfileUIEvent()
     data object EditButtonClicked: EditProfileUIEvent()
     data object DoneButtonClicked: EditProfileUIEvent()
-    data object GoBackIconClicked: EditProfileUIEvent()
 }

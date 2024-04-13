@@ -2,15 +2,12 @@ package com.nasiat_muhib.classmate.presentation.main.enroll_course
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.EnrollCourseUIEvent
 import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import com.nasiat_muhib.classmate.domain.state.DataState
-import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
-import com.nasiat_muhib.classmate.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,14 +37,6 @@ class EnrollCourseViewModel @Inject constructor(
 
     fun onEnrollCourseEvent(event: EnrollCourseUIEvent) {
         when (event) {
-            is EnrollCourseUIEvent.DisplayCourseSwipe -> {
-                ClassMateAppRouter.navigateTo(
-                    Screen.CourseDetailsDisplay(
-                        event.course,
-                        event.screen
-                    )
-                )
-            }
 
             is EnrollCourseUIEvent.LeaveCourseSwipe -> {
                 leaveCourse(event.courseId)

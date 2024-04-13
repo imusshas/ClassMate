@@ -4,5 +4,5 @@ sealed class ForgotPasswordUIEvent {
 
     data class EmailChanged(val email: String): ForgotPasswordUIEvent()
 
-    data object ForgotPasswordButtonClick: ForgotPasswordUIEvent()
+    data object ResetPasswordButtonClick: ForgotPasswordUIEvent()
 }

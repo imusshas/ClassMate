@@ -39,4 +39,8 @@ object Constants {
     )
 
     val EVENTS = listOf("Term Test", "Assignment")
+
+    const val REQUEST_NOTIFICATION_PERMISSION = 99
+
+    const val NOTIFICATION_URI = "https://classmate.notification.com"
 }

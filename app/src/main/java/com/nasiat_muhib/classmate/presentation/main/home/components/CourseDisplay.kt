@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.event.HomeUIEvent
+import com.nasiat_muhib.classmate.navigation.NavigationViewModel
 import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.presentation.main.home.HomeViewModel
 import com.nasiat_muhib.classmate.ui.theme.ExtraSmallHeight
@@ -39,7 +40,9 @@ import me.saket.swipe.SwipeableActionsBox
 fun CourseDisplay(
     course: Course,
     homeViewModel: HomeViewModel,
+    navigationViewModel: NavigationViewModel,
     isRequested: Boolean,
+    navigateToCourseDetailsDisplay: () -> Unit
 ) {
     val isVisible = rememberSaveable { mutableStateOf(true) }
 
@@ -77,8 +80,8 @@ fun CourseDisplay(
 
     val display = SwipeAction(
         onSwipe = {
-            homeViewModel.onHomeEvent(HomeUIEvent.DisplayCourse(course, Screen.HomeScreen))
-            isVisible.value = false
+            navigateToCourseDetailsDisplay()
+            navigationViewModel.setCourse(course)
         },
         icon = {
             Icon(

@@ -18,23 +18,28 @@ import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
 
 @Composable
-fun MenuScreen(menuViewModel: MenuViewModel = hiltViewModel()) {
-    Column (
+fun MenuScreen(
+    menuViewModel: MenuViewModel = hiltViewModel(),
+    navigateToTab: (TabItem) -> Unit,
+    navigateToMenu: (MenuItem) -> Unit,
+) {
+    Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ClassMateTabRow(tab = TabItem.Menu)
+        ClassMateTabRow(tab = TabItem.Menu, navigateToTab = navigateToTab)
         Spacer(modifier = Modifier.height(NormalHeight))
         MenuItem(menuItem = MenuItem.Profile, onClick = {
-            menuViewModel.onMenuEvent(MenuUIEvent.ProfileButtonClicked)
+            navigateToMenu(MenuItem.Profile)
         })
         Spacer(modifier = Modifier.height(MediumSpace))
         MenuItem(menuItem = MenuItem.Routine, onClick = {
-            menuViewModel.onMenuEvent(MenuUIEvent.RoutineButtonClicked)
+            navigateToMenu(MenuItem.Routine)
         })
         Spacer(modifier = Modifier.height(MediumSpace))
         SignOutItem(menuItem = MenuItem.SignOut, onClick = {
-            menuViewModel.onMenuEvent(MenuUIEvent.SignOutButtonClicked)
+            menuViewModel.onEvent(MenuUIEvent.SignOutButtonClicked)
+            navigateToMenu(MenuItem.SignOut)
         })
     }
 }

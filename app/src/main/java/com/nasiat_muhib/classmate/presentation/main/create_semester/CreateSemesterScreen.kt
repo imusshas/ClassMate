@@ -10,12 +10,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nasiat_muhib.classmate.components.ErrorScreen
 import com.nasiat_muhib.classmate.components.LoadingScreen
 import com.nasiat_muhib.classmate.domain.state.DataState
+import com.nasiat_muhib.classmate.navigation.NavigationViewModel
+import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.create_semester.components.CreateSemesterContent
 
 
 @Composable
 fun CreateSemesterScreen(
-    createSemesterViewModel: CreateSemesterViewModel = hiltViewModel()
+    createSemesterViewModel: CreateSemesterViewModel = hiltViewModel(),
+    navigationViewModel: NavigationViewModel,
+    navigateToTab: (TabItem) -> Unit,
+    navigateToCreateCourse: () -> Unit,
+    navigateToCourseDetailsDisplay: () -> Unit
 ) {
     createSemesterViewModel.getUser()
     val userState by createSemesterViewModel.userState.collectAsState()
@@ -31,7 +37,11 @@ fun CreateSemesterScreen(
                 createSemesterViewModel.getPendingCourses(it.courses, it.email)
                 CreateSemesterContent(
                     createSemesterViewModel = createSemesterViewModel,
-                    user = it
+                    navigationViewModel = navigationViewModel,
+                    user = it,
+                    navigateToTab = navigateToTab,
+                    navigateToCreateCourse = navigateToCreateCourse,
+                    navigateToCourseDetailsDisplay = navigateToCourseDetailsDisplay
                 )
             }
         }
@@ -42,5 +52,5 @@ fun CreateSemesterScreen(
 @Composable
 @Preview(showSystemUi = true, showBackground = true)
 fun CreateSemesterScreenPreview() {
-    CreateSemesterScreen()
+//    CreateSemesterScreen()
 }

@@ -7,9 +7,6 @@ import com.nasiat_muhib.classmate.domain.repository.AuthenticationRepository
 import com.nasiat_muhib.classmate.domain.rules.AuthValidator
 import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.domain.state.ForgotPasswordUIState
-import com.nasiat_muhib.classmate.domain.state.SignInUIState
-import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
-import com.nasiat_muhib.classmate.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +35,7 @@ class ForgotPasswordViewModel @Inject constructor(
             is ForgotPasswordUIEvent.EmailChanged -> {
                 _forgotPasswordUIState.value = _forgotPasswordUIState.value.copy(email = event.email)
             }
-            ForgotPasswordUIEvent.ForgotPasswordButtonClick -> {
+            ForgotPasswordUIEvent.ResetPasswordButtonClick -> {
                 resetPassword()
             }
         }
@@ -50,21 +47,15 @@ class ForgotPasswordViewModel @Inject constructor(
             authRepo.resetPassword(forgotPasswordUIState.value.email).collectLatest {
                 _forgotPasswordDataState.value = it
             }
-
-            if (forgotPasswordDataState.value == DataState.Success(true)) {
-                ClassMateAppRouter.navigateTo(Screen.SignInScreen)
-            }
         }
     }
 
     private fun validateSignInUIDataWithRules() {
         val emailResult = AuthValidator.validateEmail(forgotPasswordUIState.value.email)
 
-
         _forgotPasswordUIState.value = _forgotPasswordUIState.value.copy(
             emailError = emailResult.message,
         )
-
 
         _allValidationPassed.value = emailResult.message == null
     }

@@ -6,14 +6,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.repository.AuthenticationRepository
 import com.nasiat_muhib.classmate.domain.state.DataState
-import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
-import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.strings.USERS_COLLECTION
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
-import okhttp3.internal.wait
 import java.lang.Exception
 import javax.inject.Inject
 
@@ -50,7 +47,6 @@ class AuthenticationRepositoryImpl @Inject constructor(
         try {
             auth.signOut()
             Log.d(TAG, "signOut: ${auth.currentUser}")
-            ClassMateAppRouter.navigateTo(Screen.SignInScreen)
             emit(DataState.Success(true))
         } catch (e: Exception) {
             emit(DataState.Error(e.message.toString()))
@@ -111,21 +107,16 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     private suspend fun createUserToFirebase(email: String, user: User): Boolean {
 
-        Log.d(TAG, "createUserToFirebase: $user")
         var isSuccessful = false
         firestoreRef.collection(USERS_COLLECTION).document(email)
             .set(user.toMap())
             .addOnCompleteListener {
                 if (it.isSuccessful) {
                     isSuccessful = true
-//                    Log.d(TAG, "createUserToFirebase: isSuccessful inside: $isSuccessful")
                 }
-//                Log.d(TAG, "createUserToFirebase: ${it.isSuccessful}")
             }.addOnFailureListener {
                 Log.d(TAG, "createUserToFirebase: ${it.localizedMessage}")
             }.await()
-
-        Log.d(TAG, "createUserToFirebase: isSuccessful outside: $isSuccessful, email: $email")
 
         return isSuccessful
     }
@@ -140,25 +131,6 @@ class AuthenticationRepositoryImpl @Inject constructor(
             }.addOnFailureListener {
                 Log.d(TAG, "sendResetPasswordLinkFromFirebase: ${it.localizedMessage}")
             }.await()
-
-        return isSuccessful
-    }
-
-    private fun signOutFromFirebase(): Boolean {
-
-        var isSuccessful = false
-
-        auth.signOut()
-        ClassMateAppRouter.navigateTo(Screen.SignInScreen)
-
-//        val authStateListener = FirebaseAuth.AuthStateListener {
-//            if (it.currentUser == null) {
-//                ClassMateAppRouter.navigateTo(Screen.SignInScreen)
-//                isSuccessful = true
-//            }
-//        }
-//
-//        auth.addAuthStateListener(authStateListener)
 
         return isSuccessful
     }

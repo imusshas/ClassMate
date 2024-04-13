@@ -9,19 +9,28 @@ import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.presentation.main.menu.profile.components.ProfileContent
 
 @Composable
-fun ProfileScreen(profileViewModel: ProfileViewModel = hiltViewModel()) {
+fun ProfileScreen(
+    profileViewModel: ProfileViewModel = hiltViewModel(),
+    navigateBackToMenu: () -> Unit
+) {
 
     profileViewModel.getUser()
     val userState by profileViewModel.userState.collectAsState()
 
     when (userState) {
-        is DataState.Error -> TODO()
+        is DataState.Error -> {
+            TODO()
+        }
         DataState.Loading -> {
             LoadingScreen()
         }
         is DataState.Success -> {
             userState.data?.let {
-                ProfileContent(profileViewModel = profileViewModel, user = it)
+                ProfileContent(
+                    profileViewModel = profileViewModel,
+                    user = it,
+                    navigateBackToMenu = navigateBackToMenu
+                )
             }
         }
     }

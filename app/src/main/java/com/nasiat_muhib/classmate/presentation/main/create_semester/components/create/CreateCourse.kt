@@ -20,8 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nasiat_muhib.classmate.components.CustomDropDownMenu
 import com.nasiat_muhib.classmate.components.CustomElevatedButton
 import com.nasiat_muhib.classmate.components.CustomOutlinedField
@@ -45,7 +43,9 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
 @Composable
 fun CreateCourse(
-    createCourseViewModel: CreateCourseViewModel = hiltViewModel(),
+    createCourseViewModel: CreateCourseViewModel,
+    navigateToSearchTeacher: () -> Unit,
+    navigateBackToCreateSemester: () -> Unit
 ) {
 
     createCourseViewModel.getUser()
@@ -60,7 +60,10 @@ fun CreateCourse(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        CreateCourseTopBar(createCourseViewModel)
+        CreateCourseTopBar(
+            createCourseViewModel,
+            navigateBackToCreateSemester
+        )
 
         CustomOutlinedField(
             value = createCourseUIState.courseCode,
@@ -131,9 +134,7 @@ fun CreateCourse(
         // Search Teacher Button
         CustomElevatedButton(
             text = if (createCourseUIState.courseTeacherEmailError == null) SEARCH_COURSE_TEACHER_BUTTON else createCourseUIState.courseTeacherEmailError!!,
-            onClick = {
-                createCourseViewModel.onCreateCourse(CreateCourseUIEvent.SearchTeacherButtonClick)
-            },
+            onClick = navigateToSearchTeacher,
             contentColor = if (createCourseUIState.courseTeacherEmailError == null) ButtonDefaults.elevatedButtonColors().contentColor else MaterialTheme.colorScheme.error,
         )
 
@@ -178,5 +179,5 @@ fun CreateCourse(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun CreateCoursePreview() {
-    CreateCourse()
+//    CreateCourse()
 }

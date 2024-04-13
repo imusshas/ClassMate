@@ -1,6 +1,5 @@
 package com.nasiat_muhib.classmate.core
 
-import android.util.Log
 import com.google.firebase.firestore.DocumentSnapshot
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
@@ -62,7 +61,6 @@ import com.nasiat_muhib.classmate.strings.START_HOUR
 import com.nasiat_muhib.classmate.strings.START_MINUTE
 import com.nasiat_muhib.classmate.strings.START_SHIFT
 import com.nasiat_muhib.classmate.strings.WEEKDAY
-import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Locale
 

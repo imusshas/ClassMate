@@ -28,7 +28,13 @@ import com.nasiat_muhib.classmate.strings.SIGN_IN_BUTTON
 import com.nasiat_muhib.classmate.strings.SIGN_UP_BUTTON
 
 @Composable
-fun SignInScreenContent(signInViewModel: SignInViewModel, error: String? = null) {
+fun SignInScreenContent(
+    signInViewModel: SignInViewModel,
+    navigateToHomeScreen: () -> Unit,
+    navigateToForgotPasswordScreen: () -> Unit,
+    navigateToSignUpScreen: () -> Unit,
+    error: String? = null
+) {
 
     val signInUIState = signInViewModel.signInUIState.collectAsState()
 
@@ -61,11 +67,9 @@ fun SignInScreenContent(signInViewModel: SignInViewModel, error: String? = null)
                 signInViewModel.onEvent(SignInUIEvent.PasswordChanged(password))
             }, errorMessage = if (error == null) signInUIState.value.passwordError else "Invalid Email or Password")
 
-            CustomElevatedButton(text = SIGN_IN_BUTTON, onClick = {
-                signInViewModel.onEvent(SignInUIEvent.SignInButtonClicked)
-            })
+            CustomElevatedButton(text = SIGN_IN_BUTTON, onClick = navigateToHomeScreen)
             CustomClickableText(text = FORGOT_PASSWORD_BUTTON, onClick = {
-                signInViewModel.onEvent(SignInUIEvent.ForgotPasswordButtonClicked)
+                navigateToForgotPasswordScreen()
             })
         }
 
@@ -78,9 +82,7 @@ fun SignInScreenContent(signInViewModel: SignInViewModel, error: String? = null)
             Text(text = NEW_IN_CLASSMATE_HARDCODED)
             CustomElevatedButton(
                 text = SIGN_UP_BUTTON,
-                onClick = {
-                    signInViewModel.onEvent(SignInUIEvent.SignUpButtonClicked)
-                }
+                onClick = navigateToSignUpScreen
             )
         }
     }

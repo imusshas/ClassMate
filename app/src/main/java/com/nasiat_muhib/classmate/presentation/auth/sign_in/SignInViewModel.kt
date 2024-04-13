@@ -9,7 +9,6 @@ import com.nasiat_muhib.classmate.domain.repository.AuthenticationRepository
 import com.nasiat_muhib.classmate.domain.rules.AuthValidator
 import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.domain.state.SignInUIState
-import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import com.nasiat_muhib.classmate.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -48,14 +47,6 @@ class SignInViewModel @Inject constructor(
             SignInUIEvent.SignInButtonClicked -> {
                 signIn()
             }
-
-            SignInUIEvent.ForgotPasswordButtonClicked -> {
-                ClassMateAppRouter.navigateTo(Screen.ForgotPasswordScreen)
-            }
-
-            SignInUIEvent.SignUpButtonClicked -> {
-                ClassMateAppRouter.navigateTo(Screen.SignUpScreen)
-            }
         }
     }
 
@@ -67,9 +58,6 @@ class SignInViewModel @Inject constructor(
         if (allValidationPassed.value) {
             authRepo.signIn(signInUIState.value.email, signInUIState.value.password).collectLatest {
                 _signInDataState.value = it
-            }
-            if (signInDataState.value == DataState.Success(true)) {
-                ClassMateAppRouter.navigateTo(Screen.HomeScreen)
             }
         }
 

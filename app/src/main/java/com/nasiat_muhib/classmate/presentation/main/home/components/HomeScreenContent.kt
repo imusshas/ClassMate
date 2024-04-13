@@ -19,6 +19,7 @@ import com.nasiat_muhib.classmate.components.CustomElevatedButton
 import com.nasiat_muhib.classmate.components.TwoTitleContainer
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.HomeUIEvent
+import com.nasiat_muhib.classmate.navigation.NavigationViewModel
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
 import com.nasiat_muhib.classmate.presentation.main.home.HomeViewModel
@@ -30,7 +31,10 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 @Composable
 fun HomeScreenContent(
     homeViewModel: HomeViewModel,
+    navigationViewModel: NavigationViewModel,
     user: User,
+    navigateToTab: (TabItem) -> Unit,
+    navigateToCourseDetailsDisplay: () -> Unit
 ) {
     homeViewModel.getTodayAndTomorrowClassesClasses()
     val todayClasses by homeViewModel.todayClasses.collectAsState()
@@ -52,7 +56,7 @@ fun HomeScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        ClassMateTabRow(tab = TabItem.Home)
+        ClassMateTabRow( tab = TabItem.Home, navigateToTab = navigateToTab )
         Spacer(modifier = Modifier.height(SmallSpace))
         Column(
             modifier = Modifier
@@ -99,7 +103,9 @@ fun HomeScreenContent(
                 CourseDisplay(
                     course = it,
                     homeViewModel = homeViewModel,
-                    isRequested = requestedCourses.contains(it)
+                    navigationViewModel = navigationViewModel,
+                    isRequested = requestedCourses.contains(it),
+                    navigateToCourseDetailsDisplay = navigateToCourseDetailsDisplay
                 )
             }
 

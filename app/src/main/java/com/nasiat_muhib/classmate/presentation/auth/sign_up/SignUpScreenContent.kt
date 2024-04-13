@@ -10,11 +10,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import com.nasiat_muhib.classmate.components.CustomDropDownMenu
 import com.nasiat_muhib.classmate.components.CustomElevatedButton
 import com.nasiat_muhib.classmate.components.CustomOutlinedField
@@ -22,8 +22,7 @@ import com.nasiat_muhib.classmate.components.CustomPasswordField
 import com.nasiat_muhib.classmate.components.Logo
 import com.nasiat_muhib.classmate.core.Constants
 import com.nasiat_muhib.classmate.domain.event.SignUpUIEvent
-import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
-import com.nasiat_muhib.classmate.navigation.Screen
+import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.strings.ALREADY_A_USER_HARDCODED
 import com.nasiat_muhib.classmate.strings.COURSE_DEPARTMENT_LABEL
 import com.nasiat_muhib.classmate.strings.EMAIL_LABEL
@@ -35,15 +34,17 @@ import com.nasiat_muhib.classmate.strings.SIGN_IN_BUTTON
 import com.nasiat_muhib.classmate.strings.SIGN_UP_BUTTON
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
-import com.nasiat_muhib.classmate.ui.theme.ZeroSpace
 
 @Composable
 fun SignUpScreenContent(
     signUpViewModel: SignUpViewModel,
+    navigateToHomeScreen: () -> Unit,
+    navigateBackToSignInScreen: () -> Unit,
     error: String? = null,
 ) {
 
     val signUpUIState = signUpViewModel.signUpUIState.collectAsState()
+    val signUpDataState by signUpViewModel.signUpDataState.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -70,8 +71,7 @@ fun SignUpScreenContent(
                     },
                     errorMessage = signUpUIState.value.firstNameError,
                     modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .padding(end = ZeroSpace , start = ZeroSpace)
+                        .weight(1f)
                 )
                 CustomOutlinedField(
                     labelValue = LAST_NAME_LABEL,
@@ -80,8 +80,7 @@ fun SignUpScreenContent(
                     },
                     errorMessage = signUpUIState.value.lastNameError,
                     modifier = Modifier
-//                        .weight(1f)
-                        .padding(start = ZeroSpace)
+                        .weight(1f)
                 )
             }
 
@@ -123,7 +122,9 @@ fun SignUpScreenContent(
             }, errorMessage = signUpUIState.value.passwordError)
 
             CustomElevatedButton(text = SIGN_UP_BUTTON, onClick = {
-                signUpViewModel.onEvent(SignUpUIEvent.SignUpButtonClicked)
+                if (signUpDataState == DataState.Success(true)) {
+                    navigateToHomeScreen()
+                }
             })
         }
 
@@ -134,10 +135,7 @@ fun SignUpScreenContent(
             verticalArrangement = Arrangement.spacedBy(SmallSpace)
         ) {
             Text(text = ALREADY_A_USER_HARDCODED)
-            CustomElevatedButton(text = SIGN_IN_BUTTON, onClick = {
-                ClassMateAppRouter.navigateTo(Screen.SignInScreen)
-            })
-
+            CustomElevatedButton(text = SIGN_IN_BUTTON, onClick = navigateBackToSignInScreen)
         }
     }
 }

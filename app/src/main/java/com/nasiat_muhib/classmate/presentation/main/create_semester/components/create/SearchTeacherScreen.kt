@@ -30,7 +30,8 @@ import com.nasiat_muhib.classmate.ui.theme.TitleStyle
 @Composable
 fun SearchTeacherScreen(
     searchTeacherViewModel: SearchTeacherViewModel = hiltViewModel(),
-    createCourseViewModel: CreateCourseViewModel = hiltViewModel(),
+    createCourseViewModel: CreateCourseViewModel,
+    navigateToCreateCourse: () -> Unit
 ) {
     val searchText = searchTeacherViewModel.searchText.collectAsState()
     val users = searchTeacherViewModel.users.collectAsState()
@@ -80,6 +81,7 @@ fun SearchTeacherScreen(
                                 createCourseViewModel.onCreateCourse(
                                     CreateCourseUIEvent.SearchUIRequestButtonClick(courseTeacherEmail = it.email)
                                 )
+                                navigateToCreateCourse()
                             },
                             shape = MediumRounded
                         ) {

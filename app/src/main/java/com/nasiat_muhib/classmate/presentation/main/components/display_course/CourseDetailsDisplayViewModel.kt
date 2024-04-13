@@ -3,7 +3,6 @@ package com.nasiat_muhib.classmate.presentation.main.components.display_course
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.core.Constants.EVENTS
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
@@ -25,7 +24,6 @@ import com.nasiat_muhib.classmate.domain.state.CreateClassUIState
 import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.domain.state.EventUIState
 import com.nasiat_muhib.classmate.domain.state.ResourceUIState
-import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -152,10 +150,6 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     fun onDisplayEvent(event: CourseDetailsDisplayUIEvent) {
 
         when (event) {
-            is CourseDetailsDisplayUIEvent.CourseDetailsDisplayTopBarBackButtonClicked -> {
-                ClassMateAppRouter.navigateTo(event.screen)
-            }
-
             CourseDetailsDisplayUIEvent.ClassTitleClicked -> {
                 currentUser.value.data?.let {
                     if (it.email == currentCourse.value.courseCreator || it.email == currentCourse.value.courseTeacher) {

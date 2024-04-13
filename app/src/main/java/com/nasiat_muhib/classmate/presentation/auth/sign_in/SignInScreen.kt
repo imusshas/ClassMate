@@ -9,19 +9,33 @@ import com.nasiat_muhib.classmate.presentation.auth.sign_in.components.SignInScr
 
 @Composable
 fun SignInScreen(
-    signInViewModel: SignInViewModel = hiltViewModel()
+    signInViewModel: SignInViewModel = hiltViewModel(),
+    navigateToHomeScreen: () -> Unit,
+    navigateToForgotPasswordScreen: () -> Unit,
+    navigateToSignUpScreen: () -> Unit,
 ) {
     val signInDataState = signInViewModel.signInDataState.collectAsState()
 
     when(signInDataState.value) {
         is DataState.Error ->  {
-            SignInScreenContent(signInViewModel = signInViewModel, error = signInDataState.value.error)
+            SignInScreenContent(
+                signInViewModel = signInViewModel,
+                navigateToHomeScreen = navigateToHomeScreen,
+                navigateToForgotPasswordScreen = navigateToForgotPasswordScreen,
+                navigateToSignUpScreen = navigateToSignUpScreen,
+                error = signInDataState.value.error
+            )
         }
         DataState.Loading ->  {
             LoadingScreen()
         }
         is DataState.Success ->  {
-            SignInScreenContent(signInViewModel = signInViewModel)
+            SignInScreenContent(
+                signInViewModel = signInViewModel,
+                navigateToHomeScreen = navigateToHomeScreen,
+                navigateToForgotPasswordScreen = navigateToForgotPasswordScreen,
+                navigateToSignUpScreen = navigateToSignUpScreen
+            )
         }
     }
 }

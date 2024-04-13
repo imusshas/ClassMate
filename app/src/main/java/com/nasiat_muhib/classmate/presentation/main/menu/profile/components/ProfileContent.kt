@@ -26,7 +26,11 @@ import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
 @Composable
-fun ProfileContent(profileViewModel: ProfileViewModel, user: User) {
+fun ProfileContent(
+    profileViewModel: ProfileViewModel,
+    user: User,
+    navigateBackToMenu: () -> Unit
+) {
 
     val editUserState by profileViewModel.editUserState.collectAsState()
     val editState by profileViewModel.editProfileButtonState.collectAsState()
@@ -37,7 +41,7 @@ fun ProfileContent(profileViewModel: ProfileViewModel, user: User) {
         verticalArrangement = Arrangement.spacedBy(SmallSpace)
     ) {
         ProfileContentTopBar(
-            onBackIconClick = { profileViewModel.onEditProfileEvent(EditProfileUIEvent.GoBackIconClicked) }
+            onBackIconClick = navigateBackToMenu
         )
         Spacer(modifier = Modifier.height(MediumSpace))
         // FirstName

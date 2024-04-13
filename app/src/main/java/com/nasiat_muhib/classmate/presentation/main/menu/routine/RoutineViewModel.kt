@@ -1,36 +1,20 @@
 package com.nasiat_muhib.classmate.presentation.main.menu.routine
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nasiat_muhib.classmate.core.Constants.WEEK_DAYS
 import com.nasiat_muhib.classmate.data.model.ClassDetails
-import com.nasiat_muhib.classmate.data.model.Course
-import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.RoutineUIEvent
-import com.nasiat_muhib.classmate.domain.event.SearchCourseUIEvent
-import com.nasiat_muhib.classmate.domain.event.SearchUIEvent
-import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.repository.SearchRepository
-import com.nasiat_muhib.classmate.domain.repository.UserRepository
-import com.nasiat_muhib.classmate.domain.state.DataState
-import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
-import com.nasiat_muhib.classmate.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.log
 
 @HiltViewModel
 class RoutineViewModel @Inject constructor(
@@ -84,9 +68,6 @@ class RoutineViewModel @Inject constructor(
 
     fun onRoutineEvent(event: RoutineUIEvent) {
         when (event) {
-            RoutineUIEvent.RoutineBackButtonClicked -> {
-                ClassMateAppRouter.navigateTo(Screen.MenuScreen)
-            }
             is RoutineUIEvent.SearchTextChanged -> {
                 _searchText.value = event.text
             }

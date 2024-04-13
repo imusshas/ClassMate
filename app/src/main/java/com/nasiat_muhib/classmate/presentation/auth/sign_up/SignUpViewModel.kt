@@ -9,7 +9,6 @@ import com.nasiat_muhib.classmate.domain.repository.AuthenticationRepository
 import com.nasiat_muhib.classmate.domain.rules.AuthValidator
 import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.domain.state.SignUpUIState
-import com.nasiat_muhib.classmate.navigation.ClassMateAppRouter
 import com.nasiat_muhib.classmate.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -80,10 +79,6 @@ class SignUpViewModel @Inject constructor(
             authRepo.signUp(signUpUIState.value.email, signUpUIState.value.password, user).collectLatest {
                 Log.d(TAG, "signUp: $user")
                 _signUpDataState.value = it
-            }
-
-            if (signUpDataState.value == DataState.Success(true)) {
-                ClassMateAppRouter.navigateTo(Screen.HomeScreen)
             }
         }
     }

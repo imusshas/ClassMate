@@ -38,6 +38,7 @@ import com.nasiat_muhib.classmate.ui.theme.SomeStyle
 @Composable
 fun RoutineScreen(
     routineViewModel: RoutineViewModel = hiltViewModel(),
+    navigateBackToMenu: () -> Unit
 ) {
 
     val searchText = routineViewModel.searchText.collectAsState()
@@ -46,9 +47,7 @@ fun RoutineScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        RoutineTopBar(onBackIconClick = {
-            routineViewModel.onRoutineEvent(RoutineUIEvent.RoutineBackButtonClicked)
-        })
+        RoutineTopBar(onBackIconClick = navigateBackToMenu)
         Spacer(modifier = Modifier.height(MediumSpace))
         CustomDropDownMenu(
             itemList = WEEK_DAYS,

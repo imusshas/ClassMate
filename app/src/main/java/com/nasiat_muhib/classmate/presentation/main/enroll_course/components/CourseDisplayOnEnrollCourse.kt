@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.event.EnrollCourseUIEvent
 import com.nasiat_muhib.classmate.domain.event.HomeUIEvent
+import com.nasiat_muhib.classmate.navigation.NavigationViewModel
 import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.presentation.main.enroll_course.EnrollCourseViewModel
 import com.nasiat_muhib.classmate.presentation.main.home.HomeViewModel
@@ -41,6 +42,8 @@ import me.saket.swipe.SwipeableActionsBox
 fun CourseDisplayOnEnrollCourse(
     course: Course,
     enrollCourseViewModel: EnrollCourseViewModel,
+    navigationViewModel: NavigationViewModel,
+    navigateToCourseDetailsDisplay: () -> Unit
 ) {
     val isVisible = rememberSaveable { mutableStateOf(true) }
     val leave = SwipeAction(
@@ -62,8 +65,8 @@ fun CourseDisplayOnEnrollCourse(
 
     val display = SwipeAction(
         onSwipe = {
-            enrollCourseViewModel.onEnrollCourseEvent(EnrollCourseUIEvent.DisplayCourseSwipe(course, Screen.EnrollCourseScreen))
-            isVisible.value = false
+            navigateToCourseDetailsDisplay()
+            navigationViewModel.setCourse(course)
         },
         icon = {
             Icon(

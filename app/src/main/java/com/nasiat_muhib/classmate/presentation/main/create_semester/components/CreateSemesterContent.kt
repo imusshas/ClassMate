@@ -23,6 +23,7 @@ import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.components.TwoTitleContainer
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.CreateSemesterUIEvent
+import com.nasiat_muhib.classmate.navigation.NavigationViewModel
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
 import com.nasiat_muhib.classmate.presentation.main.create_semester.CreateSemesterViewModel
@@ -36,7 +37,11 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 @Composable
 fun CreateSemesterContent(
     createSemesterViewModel: CreateSemesterViewModel,
-    user: User
+    navigationViewModel: NavigationViewModel,
+    user: User,
+    navigateToTab: (TabItem) -> Unit,
+    navigateToCreateCourse: () -> Unit,
+    navigateToCourseDetailsDisplay: () -> Unit
 ) {
 
     createSemesterViewModel.getCreatedCourses(user.courses, user.email)
@@ -48,12 +53,15 @@ fun CreateSemesterContent(
     val createdOrPending = rememberSaveable { mutableStateOf(true) }
 
     Scaffold(
-        topBar = { ClassMateTabRow(tab = TabItem.CreateSemester) },
+        topBar = { ClassMateTabRow(
+            tab = TabItem.CreateSemester,
+            navigateToTab =navigateToTab
+        ) },
         floatingActionButton = {
             if (user.role == CLASS_REPRESENTATIVE) {
                 FloatingActionButton(
                     onClick = {
-                        createSemesterViewModel.onCreateSemesterEvent(CreateSemesterUIEvent.CreateSemesterFABClick)
+                        navigateToCreateCourse()
                     },
                     containerColor = MaterialTheme.colorScheme.background
                 ) {
@@ -95,7 +103,12 @@ fun CreateSemesterContent(
                 },
                 modifier = Modifier.fillMaxHeight()
             ) {
-                DisplayCourse(course = it, createSemesterViewModel = createSemesterViewModel)
+                DisplayCourse(
+                    course = it,
+                    createSemesterViewModel = createSemesterViewModel,
+                    navigationViewModel = navigationViewModel,
+                    navigateToCourseDetailsDisplay = navigateToCourseDetailsDisplay
+                )
             }
 
         }
