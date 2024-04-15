@@ -116,7 +116,7 @@ class NotificationRepositoryImpl @Inject constructor(
             val currentUser = usersCollection.document(user).get().await()
             currentUser?.data?.let {
                 val fcmToken = it[FCMToken].toString()
-                if (fcmToken != token) {
+//                if (fcmToken != token) {
                     client.newCall(request).enqueue(object : Callback {
                         override fun onFailure(call: Call, e: IOException) {
 //                println("FCM Notification sending failed: ${e.message}")
@@ -137,7 +137,7 @@ class NotificationRepositoryImpl @Inject constructor(
                         courseCode = courseCode,
                         courseTitle = courseTitle
                     )
-                }
+//                }
             }
         }
     }

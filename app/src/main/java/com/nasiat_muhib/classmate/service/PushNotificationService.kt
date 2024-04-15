@@ -1,45 +1,95 @@
 package com.nasiat_muhib.classmate.service
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.TaskStackBuilder
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.nasiat_muhib.classmate.MainActivity
+import com.nasiat_muhib.classmate.R
+import com.nasiat_muhib.classmate.core.Constants
 import com.nasiat_muhib.classmate.strings.FCMToken
+import com.nasiat_muhib.classmate.strings.NOTIFICATION_BODY
+import com.nasiat_muhib.classmate.strings.NOTIFICATION_TITLE
 import com.nasiat_muhib.classmate.strings.USERS_COLLECTION
 import javax.inject.Inject
 
 class PushNotificationService : FirebaseMessagingService() {
 
+    private val auth = Firebase.auth
+    private val firestoreRef = Firebase.firestore
+
+
     override fun onNewToken(token: String) {
         Log.d(TAG, "Refreshed token: $token")
-
-        // If you want to send messages to this application instance or
-        // manage this apps subscriptions on the server side, send the
-        // FCM registration token to your app server.
         sendRegistrationToServer(token)
     }
 
     private fun sendRegistrationToServer(token: String) {
-//        if (auth.currentUser?.email != null) {
-//            firestore.collection(USERS_COLLECTION).document(auth.currentUser?.email!!)
-//                .update(FCMToken, token)
-//        }
+        val email = auth.currentUser?.email
+        if (email != null) {
+            firestoreRef.collection(USERS_COLLECTION).document(email)
+                .update(FCMToken, token)
+        }
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // Check if message contains a data payload.
         if (remoteMessage.data.isNotEmpty()) {
             Log.d(TAG, "Message data payload: ${remoteMessage.data}")
+           val notify = MyNotification(
+               applicationContext,
+               remoteMessage.data[NOTIFICATION_TITLE].toString(),
+               remoteMessage.data[NOTIFICATION_BODY].toString()
+           )
+
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestNotificationPermission()
+
+                return
+            }
+            notify.fireNotification()
         }
 
-        // Check if message contains a notification payload.
         remoteMessage.notification?.let {
             Log.d(TAG, "Message Notification Body: ${it.body}")
         }
+    }
 
-        // Also if you intend on generating your own notifications as a result of a received FCM
-        // message, here is where that should be initiated. See sendNotification method below.
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val isGranted = ContextCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!isGranted) {
+                ActivityCompat.requestPermissions(
+                    MainActivity(),
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    Constants.REQUEST_NOTIFICATION_PERMISSION
+                )
+            }
+        }
     }
 
     companion object {

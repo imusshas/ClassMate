@@ -17,8 +17,8 @@ class MyNotification (
     private val title: String,
     private val message: String
 ) {
-    private val channelId = "FCM100"
-    private val channelName = "FCCMMessage"
+    private val channelId = "ClassMate100"
+    private val channelName = "ClassMate Notifications"
 
     fun fireNotification() {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -44,6 +44,7 @@ class MyNotification (
             .setSmallIcon(R.drawable.logo)
             .setContentTitle(title)
             .setContentText(message)
+            .setAutoCancel(true)
             .setContentIntent(pendingIntent)
 
 

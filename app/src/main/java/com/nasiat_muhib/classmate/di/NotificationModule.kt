@@ -39,8 +39,6 @@ class NotificationModule {
         }
 
         return NotificationCompat.Builder(context, "ClassMate Channel Id")
-            .setContentTitle("Welcome")
-            .setContentText("Hello From ClassMate Notification")
             .setSmallIcon(R.drawable.notification)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
