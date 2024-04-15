@@ -19,6 +19,7 @@ import com.nasiat_muhib.classmate.components.CustomOutlinedField
 import com.nasiat_muhib.classmate.components.CustomPasswordField
 import com.nasiat_muhib.classmate.components.Logo
 import com.nasiat_muhib.classmate.domain.event.SignInUIEvent
+import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.presentation.auth.sign_in.SignInViewModel
 import com.nasiat_muhib.classmate.strings.EMAIL_LABEL
 import com.nasiat_muhib.classmate.strings.FORGOT_PASSWORD_BUTTON
@@ -37,6 +38,7 @@ fun SignInScreenContent(
 ) {
 
     val signInUIState = signInViewModel.signInUIState.collectAsState()
+    val signInDataState = signInViewModel.signInDataState.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -67,7 +69,12 @@ fun SignInScreenContent(
                 signInViewModel.onEvent(SignInUIEvent.PasswordChanged(password))
             }, errorMessage = if (error == null) signInUIState.value.passwordError else "Invalid Email or Password")
 
-            CustomElevatedButton(text = SIGN_IN_BUTTON, onClick = navigateToHomeScreen)
+            CustomElevatedButton(text = SIGN_IN_BUTTON, onClick = {
+                signInViewModel.onEvent(SignInUIEvent.SignInButtonClicked)
+                if (signInDataState.value == DataState.Success(true)) {
+                    navigateToHomeScreen()
+                }
+            })
             CustomClickableText(text = FORGOT_PASSWORD_BUTTON, onClick = {
                 navigateToForgotPasswordScreen()
             })

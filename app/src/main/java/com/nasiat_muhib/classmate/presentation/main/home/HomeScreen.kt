@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.messaging.messaging
 import com.nasiat_muhib.classmate.components.LoadingScreen
 import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.navigation.NavigationViewModel
@@ -23,7 +25,9 @@ fun HomeScreen(
     val userState by homeViewModel.userState.collectAsState()
 
     when (userState) {
-        is DataState.Error -> TODO()
+        is DataState.Error -> {
+            TODO()
+        }
         DataState.Loading -> {
             LoadingScreen()
         }
@@ -34,6 +38,14 @@ fun HomeScreen(
                 homeViewModel.getRequestedCourseList(user.requestedCourses)
                 homeViewModel.getClassDetails(user.courses)
                 homeViewModel.getAllPosts()
+                try {
+                    val token = Firebase.messaging.token.result
+                    if (token != null) {
+                    homeViewModel.updateToken(token)
+                    }
+                } catch (e: Exception) {
+                    Log.d(TAG, "HomeScreen: ${e.message}")
+                }
                 HomeScreenContent(
                     homeViewModel = homeViewModel,
                     navigationViewModel = navigationViewModel,

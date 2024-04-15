@@ -56,8 +56,10 @@ class SignInViewModel @Inject constructor(
         validateSignInUIDataWithRules()
 //        Log.d(TAG, "signIn: ${allValidationPassed.value}")
         if (allValidationPassed.value) {
+            Log.d(TAG, "signIn: ${signInUIState.value.email} ${signInUIState.value.password}")
             authRepo.signIn(signInUIState.value.email, signInUIState.value.password).collectLatest {
                 _signInDataState.value = it
+                Log.d(TAG, "signIn: result: $it")
             }
         }
 

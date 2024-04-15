@@ -12,6 +12,7 @@ import com.nasiat_muhib.classmate.domain.event.HomeUIEvent
 import com.nasiat_muhib.classmate.domain.event.PostUIEvent
 import com.nasiat_muhib.classmate.domain.repository.ClassDetailsRepository
 import com.nasiat_muhib.classmate.domain.repository.CourseRepository
+import com.nasiat_muhib.classmate.domain.repository.NotificationRepository
 import com.nasiat_muhib.classmate.domain.repository.PostRepository
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import com.nasiat_muhib.classmate.domain.rules.CreatePostValidator
@@ -33,6 +34,7 @@ class HomeViewModel @Inject constructor(
     private val courseRepo: CourseRepository,
     private val classDetailsRepo: ClassDetailsRepository,
     private val postRepo: PostRepository,
+    private val notificationRepo: NotificationRepository
 ) : ViewModel() {
 
     private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
@@ -58,6 +60,9 @@ class HomeViewModel @Inject constructor(
 
     private val _userPost = MutableStateFlow<List<Post>>(emptyList())
     val userPost = _userPost.asStateFlow()
+
+    private val _token = MutableStateFlow("")
+    private val token = _token.asStateFlow()
 
     private val _createPostUIState = MutableStateFlow(CreatePostUIState())
     val createPostUIState = _createPostUIState.asStateFlow()
@@ -209,16 +214,83 @@ class HomeViewModel @Inject constructor(
 
     private fun changeActiveStatus(classDetails: ClassDetails, status: Boolean) =
         viewModelScope.launch {
-            classDetailsRepo.changeActiveStatus(classDetails, status).collectLatest {
-
+            classDetailsRepo.changeActiveStatus(classDetails, status).collectLatest { details ->
+                details.data?.let {
+                    if (!status) {
+                        val title = getCourseTitle(it.classDepartment, it.classCourseCode)
+                        val courseUsers = getCourseUsers(it.classDepartment, it.classCourseCode)
+                        sendClassCancelNotification(
+                            courseDepartment = it.classDepartment,
+                            courseCode = it.classCourseCode,
+                            courseTitle = title,
+                            courseUsers = courseUsers
+                        )
+                    }
+                }
             }
         }
+
+    private fun sendClassCancelNotification(
+        courseDepartment: String,
+        courseCode: String,
+        courseTitle: String,
+        courseUsers: List<String>
+    ) = viewModelScope.launch {
+        getToken()
+        notificationRepo.sendClassCancelNotification(
+            courseDepartment,
+            courseCode,
+            courseTitle,
+            courseUsers,
+            token.value
+        ).collectLatest {
+
+        }
+    }
+
+    private fun getToken() = viewModelScope.launch {
+        notificationRepo.getToken().collectLatest {
+            _token.value = it
+        }
+    }
+
+    private fun getCourseTitle(courseDepartment: String, courseCode: String): String {
+        courses.value.forEach {
+            if (it.courseDepartment == courseDepartment && it.courseCode == courseCode) {
+                return it.courseTitle
+            }
+        }
+
+        return ""
+    }
+
+    private fun getCourseUsers(courseDepartment: String, courseCode: String): List<String> {
+        val courseUsers = mutableListOf<String>()
+        courses.value.forEach {
+            if (it.courseDepartment == courseDepartment && it.courseCode == courseCode) {
+                courseUsers.add(it.courseCreator)
+                courseUsers.add(it.courseTeacher)
+                courseUsers.addAll(it.enrolledStudents)
+                return courseUsers
+            }
+        }
+
+        return courseUsers
+    }
 
     private fun deletePost(post: Post) = viewModelScope.launch {
         postRepo.deletePost(post).collectLatest {
 
         }
     }
+
+
+    fun updateToken(token: String) = viewModelScope.launch {
+        notificationRepo.updateToken(token).collectLatest {
+
+        }
+    }
+
 
 
     fun onPostEvent(event: PostUIEvent) {

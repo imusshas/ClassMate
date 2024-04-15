@@ -79,9 +79,9 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener {
-                if (it.isSuccessful && it.result != null) {
+                if (it.isSuccessful) {
                     isSuccessful = it.isSuccessful
-                    Log.d(TAG, "signInToFirebase: ${it.result.user?.email}")
+                    Log.d(TAG, "signInToFirebase: ${it.result?.user?.email}")
                 }
             }.addOnFailureListener {
                 Log.d(TAG, "signInToFirebase: ${it.localizedMessage}")

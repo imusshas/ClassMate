@@ -9,10 +9,7 @@ import com.nasiat_muhib.classmate.strings.FCMToken
 import com.nasiat_muhib.classmate.strings.USERS_COLLECTION
 import javax.inject.Inject
 
-class PushNotificationService @Inject constructor(
-    private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
-) : FirebaseMessagingService() {
+class PushNotificationService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         Log.d(TAG, "Refreshed token: $token")
@@ -24,10 +21,10 @@ class PushNotificationService @Inject constructor(
     }
 
     private fun sendRegistrationToServer(token: String) {
-        if (auth.currentUser?.email != null) {
-            firestore.collection(USERS_COLLECTION).document(auth.currentUser?.email!!)
-                .update(FCMToken, token)
-        }
+//        if (auth.currentUser?.email != null) {
+//            firestore.collection(USERS_COLLECTION).document(auth.currentUser?.email!!)
+//                .update(FCMToken, token)
+//        }
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {

@@ -4,6 +4,7 @@ import com.nasiat_muhib.classmate.strings.BLOOD_GROUP
 import com.nasiat_muhib.classmate.strings.COURSES
 import com.nasiat_muhib.classmate.strings.DEPARTMENT
 import com.nasiat_muhib.classmate.strings.EMAIL
+import com.nasiat_muhib.classmate.strings.FCMToken
 import com.nasiat_muhib.classmate.strings.FIRST_NAME
 import com.nasiat_muhib.classmate.strings.LAST_NAME
 import com.nasiat_muhib.classmate.strings.PHONE_NO
@@ -21,7 +22,8 @@ data class User(
     val phoneNo: String = "",
     val email: String = "",
     val courses: List<String> = emptyList(),
-    val requestedCourses: List<String> = emptyList()
+    val requestedCourses: List<String> = emptyList(),
+    val token: String = ""
 ) {
     fun toMap(): Map<String, Any> =  mapOf(
         FIRST_NAME to firstName,
@@ -33,7 +35,8 @@ data class User(
         PHONE_NO to phoneNo,
         EMAIL to email,
         COURSES to courses,
-        REQUESTED_COURSES to requestedCourses
+        REQUESTED_COURSES to requestedCourses,
+        FCMToken to token
     )
 
     fun doesMatchSearchQuery(query: String): Boolean {

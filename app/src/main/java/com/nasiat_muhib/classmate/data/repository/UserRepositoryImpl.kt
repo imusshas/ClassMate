@@ -1,9 +1,12 @@
 package com.nasiat_muhib.classmate.data.repository
 
 import android.util.Log
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.nasiat_muhib.classmate.core.GetModelFromDocument.getUserFromFirestoreDocument
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
@@ -27,12 +30,13 @@ class UserRepositoryImpl @Inject constructor(
     override fun getCurrentUser(from: String): Flow<DataState<User>> = callbackFlow {
         var response: DataState<User> = DataState.Loading
 
-        val snapshotListener = usersCollection.document(auth.currentUser?.email!!)
+        Log.d(TAG, "getCurrentUser: ${auth.currentUser?.email}")
+        val snapshotListener: ListenerRegistration = usersCollection.document(auth.currentUser?.email!!)
             .addSnapshotListener { value, error ->
                 if (value != null) {
 //                    Log.d(TAG, "getUser: Document: ${value.data}")
                     val user = getUserFromFirestoreDocument(value)
-                    Log.d(TAG, "getUser From: $from : User: $user")
+//                    Log.d(TAG, "getUser From: $from : User: $user")
                     response = DataState.Success(user)
                 } else if (error != null) {
                     Log.d(TAG, "getUser: ${error.localizedMessage}")
@@ -43,6 +47,7 @@ class UserRepositoryImpl @Inject constructor(
 
                 trySend(response).isSuccess
             }
+
 
         awaitClose {
             snapshotListener.remove()
@@ -55,9 +60,6 @@ class UserRepositoryImpl @Inject constructor(
         emit(DataState.Loading)
         usersCollection.document(user.email).update(user.toMap()).await()
         emit(DataState.Success(user))
-    }.catch {
-
-        Log.d(TAG, "updateUser: ${it.localizedMessage}")
     }
 
     companion object {
