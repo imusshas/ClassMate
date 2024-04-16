@@ -53,20 +53,21 @@ fun SignUpScreen(
         is DataState.Error -> {
             SignUpScreenContent(
                 signUpViewModel = signUpViewModel,
-                navigateToHomeScreen = navigateToHomeScreen,
                 navigateBackToSignInScreen = navigateBackToSignInScreen,
-                error = signUpDataState.value.error
             )
         }
         DataState.Loading -> {
             LoadingScreen()
         }
         is DataState.Success -> {
-            SignUpScreenContent(
-                signUpViewModel = signUpViewModel,
-                navigateToHomeScreen = navigateToHomeScreen,
-                navigateBackToSignInScreen = navigateBackToSignInScreen,
-            )
+            if (signUpDataState.value == DataState.Success(false)) {
+                SignUpScreenContent(
+                    signUpViewModel = signUpViewModel,
+                    navigateBackToSignInScreen = navigateBackToSignInScreen,
+                )
+            } else {
+                navigateToHomeScreen()
+            }
         }
     }
 }

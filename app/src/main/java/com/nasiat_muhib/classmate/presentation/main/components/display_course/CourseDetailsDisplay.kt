@@ -15,13 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.messaging.messaging
 import com.nasiat_muhib.classmate.components.ClickableTitleContainer
 import com.nasiat_muhib.classmate.components.ClickableTitleContainerWithIcon
 import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.components.TitleContainer
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.event.CourseDetailsDisplayUIEvent
-import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.strings.ADD_ASSIGNMENT_TITLE
 import com.nasiat_muhib.classmate.strings.ADD_CLASS_TITLE
 import com.nasiat_muhib.classmate.strings.ADD_TERM_TEST_TITLE
@@ -38,8 +39,18 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 fun CourseDetailsDisplay(
     courseDetailsDisplayViewModel: CourseDetailsDisplayViewModel = hiltViewModel(),
     course: Course,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    recomposeCourseDetailsDisplay: () -> Unit
 ) {
+
+    try {
+        val token = Firebase.messaging.token.result
+        if (token != null) {
+            courseDetailsDisplayViewModel.updateToken(token)
+        }
+    } catch (e: Exception) {
+        Log.d(TAG, "CourseDetailsDisplay: ${e.localizedMessage}")
+    }
 
     courseDetailsDisplayViewModel.getUser()
     courseDetailsDisplayViewModel.setCurrentCourse(course)
@@ -88,6 +99,7 @@ fun CourseDetailsDisplay(
                     title = ADD_CLASS_TITLE,
                     onTitleClick = {
                         courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.ClassTitleClicked)
+//                        recomposeCourseDetailsDisplay()
                     }
                 )
             } else {
@@ -114,6 +126,7 @@ fun CourseDetailsDisplay(
                     title = ADD_TERM_TEST_TITLE,
                     onTitleClick = {
                         courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.TermTestTitleClicked)
+//                        recomposeCourseDetailsDisplay()
                     }
                 )
             } else {
@@ -141,6 +154,7 @@ fun CourseDetailsDisplay(
                     title = ADD_ASSIGNMENT_TITLE,
                     onTitleClick = {
                         courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.AssignmentTitleClicked)
+//                        recomposeCourseDetailsDisplay()
                     }
                 )
             } else {
@@ -193,15 +207,15 @@ fun CourseDetailsDisplay(
         }
 
         if (createTermTestDialogState) {
-            CreateTermTest(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
+            CreateTermTest(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel, recomposeCourseDetailsDisplay = recomposeCourseDetailsDisplay)
         }
 
         if (createAssignmentDialogState) {
-            CreateAssignment(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
+            CreateAssignment(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel, recomposeCourseDetailsDisplay = recomposeCourseDetailsDisplay)
         }
 
         if (createResourceDialogState) {
-            CreateResourceLink(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel)
+            CreateResourceLink(courseDetailsDisplayViewModel = courseDetailsDisplayViewModel, recomposeCourseDetailsDisplay =  recomposeCourseDetailsDisplay)
         }
     }
 

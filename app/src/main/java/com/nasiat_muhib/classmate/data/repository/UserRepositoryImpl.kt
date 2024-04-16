@@ -1,6 +1,7 @@
 package com.nasiat_muhib.classmate.data.repository
 
 import android.util.Log
+import android.util.Patterns
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -31,7 +32,10 @@ class UserRepositoryImpl @Inject constructor(
         var response: DataState<User> = DataState.Loading
 
         Log.d(TAG, "getCurrentUser: ${auth.currentUser?.email}")
-        val snapshotListener: ListenerRegistration = usersCollection.document(auth.currentUser?.email!!)
+        val snapshotListener: ListenerRegistration = usersCollection.document(
+            if (Patterns.EMAIL_ADDRESS.matcher(from).matches()) from else
+            auth.currentUser?.email!!
+        )
             .addSnapshotListener { value, error ->
                 if (value != null) {
 //                    Log.d(TAG, "getUser: Document: ${value.data}")
@@ -51,6 +55,10 @@ class UserRepositoryImpl @Inject constructor(
 
         awaitClose {
             snapshotListener.remove()
+        }
+
+        awaitClose {
+
         }
     }
 

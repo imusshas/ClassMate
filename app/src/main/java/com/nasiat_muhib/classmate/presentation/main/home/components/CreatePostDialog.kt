@@ -13,42 +13,38 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.nasiat_muhib.classmate.components.CustomClickableText
 import com.nasiat_muhib.classmate.components.CustomDialog
+import com.nasiat_muhib.classmate.components.CustomDropDownMenu
 import com.nasiat_muhib.classmate.components.CustomLargeTextField
-import com.nasiat_muhib.classmate.components.CustomOutlinedField
-import com.nasiat_muhib.classmate.components.CustomTextField
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.PostUIEvent
 import com.nasiat_muhib.classmate.presentation.main.home.HomeViewModel
-import com.nasiat_muhib.classmate.strings.COURSE_CODE
-import com.nasiat_muhib.classmate.strings.COURSE_CODE_LABEL
 import com.nasiat_muhib.classmate.strings.DISCARD_BUTTON
 import com.nasiat_muhib.classmate.strings.POST_BUTTON
 import com.nasiat_muhib.classmate.ui.theme.ExtraLargeSpace
-import com.nasiat_muhib.classmate.ui.theme.LargeSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
-import com.nasiat_muhib.classmate.ui.theme.NormalHeight
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 import com.nasiat_muhib.classmate.ui.theme.ZeroSpace
-import java.sql.Timestamp
 
 @Composable
 fun CreatePostDialog(
+    recomposeHomeScreen: () -> Unit,
     homeViewModel: HomeViewModel,
     user: User,
 ) {
 
     val createPostUIState by homeViewModel.createPostUIState.collectAsState()
+    val selectableCourses by homeViewModel.selectableCourses.collectAsState()
 
     CustomDialog(onDismissRequest = { homeViewModel.onPostEvent(PostUIEvent.DiscardButtonClicked) }) {
         Column {
-            CustomTextField(labelValue = COURSE_CODE_LABEL, onValueChange = { courseCode ->
-                homeViewModel.onPostEvent(PostUIEvent.CourseCodeChanged(courseCode))
-            }, startPadding = ZeroSpace, endPadding = ZeroSpace, errorMessage = createPostUIState.courseCodeError)
+            CustomDropDownMenu(itemList = selectableCourses, horizontalPadding = ZeroSpace, onItemChange = {codeAndTitle ->
+                homeViewModel.onPostEvent(PostUIEvent.CourseCodeChanged(codeAndTitle))
+            })
+//            CustomTextField(labelValue = COURSE_CODE_LABEL, onValueChange = { courseCode ->
+//                homeViewModel.onPostEvent(PostUIEvent.CourseCodeChanged(courseCode))
+//            }, startPadding = ZeroSpace, endPadding = ZeroSpace, errorMessage = createPostUIState.courseCodeError)
             Spacer(modifier = Modifier.height(SmallSpace))
             CustomLargeTextField(
                 placeholderValue = "What's on your mind?",
@@ -79,6 +75,7 @@ fun CreatePostDialog(
                             lastName = user.lastName
                         )
                     )
+                    recomposeHomeScreen()
                 })
             }
             Spacer(modifier = Modifier.height(ExtraLargeSpace))

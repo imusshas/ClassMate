@@ -50,6 +50,7 @@ class PushNotificationService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        Log.d(TAG, "onMessageReceived: message received")
         if (remoteMessage.data.isNotEmpty()) {
             Log.d(TAG, "Message data payload: ${remoteMessage.data}")
            val notify = MyNotification(

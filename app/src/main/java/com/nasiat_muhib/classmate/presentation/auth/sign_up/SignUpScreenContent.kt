@@ -38,13 +38,10 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 @Composable
 fun SignUpScreenContent(
     signUpViewModel: SignUpViewModel,
-    navigateToHomeScreen: () -> Unit,
     navigateBackToSignInScreen: () -> Unit,
-    error: String? = null,
 ) {
 
     val signUpUIState = signUpViewModel.signUpUIState.collectAsState()
-    val signUpDataState by signUpViewModel.signUpDataState.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -115,16 +112,14 @@ fun SignUpScreenContent(
                 onValueChange = { email ->
                     signUpViewModel.onEvent(SignUpUIEvent.EmailChanged(email))
                 },
-                errorMessage = if (error != null) "The email address is already in use" else signUpUIState.value.emailError
+                errorMessage = signUpUIState.value.emailError
             )
             CustomPasswordField(labelValue = PASSWORD_LABEL, onPasswordChange = { password ->
                 signUpViewModel.onEvent(SignUpUIEvent.PasswordChanged(password))
             }, errorMessage = signUpUIState.value.passwordError)
 
             CustomElevatedButton(text = SIGN_UP_BUTTON, onClick = {
-                if (signUpDataState == DataState.Success(true)) {
-                    navigateToHomeScreen()
-                }
+                signUpViewModel.onEvent(SignUpUIEvent.SignUpButtonClicked)
             })
         }
 

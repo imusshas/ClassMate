@@ -3,7 +3,8 @@ package com.nasiat_muhib.classmate.presentation.main.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.Post
@@ -15,10 +16,8 @@ import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.repository.NotificationRepository
 import com.nasiat_muhib.classmate.domain.repository.PostRepository
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
-import com.nasiat_muhib.classmate.domain.rules.CreatePostValidator
 import com.nasiat_muhib.classmate.domain.state.CreatePostUIState
 import com.nasiat_muhib.classmate.domain.state.DataState
-import com.nasiat_muhib.classmate.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,6 +41,9 @@ class HomeViewModel @Inject constructor(
 
     private val _courses = MutableStateFlow<List<Course>>(emptyList())
     val courses = _courses.asStateFlow()
+
+    private val _selectableCourses = MutableStateFlow<List<String>>(emptyList())
+    val selectableCourses = _selectableCourses.asStateFlow()
 
     private val _requestedCourses = MutableStateFlow<List<Course>>(emptyList())
     val requestedCourses = _requestedCourses.asStateFlow()
@@ -70,20 +72,36 @@ class HomeViewModel @Inject constructor(
     private val _createPostDialogState = MutableStateFlow(false)
     val createPostDialogState = _createPostDialogState.asStateFlow()
 
-    private val _allCreatePostValidationPassed = MutableStateFlow(false)
-    private val allCreatePostValidationPassed = _allCreatePostValidationPassed.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val currentUser = Firebase.auth.currentUser
+            if (currentUser?.email != null) {
+                getUser(currentUser.email!!)
+            }
+        }
+    }
 
 
-    fun getUser() = viewModelScope.launch(Dispatchers.IO) {
-        userRepo.getCurrentUser( "HomeViewModel").collectLatest {
+    fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
+        userRepo.getCurrentUser(email).collectLatest {
             _userState.value = it
         }
 
     }
 
     fun getCourseList(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {
-        courseRepo.getCourses(courseIds).collectLatest {
-            _courses.value = it
+        courseRepo.getCourses(courseIds).collectLatest { courseList ->
+            _courses.value = courseList
+            val courseCodeAndTitleList = mutableListOf<String>()
+            courseList.forEach {
+                courseCodeAndTitleList.add("${it.courseCode} : ${it.courseTitle}")
+            }
+            _selectableCourses.value = courseCodeAndTitleList
+            if (courseCodeAndTitleList.size != 0) {
+                _createPostUIState.value =
+                    _createPostUIState.value.copy(courseCode = courseCodeAndTitleList[0])
+            }
         }
     }
 
@@ -144,15 +162,20 @@ class HomeViewModel @Inject constructor(
         postRepo.getPosts().collectLatest { postList ->
             _allPosts.value = postList.sortedByDescending { post -> post.timestamp }
         }
+
     }
 
     fun getUserPosts() {
         val postsSet = mutableSetOf<Post>()
         courses.value.forEach { course ->
             allPosts.value.forEach { post ->
-                if ((post.creator == course.courseCreator || post.creator == course.courseTeacher) && post.courseCode == course.courseCode) {
+                val courseCode = post.courseCode.substringBefore(":").trim()
+                val courseTitle = post.courseCode.substringAfter(":").trim()
+//                Log.d(TAG, "getUserPosts: $courseCode == ${course.courseCode} && $courseTitle == ${course.courseTitle}")
+                if (courseTitle == course.courseTitle && courseCode == course.courseCode) {
                     postsSet.add(post)
                 }
+//                Log.d(TAG, "getUserPosts: posts: $postsSet")
             }
         }
         _userPost.value = postsSet.toList()
@@ -170,7 +193,6 @@ class HomeViewModel @Inject constructor(
                             event.classDetails.classCourseCode == course.courseCode &&
                             (course.courseTeacher == user.email || course.courseCreator == user.email)
                         ) {
-                            Log.d(TAG, "onHomeEvent: $course")
                             changeActiveStatus(event.classDetails, event.activeStatus)
                             getTodayAndTomorrowClassesClasses()
                         }
@@ -236,20 +258,22 @@ class HomeViewModel @Inject constructor(
         courseTitle: String,
         courseUsers: List<String>
     ) = viewModelScope.launch {
-        getToken()
-        notificationRepo.sendClassCancelNotification(
-            courseDepartment,
-            courseCode,
-            courseTitle,
-            courseUsers,
-            token.value
-        ).collectLatest {
+        userState.value.data?.let {
+            getToken(it.email)
+            notificationRepo.sendClassCancelNotification(
+                courseDepartment,
+                courseCode,
+                courseTitle,
+                courseUsers,
+                token.value
+            ).collectLatest {
 
+            }
         }
     }
 
-    private fun getToken() = viewModelScope.launch {
-        notificationRepo.getToken().collectLatest {
+    private fun getToken(email: String) = viewModelScope.launch {
+        notificationRepo.getToken(email).collectLatest {
             _token.value = it
         }
     }
@@ -312,7 +336,8 @@ class HomeViewModel @Inject constructor(
             }
 
             is PostUIEvent.PostButtonClicked -> {
-                onPost(
+//                Log.d(TAG, "onPostEvent: ${createPostUIState.value}")
+                createPost(
                     timestamp = event.timestamp,
                     creator = event.creator,
                     firstName = event.firstName,
@@ -324,55 +349,54 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    private fun onPost(
+    private fun createPost(
         timestamp: Long,
         creator: String,
         firstName: String,
         lastName: String,
     ) =
         viewModelScope.launch {
-            validateAllCreatePostUIDataWithRules()
-            if (allCreatePostValidationPassed.value) {
-                _createPostDialogState.value = false
-                val post = Post(
-                    courseCode = createPostUIState.value.courseCode,
-                    description = createPostUIState.value.description,
-                    timestamp = timestamp,
-                    creator = creator,
-                    firstName = firstName,
-                    lastName = lastName
-                )
-                Log.d(TAG, "onPost: $post")
-                postRepo.createPost(post).collectLatest {
+            _createPostDialogState.value = false
+            val post = Post(
+                courseCode = createPostUIState.value.courseCode,
+                description = createPostUIState.value.description,
+                timestamp = timestamp,
+                creator = creator,
+                firstName = firstName,
+                lastName = lastName
+            )
+//            Log.d(TAG, "onPost: $post")
+            postRepo.createPost(post).collectLatest {
+            }
+            sendUpdateNotification()
+        }
 
+    private fun sendUpdateNotification () = viewModelScope.launch {
+        userState.value.data?.let { user ->
+            getToken(user.email)
+            val courseCode = createPostUIState.value.courseCode.substringBefore(":").trim()
+            val courseTitle = createPostUIState.value.courseCode.substringAfter(":").trim()
+            courses.value.forEach {
+                if (it.courseCode == courseCode && it.courseTitle == courseTitle) {
+                    Log.d(TAG, "onPost: sending notification")
+                    val courseUsers = mutableListOf(it.courseCreator)
+                    courseUsers.add(it.courseTeacher)
+                    courseUsers.addAll(it.enrolledStudents)
+                    notificationRepo.sendUpdateNotification(
+                        courseCode = courseCode,
+                        courseTitle = courseTitle,
+                        courseDepartment = it.courseDepartment,
+                        courseUsers = courseUsers,
+                        token = token.value
+                    ).collectLatest {
+
+                    }
                 }
             }
         }
-
-    private fun validateAllCreatePostUIDataWithRules() {
-        val createdOrTeacher = mutableListOf<String>()
-        courses.value.forEach { course ->
-            if (course.courseCreator == userState.value.data?.email || course.courseTeacher == userState.value.data?.email) {
-                createdOrTeacher.add(course.courseCode)
-            }
-
-        }
-
-        val courseCodeResult = CreatePostValidator.validateCourseCode(
-            createPostUIState.value.courseCode,
-            createdOrTeacher
-        )
-        val descriptionResult =
-            CreatePostValidator.validateDescription(createPostUIState.value.description)
-
-        _createPostUIState.value = createPostUIState.value.copy(
-            courseCodeError = courseCodeResult.message,
-            descriptionError = descriptionResult.message
-        )
-
-        _allCreatePostValidationPassed.value =
-            courseCodeResult.message == null && descriptionResult.message == null
     }
+
+
 
     companion object {
         const val TAG = "HomeScreenViewModel"

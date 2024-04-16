@@ -4,6 +4,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.Event
+import com.nasiat_muhib.classmate.data.model.Notification
 import com.nasiat_muhib.classmate.data.model.Post
 import com.nasiat_muhib.classmate.data.model.ResourceLink
 import com.nasiat_muhib.classmate.data.model.User
@@ -22,6 +23,7 @@ import com.nasiat_muhib.classmate.strings.COURSE_DEPARTMENT
 import com.nasiat_muhib.classmate.strings.COURSE_SEMESTER
 import com.nasiat_muhib.classmate.strings.COURSE_TEACHER
 import com.nasiat_muhib.classmate.strings.COURSE_TITLE
+import com.nasiat_muhib.classmate.strings.CREATION_TIME
 import com.nasiat_muhib.classmate.strings.DEPARTMENT
 import com.nasiat_muhib.classmate.strings.EMAIL
 import com.nasiat_muhib.classmate.strings.END_HOUR
@@ -40,6 +42,10 @@ import com.nasiat_muhib.classmate.strings.EVENT_TYPE
 import com.nasiat_muhib.classmate.strings.EVENT_YEAR
 import com.nasiat_muhib.classmate.strings.FIRST_NAME
 import com.nasiat_muhib.classmate.strings.LAST_NAME
+import com.nasiat_muhib.classmate.strings.NOTIFICATION_COURSE_CODE
+import com.nasiat_muhib.classmate.strings.NOTIFICATION_COURSE_DEPARTMENT
+import com.nasiat_muhib.classmate.strings.NOTIFICATION_COURSE_TITLE
+import com.nasiat_muhib.classmate.strings.NOTIFICATION_TYPE
 import com.nasiat_muhib.classmate.strings.PENDING_STATUS
 import com.nasiat_muhib.classmate.strings.PHONE_NO
 import com.nasiat_muhib.classmate.strings.POST_COURSE_CODE
@@ -48,6 +54,7 @@ import com.nasiat_muhib.classmate.strings.POST_CREATOR_FIRST_NAME
 import com.nasiat_muhib.classmate.strings.POST_CREATOR_LAST_NAME
 import com.nasiat_muhib.classmate.strings.POST_DESCRIPTION
 import com.nasiat_muhib.classmate.strings.POST_TIMESTAMP
+import com.nasiat_muhib.classmate.strings.READ_STATUS
 import com.nasiat_muhib.classmate.strings.REQUESTED_COURSES
 import com.nasiat_muhib.classmate.strings.RESOURCE_COURSE_CODE
 import com.nasiat_muhib.classmate.strings.RESOURCE_DEPARTMENT
@@ -75,8 +82,10 @@ object GetModelFromDocument {
         val bloodGroup = if (snapshot[BLOOD_GROUP] != null) snapshot[BLOOD_GROUP] as String else ""
         val phoneNo = if (snapshot[PHONE_NO] != null) snapshot[PHONE_NO] as String else ""
         val email = if (snapshot[EMAIL] != null) snapshot[EMAIL] as String else ""
-        val courses = if (snapshot[COURSES] != null && snapshot[COURSES] is List<*>) snapshot[COURSES] as List<String> else emptyList()
-        val requestedCourses = if (snapshot[REQUESTED_COURSES] != null) snapshot[REQUESTED_COURSES] as List<String> else emptyList()
+        val courses =
+            if (snapshot[COURSES] != null && snapshot[COURSES] is List<*>) snapshot[COURSES] as List<String> else emptyList()
+        val requestedCourses =
+            if (snapshot[REQUESTED_COURSES] != null) snapshot[REQUESTED_COURSES] as List<String> else emptyList()
 
         return User(
             firstName = firstName,
@@ -169,15 +178,16 @@ object GetModelFromDocument {
 
     fun getEventFromFirestoreDocument(snapshot: DocumentSnapshot): Event {
         val type: String = snapshot[EVENT_TYPE].toString()
-        val eventNo: Long = if (snapshot[EVENT_NO] != null) snapshot[EVENT_NO] as Long else  -1
+        val eventNo: Long = if (snapshot[EVENT_NO] != null) snapshot[EVENT_NO] as Long else -1
         val courseCode: String = snapshot[EVENT_COURSE_CODE].toString()
         val department: String = snapshot[EVENT_DEPARTMENT].toString()
         val classroom: String = snapshot[EVENT_CLASSROOM].toString()
-        val day: Long = if (snapshot[EVENT_DAY] != null) snapshot[EVENT_DAY] as Long else  -1
+        val day: Long = if (snapshot[EVENT_DAY] != null) snapshot[EVENT_DAY] as Long else -1
         val month: String = snapshot[EVENT_MONTH].toString()
         val year: Long = if (snapshot[EVENT_YEAR] != null) snapshot[EVENT_YEAR] as Long else -1
         val hour: Long = if (snapshot[EVENT_HOUR] != null) snapshot[EVENT_HOUR] as Long else -1
-        val minute: Long = if (snapshot[EVENT_MINUTE] != null) snapshot[EVENT_MINUTE] as Long else -1
+        val minute: Long =
+            if (snapshot[EVENT_MINUTE] != null) snapshot[EVENT_MINUTE] as Long else -1
         val shift: String = snapshot[EVENT_SHIFT].toString()
 
         return Event(
@@ -197,7 +207,8 @@ object GetModelFromDocument {
 
     fun getPostFromFirestoreDocument(snapshot: DocumentSnapshot): Post {
         val creator = snapshot[POST_CREATOR].toString()
-        val timestamp = if (snapshot[POST_TIMESTAMP] != null) snapshot[POST_TIMESTAMP] as Long else 0L
+        val timestamp =
+            if (snapshot[POST_TIMESTAMP] != null) snapshot[POST_TIMESTAMP] as Long else 0L
         val firstName = snapshot[POST_CREATOR_FIRST_NAME].toString()
         val lastName = snapshot[POST_CREATOR_LAST_NAME].toString()
         val courseCode = snapshot[POST_COURSE_CODE].toString()
@@ -226,6 +237,27 @@ object GetModelFromDocument {
             title = title,
             link = link,
             resourceNo = resourceNo.toInt()
+        )
+    }
+
+    fun getNotificationFromFirestoreDocument(snapshot: DocumentSnapshot): Notification {
+
+        val creationTime =
+            if (snapshot[CREATION_TIME] != null) snapshot[CREATION_TIME] as Long else 0L
+        val type = snapshot[NOTIFICATION_TYPE].toString()
+        val courseDepartment = snapshot[NOTIFICATION_COURSE_DEPARTMENT].toString()
+        val courseCode = snapshot[NOTIFICATION_COURSE_CODE].toString()
+        val courseTitle = snapshot[NOTIFICATION_COURSE_TITLE].toString()
+        val isRead =
+            if (snapshot[READ_STATUS] != null) snapshot[READ_STATUS] as Boolean else false
+
+        return Notification(
+            creationTime = creationTime,
+            type = type,
+            courseDepartment = courseDepartment,
+            courseCode = courseCode,
+            courseTitle = courseTitle,
+            isRead = isRead
         )
     }
 

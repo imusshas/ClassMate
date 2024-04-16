@@ -34,6 +34,7 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 @Composable
 fun CreateTermTest(
     courseDetailsDisplayViewModel: CourseDetailsDisplayViewModel,
+    recomposeCourseDetailsDisplay: () -> Unit
 ) {
 
     val creteTermTestUIState by courseDetailsDisplayViewModel.termTestUIState.collectAsState()
@@ -141,6 +142,7 @@ fun CreateTermTest(
                     text = CREATE_BUTTON,
                     onClick = {
                         courseDetailsDisplayViewModel.onCreateTermTestEvent(CreateTermTestUIEvent.CreateButtonClick)
+                        recomposeCourseDetailsDisplay()
                     },
                     style = ClickableTextStyle.copy(
                         textDecoration = TextDecoration.None,

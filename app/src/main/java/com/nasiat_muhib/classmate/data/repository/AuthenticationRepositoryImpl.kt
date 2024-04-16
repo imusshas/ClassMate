@@ -19,26 +19,37 @@ class AuthenticationRepositoryImpl @Inject constructor(
     private val firestoreRef: FirebaseFirestore,
 ) : AuthenticationRepository {
 
+    private val usersCollection = firestoreRef.collection(USERS_COLLECTION)
+
     override fun signIn(email: String, password: String): Flow<DataState<Boolean>> =
         flow {
             emit(DataState.Loading)
-            emit(DataState.Success(signInToFirebase(email, password)))
-        }.catch {
-            emit(DataState.Error("Unable To Sign In"))
-            Log.d(TAG, "signIn: ${it.localizedMessage}")
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener {
+                }.await()
+            emit(DataState.Success(true))
         }
+            .catch {
+                emit(DataState.Error("Unable To Sign In"))
+                Log.d(TAG, "signIn: ${it.localizedMessage}")
+            }
 
     override fun signUp(email: String, password: String, user: User): Flow<DataState<Boolean>> =
         flow {
             emit(DataState.Loading)
-
-            if (signUpToFirebase(email, password)) {
-                createUserToFirebase(email, user)
-                emit(DataState.Success(true))
-            }
+            auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener {
+                usersCollection.document(email).set(user.toMap())
+            }.await()
+            emit(DataState.Success(true))
 
         }.catch {
-            emit(DataState.Error("Unable To Sign Up"))
+            if (
+                it.localizedMessage == "The email address is already in use by another account." || it.localizedMessage == "null cannot be cast to com.google.android.gms.tasks.OnSuccessListener"
+            ) {
+                emit(DataState.Error("Account already exists"))
+            } else {
+                emit(DataState.Error("Unable To Sign Up"))
+            }
             Log.d(TAG, "signUp: ${it.localizedMessage}")
         }
 
@@ -71,54 +82,6 @@ class AuthenticationRepositoryImpl @Inject constructor(
     }.catch {
         emit(DataState.Error("Unable to send email."))
         Log.d(TAG, "resetPassword: ${it.localizedMessage}")
-    }
-
-
-    private suspend fun signInToFirebase(email: String, password: String): Boolean {
-        var isSuccessful = false
-
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    isSuccessful = it.isSuccessful
-                    Log.d(TAG, "signInToFirebase: ${it.result?.user?.email}")
-                }
-            }.addOnFailureListener {
-                Log.d(TAG, "signInToFirebase: ${it.localizedMessage}")
-            }.await()
-
-        return isSuccessful
-
-    }
-
-    private suspend fun signUpToFirebase(email: String, password: String): Boolean {
-        var isSuccessful = false
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    isSuccessful = true
-                }
-            }.addOnFailureListener {
-                Log.d(TAG, "signUpToFirebase: ${it.localizedMessage}")
-            }.await()
-        return isSuccessful
-
-    }
-
-    private suspend fun createUserToFirebase(email: String, user: User): Boolean {
-
-        var isSuccessful = false
-        firestoreRef.collection(USERS_COLLECTION).document(email)
-            .set(user.toMap())
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    isSuccessful = true
-                }
-            }.addOnFailureListener {
-                Log.d(TAG, "createUserToFirebase: ${it.localizedMessage}")
-            }.await()
-
-        return isSuccessful
     }
 
     private suspend fun sendResetPasswordLinkFromFirebase(email: String): Boolean {

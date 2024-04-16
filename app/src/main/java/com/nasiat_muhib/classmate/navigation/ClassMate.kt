@@ -86,6 +86,9 @@ fun ClassMate(
                 },
                 navigateToCourseDetailsDisplay = {
                     navigateWithoutClearingBackStack(navController, Screen.CourseDetailsDisplay)
+                },
+                recomposeHomeScreen = {
+                    navigateTo(navController, Screen.HomeScreen)
                 }
             )
         }
@@ -121,7 +124,14 @@ fun ClassMate(
             NotificationScreen(
                 navigateToTab = {tabItem ->
                     navigateToTab(navController, tabItem)
-                }
+                },
+                navigateToHomeScreen = {
+                                       navigateTo(navController, Screen.HomeScreen)
+                },
+                navigateToCourseDetailsScreen = {
+                                                navigateWithoutClearingBackStack(navController, Screen.CourseDetailsDisplay)
+                },
+                navigationViewModel = navigationViewModel,
             )
         }
         composable(Screen.MenuScreen.route) {
@@ -172,7 +182,7 @@ fun ClassMate(
         composable(
             route = Screen.CourseDetailsDisplay.route,
         ) {
-            CourseDetailsDisplay(course = course, navigateBack = { navigateBack(navController) })
+            CourseDetailsDisplay(course = course, navigateBack = { navigateBack(navController) }, recomposeCourseDetailsDisplay = { navigateWithoutClearingBackStack(navController, Screen.CourseDetailsDisplay) })
         }
         /***************************  Display Course  *******************************/
     }

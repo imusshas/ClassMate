@@ -34,6 +34,7 @@ import com.nasiat_muhib.classmate.ui.theme.SomeStyle
 
 @Composable
 fun ClassDisplay(
+    recomposeHomeScreen: () -> Unit,
     homeViewModel: HomeViewModel,
     classDetails: ClassDetails,
     user: User
@@ -92,6 +93,7 @@ fun ClassDisplay(
                             )
                         )
                     }
+                    recomposeHomeScreen()
                 },
             )
         }

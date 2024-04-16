@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,12 +31,17 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
 @Composable
 fun HomeScreenContent(
+    recomposeHomeScreen: () -> Unit,
     homeViewModel: HomeViewModel,
     navigationViewModel: NavigationViewModel,
     user: User,
     navigateToTab: (TabItem) -> Unit,
-    navigateToCourseDetailsDisplay: () -> Unit
+    navigateToCourseDetailsDisplay: () -> Unit,
 ) {
+//    LaunchedEffect(key1 = Unit) {
+//        recomposeHomeScreen()
+//    }
+
     homeViewModel.getTodayAndTomorrowClassesClasses()
     val todayClasses by homeViewModel.todayClasses.collectAsState()
     val tomorrowClasses by homeViewModel.tomorrowClasses.collectAsState()
@@ -47,6 +53,7 @@ fun HomeScreenContent(
 
     val courseOrRequest = rememberSaveable { mutableStateOf(true) }
 
+    homeViewModel.getAllPosts()
     homeViewModel.getUserPosts()
     val posts by homeViewModel.userPost.collectAsState()
     val createPostDialogState by homeViewModel.createPostDialogState.collectAsState()
@@ -56,7 +63,7 @@ fun HomeScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        ClassMateTabRow( tab = TabItem.Home, navigateToTab = navigateToTab )
+        ClassMateTabRow(tab = TabItem.Home, navigateToTab = navigateToTab)
         Spacer(modifier = Modifier.height(SmallSpace))
         Column(
             modifier = Modifier
@@ -79,7 +86,8 @@ fun HomeScreenContent(
                 ClassDisplay(
                     homeViewModel = homeViewModel,
                     classDetails = it,
-                    user = user
+                    user = user,
+                    recomposeHomeScreen = recomposeHomeScreen
                 )
             }
 
@@ -111,17 +119,28 @@ fun HomeScreenContent(
 
             Spacer(modifier = Modifier.height(LargeSpace))
             if (user.role != STUDENT) {
-                CustomElevatedButton(text = "Create Post", onClick = { homeViewModel.onHomeEvent(HomeUIEvent.PostButtonClicked) })
+                CustomElevatedButton(
+                    text = "Create Post",
+                    onClick = { homeViewModel.onHomeEvent(HomeUIEvent.PostButtonClicked) })
             }
             Spacer(modifier = Modifier.height(MediumSpace))
             posts.forEach {
-                PostDisplay(post = it, homeViewModel = homeViewModel, isCreator = it.creator == user.email)
+                PostDisplay(
+                    recomposeHomeScreen = recomposeHomeScreen,
+                    post = it,
+                    homeViewModel = homeViewModel,
+                    isCreator = it.creator == user.email
+                )
             }
 
         }
 
         if (createPostDialogState) {
-            CreatePostDialog(homeViewModel = homeViewModel, user = user)
+            CreatePostDialog(
+                homeViewModel = homeViewModel,
+                user = user,
+                recomposeHomeScreen = recomposeHomeScreen
+            )
         }
     }
 }

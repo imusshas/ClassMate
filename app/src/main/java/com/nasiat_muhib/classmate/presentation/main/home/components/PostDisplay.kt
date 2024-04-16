@@ -45,6 +45,7 @@ import java.util.Locale
 
 @Composable
 fun PostDisplay(
+    recomposeHomeScreen: () -> Unit,
     post: Post,
     homeViewModel: HomeViewModel,
     isCreator: Boolean,
@@ -55,6 +56,7 @@ fun PostDisplay(
         onSwipe = {
             homeViewModel.onHomeEvent(HomeUIEvent.DeletePostSwipe(post))
             isVisible.value = false
+            recomposeHomeScreen()
         },
         icon = {
             Icon(
@@ -106,11 +108,14 @@ fun PostDisplay(
                         val second = timeStringForSecond.substringAfterLast(":").toInt()
 
                         val shift = if (hours < 12) AM else PM
+                        val courseCode = post.courseCode.substringBefore(":").trim()
+                        val courseTitle = post.courseCode.substringAfter(":").trim()
                         Text(text = "${post.firstName} ${post.lastName}", fontWeight = FontWeight.Black)
                         Text(text = dateString, fontWeight = FontWeight.Light)
                         Text(text = "$hour:$minute:$second $shift", fontWeight = FontWeight.Light)
                         Spacer(modifier = Modifier.height(LargeSpace))
-                        Text(text = post.courseCode, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(text = courseCode, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(text = courseTitle, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Text(text = post.description)
                     }
                 }

@@ -16,12 +16,13 @@ import com.nasiat_muhib.classmate.strings.TAG
 
 @Composable
 fun HomeScreen(
+    recomposeHomeScreen: () -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel(),
     navigationViewModel: NavigationViewModel,
     navigateToTab: (TabItem) -> Unit,
     navigateToCourseDetailsDisplay: () -> Unit
 ) {
-    homeViewModel.getUser()
+
     val userState by homeViewModel.userState.collectAsState()
 
     when (userState) {
@@ -38,6 +39,7 @@ fun HomeScreen(
                 homeViewModel.getRequestedCourseList(user.requestedCourses)
                 homeViewModel.getClassDetails(user.courses)
                 homeViewModel.getAllPosts()
+                homeViewModel.getUserPosts()
                 try {
                     val token = Firebase.messaging.token.result
                     if (token != null) {
@@ -51,7 +53,8 @@ fun HomeScreen(
                     navigationViewModel = navigationViewModel,
                     user = user,
                     navigateToTab = navigateToTab,
-                    navigateToCourseDetailsDisplay = navigateToCourseDetailsDisplay
+                    navigateToCourseDetailsDisplay = navigateToCourseDetailsDisplay,
+                    recomposeHomeScreen = recomposeHomeScreen
                 )
             }
         }

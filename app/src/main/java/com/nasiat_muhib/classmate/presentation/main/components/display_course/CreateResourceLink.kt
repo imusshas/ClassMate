@@ -30,6 +30,7 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 @Composable
 fun CreateResourceLink(
     courseDetailsDisplayViewModel: CourseDetailsDisplayViewModel,
+    recomposeCourseDetailsDisplay: () -> Unit
 ) {
 
     val createResourceLinkUIState by courseDetailsDisplayViewModel.resourceUIState.collectAsState()
@@ -93,6 +94,7 @@ fun CreateResourceLink(
                     text = CREATE_BUTTON,
                     onClick = {
                         courseDetailsDisplayViewModel.onCreateResourceLinkEvent(CreateResourceUIEvent.CreateButtonClicked)
+                        recomposeCourseDetailsDisplay()
                     },
                     style = ClickableTextStyle.copy(
                         textDecoration = TextDecoration.None,

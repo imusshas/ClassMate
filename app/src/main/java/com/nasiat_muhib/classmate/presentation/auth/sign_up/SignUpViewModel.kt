@@ -26,7 +26,7 @@ class SignUpViewModel @Inject constructor(
     private val _signUpUIState = MutableStateFlow(SignUpUIState())
     val signUpUIState = _signUpUIState.asStateFlow()
 
-    private val _signUpDataState = MutableStateFlow<DataState<Boolean>>(DataState.Success(false)) // TODO: Try DataSource.Loading()
+    private val _signUpDataState = MutableStateFlow<DataState<Boolean>>(DataState.Success(false)) // TODO: Try DataState.Loading
     val signUpDataState = _signUpDataState.asStateFlow()
 
     private val _allValidationPassed = MutableStateFlow(false)
@@ -76,9 +76,11 @@ class SignUpViewModel @Inject constructor(
                 email = signUpUIState.value.email,
             )
 
+            Log.d(TAG, "signUp: ${signUpUIState.value.email}")
             authRepo.signUp(signUpUIState.value.email, signUpUIState.value.password, user).collectLatest {
-                Log.d(TAG, "signUp: $user")
+                Log.d(TAG, "signUp: $it")
                 _signUpDataState.value = it
+                _signUpUIState.value = signUpUIState.value.copy(emailError = it.error)
             }
         }
     }
@@ -102,12 +104,6 @@ class SignUpViewModel @Inject constructor(
         Log.d(TAG, "validateSignUpDataWithRules: $firstNameResult, $lastNameResult, $emailResult, $passwordResult")
         _allValidationPassed.value =
             firstNameResult.message == null && lastNameResult.message == null && emailResult.message == null && passwordResult.message == null && departmentResult.message == null
-    }
-
-    fun signOut() = viewModelScope.launch(Dispatchers.IO) {
-        authRepo.signOut().collectLatest {
-            _signUpDataState.value = it
-        }
     }
 
     companion object {

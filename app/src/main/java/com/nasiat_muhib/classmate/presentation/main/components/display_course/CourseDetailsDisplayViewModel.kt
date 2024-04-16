@@ -16,6 +16,7 @@ import com.nasiat_muhib.classmate.domain.event.CreateResourceUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateTermTestUIEvent
 import com.nasiat_muhib.classmate.domain.repository.ClassDetailsRepository
 import com.nasiat_muhib.classmate.domain.repository.EventRepository
+import com.nasiat_muhib.classmate.domain.repository.NotificationRepository
 import com.nasiat_muhib.classmate.domain.repository.ResourceLinkRepository
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
 import com.nasiat_muhib.classmate.domain.rules.CreateCourseValidator
@@ -38,6 +39,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     private val eventRepo: EventRepository,
     private val userRepo: UserRepository,
     private val resourceLinkRepo: ResourceLinkRepository,
+    private val notificationRepo: NotificationRepository,
 ) : ViewModel() {
 
     private val _currentUser = MutableStateFlow<DataState<User>>(DataState.Success(User()))
@@ -45,6 +47,9 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
     private val _currentCourse = MutableStateFlow(Course())
     private val currentCourse = _currentCourse.asStateFlow()
+
+    private val _token = MutableStateFlow("")
+    private val token = _token.asStateFlow()
 
 
     /************************* Class ****************************/
@@ -114,6 +119,20 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
     fun setCurrentCourse(course: Course) {
         _currentCourse.value = course
+    }
+
+    fun getToken() = viewModelScope.launch {
+        currentUser.value.data?.let { user ->
+            notificationRepo.getToken(user.email).collectLatest {
+                _token.value = it
+            }
+        }
+    }
+
+    fun updateToken(token: String) = viewModelScope.launch {
+        notificationRepo.updateToken(token).collectLatest {
+
+        }
     }
 
     fun getClassDetailsList() = viewModelScope.launch {
@@ -399,7 +418,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
             )
 
             eventRepo.createEvent(termTest).collectLatest {
-
+                sendTermTestNotification()
             }
         }
     }
@@ -428,6 +447,23 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
         _termTestValidationPassed.value = classroomResult.message == null &&
                 dateResult.message == null && hourResult.message == null && minuteResult.message == null
+    }
+
+    private fun sendTermTestNotification() = viewModelScope.launch {
+        getToken()
+        val courseUsers = mutableListOf<String>()
+        courseUsers.add(currentCourse.value.courseTeacher)
+        courseUsers.add(currentCourse.value.courseCreator)
+        courseUsers.addAll(currentCourse.value.enrolledStudents)
+        notificationRepo.sendTermTestNotification(
+            courseDepartment = currentCourse.value.courseDepartment,
+            courseCode = currentCourse.value.courseCode,
+            courseTitle = currentCourse.value.courseTitle,
+            courseUsers = courseUsers,
+            token = token.value
+        ).collectLatest {
+
+        }
     }
 
 
@@ -480,8 +516,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
         validateAssignmentUIDataWithRules()
         if (assignmentValidationPassed.value) {
             _createAssignmentDialogState.value = false
-            val lastAssignment =
-                if (assignments.value.isEmpty()) Event() else assignments.value[termTests.value.size - 1]
+            val lastAssignment = assignments.value.last()
             val assignment = Event(
                 type = EVENTS[1],
                 eventNo = lastAssignment.eventNo + 1,
@@ -497,7 +532,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
             )
 
             eventRepo.createEvent(assignment).collectLatest {
-
+                sendAssignmentNotification()
             }
         }
     }
@@ -529,6 +564,23 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
         _assignmentValidationPassed.value = classroomResult.message == null &&
                 dateResult.message == null && hourResult.message == null && minuteResult.message == null
+    }
+
+    private fun sendAssignmentNotification() = viewModelScope.launch {
+        getToken()
+        val courseUsers = mutableListOf<String>()
+        courseUsers.add(currentCourse.value.courseTeacher)
+        courseUsers.add(currentCourse.value.courseCreator)
+        courseUsers.addAll(currentCourse.value.enrolledStudents)
+        notificationRepo.sendAssignmentNotification(
+            courseDepartment = currentCourse.value.courseDepartment,
+            courseCode = currentCourse.value.courseCode,
+            courseTitle = currentCourse.value.courseTitle,
+            courseUsers = courseUsers,
+            token = token.value
+        ).collectLatest {
+
+        }
     }
 
 

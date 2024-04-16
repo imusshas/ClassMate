@@ -22,7 +22,6 @@ import com.nasiat_muhib.classmate.components.CustomDialog
 import com.nasiat_muhib.classmate.components.CustomOutlinedField
 import com.nasiat_muhib.classmate.components.CustomTimePicker
 import com.nasiat_muhib.classmate.domain.event.CreateAssignmentUIEvent
-import com.nasiat_muhib.classmate.domain.event.CreateTermTestUIEvent
 import com.nasiat_muhib.classmate.strings.CANCEL_BUTTON
 import com.nasiat_muhib.classmate.strings.CLASSROOM_LABEL
 import com.nasiat_muhib.classmate.strings.CREATE_BUTTON
@@ -35,6 +34,7 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 @Composable
 fun CreateAssignment(
     courseDetailsDisplayViewModel: CourseDetailsDisplayViewModel,
+    recomposeCourseDetailsDisplay: () -> Unit
 ) {
 
     val createAssignmentUIState by courseDetailsDisplayViewModel.assignmentUIState.collectAsState()
@@ -142,6 +142,7 @@ fun CreateAssignment(
                     text = CREATE_BUTTON,
                     onClick = {
                         courseDetailsDisplayViewModel.onCreateAssignmentEvent(CreateAssignmentUIEvent.CreateButtonClick)
+                        recomposeCourseDetailsDisplay()
                     },
                     style = ClickableTextStyle.copy(
                         textDecoration = TextDecoration.None,

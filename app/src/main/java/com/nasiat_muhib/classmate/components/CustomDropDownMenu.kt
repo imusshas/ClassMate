@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.Dp
 import com.nasiat_muhib.classmate.ui.theme.ExtraSmallSpace
 import com.nasiat_muhib.classmate.ui.theme.MaximumHeight
 import com.nasiat_muhib.classmate.ui.theme.MediumRounded
@@ -37,6 +38,7 @@ fun CustomDropDownMenu(
     itemList: List<String>,
     selectedItem: String = itemList[0],
     onItemChange: (String) -> Unit,
+    horizontalPadding: Dp = MediumSpace
 ) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
 
@@ -53,7 +55,7 @@ fun CustomDropDownMenu(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = MediumSpace),
+                .padding(horizontal = horizontalPadding),
             horizontalAlignment = Alignment.End
         ) {
             Row(
