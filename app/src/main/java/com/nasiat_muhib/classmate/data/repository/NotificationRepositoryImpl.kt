@@ -328,16 +328,6 @@ class NotificationRepositoryImpl @Inject constructor(
         Log.d(TAG, "getNotifications: ${it.message}")
     }
 
-    override fun getCourse(courseId: String): Flow<Course> = flow {
-        val courseDocument = coursesCollection.document(courseId).get().await()
-        if (courseDocument != null) {
-            val course = getCourseFromFirestoreDocument(courseDocument)
-            emit(course)
-        }
-    }.catch {
-        Log.d(TAG, "getCourse: ${it.message}")
-    }
-
 
     private suspend fun createNotification(
         documentId: String,

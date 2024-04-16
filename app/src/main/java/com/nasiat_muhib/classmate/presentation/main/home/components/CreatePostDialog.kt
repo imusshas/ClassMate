@@ -39,7 +39,7 @@ fun CreatePostDialog(
 
     CustomDialog(onDismissRequest = { homeViewModel.onPostEvent(PostUIEvent.DiscardButtonClicked) }) {
         Column {
-            CustomDropDownMenu(itemList = selectableCourses, horizontalPadding = ZeroSpace, onItemChange = {codeAndTitle ->
+            CustomDropDownMenu(itemList = selectableCourses.ifEmpty { listOf("") }, horizontalPadding = ZeroSpace, onItemChange = { codeAndTitle ->
                 homeViewModel.onPostEvent(PostUIEvent.CourseCodeChanged(codeAndTitle))
             })
 //            CustomTextField(labelValue = COURSE_CODE_LABEL, onValueChange = { courseCode ->

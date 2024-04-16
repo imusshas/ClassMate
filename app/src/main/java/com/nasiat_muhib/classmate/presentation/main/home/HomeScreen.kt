@@ -22,7 +22,6 @@ fun HomeScreen(
     navigateToTab: (TabItem) -> Unit,
     navigateToCourseDetailsDisplay: () -> Unit
 ) {
-
     val userState by homeViewModel.userState.collectAsState()
 
     when (userState) {

@@ -38,6 +38,4 @@ interface NotificationRepository {
     ): Flow<Boolean>
 
     fun getNotifications(email: String): Flow<List<Notification>>
-
-    fun getCourse(courseId: String): Flow<Course>
 }
