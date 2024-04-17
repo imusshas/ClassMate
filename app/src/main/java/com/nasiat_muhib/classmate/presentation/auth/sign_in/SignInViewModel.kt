@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.nasiat_muhib.classmate.domain.event.SignInUIEvent
 import com.nasiat_muhib.classmate.domain.repository.AuthenticationRepository
 import com.nasiat_muhib.classmate.domain.rules.AuthValidator
@@ -27,7 +28,7 @@ class SignInViewModel @Inject constructor(
     private val _signInUIState = MutableStateFlow(SignInUIState())
     val signInUIState = _signInUIState.asStateFlow()
 
-    private val _signInDataState = MutableStateFlow<DataState<Boolean>>(DataState.Success(true))
+    private val _signInDataState = MutableStateFlow<DataState<FirebaseUser?>>(DataState.Success(null))
     val signInDataState = _signInDataState.asStateFlow()
 
     private val _allValidationPassed = MutableStateFlow(false)

@@ -3,6 +3,7 @@ package com.nasiat_muhib.classmate.presentation.auth.sign_up
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseUser
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.SignUpUIEvent
 import com.nasiat_muhib.classmate.domain.repository.AuthenticationRepository
@@ -26,7 +27,7 @@ class SignUpViewModel @Inject constructor(
     private val _signUpUIState = MutableStateFlow(SignUpUIState())
     val signUpUIState = _signUpUIState.asStateFlow()
 
-    private val _signUpDataState = MutableStateFlow<DataState<Boolean>>(DataState.Success(false)) // TODO: Try DataState.Loading
+    private val _signUpDataState = MutableStateFlow<DataState<FirebaseUser?>>(DataState.Success(null)) // TODO: Try DataState.Loading
     val signUpDataState = _signUpDataState.asStateFlow()
 
     private val _allValidationPassed = MutableStateFlow(false)
@@ -75,10 +76,7 @@ class SignUpViewModel @Inject constructor(
                 department = signUpUIState.value.department,
                 email = signUpUIState.value.email,
             )
-
-            Log.d(TAG, "signUp: ${signUpUIState.value.email}")
             authRepo.signUp(signUpUIState.value.email, signUpUIState.value.password, user).collectLatest {
-                Log.d(TAG, "signUp: $it")
                 _signUpDataState.value = it
                 _signUpUIState.value = signUpUIState.value.copy(emailError = it.error)
             }
@@ -100,8 +98,6 @@ class SignUpViewModel @Inject constructor(
             emailError = emailResult.message,
             passwordError = passwordResult.message
         )
-
-        Log.d(TAG, "validateSignUpDataWithRules: $firstNameResult, $lastNameResult, $emailResult, $passwordResult")
         _allValidationPassed.value =
             firstNameResult.message == null && lastNameResult.message == null && emailResult.message == null && passwordResult.message == null && departmentResult.message == null
     }

@@ -16,11 +16,14 @@ fun SignInScreen(
 ) {
     val signInDataState = signInViewModel.signInDataState.collectAsState()
 
+    if (signInDataState.value.data != null) {
+        navigateToHomeScreen()
+    }
+
     when(signInDataState.value) {
         is DataState.Error ->  {
             SignInScreenContent(
                 signInViewModel = signInViewModel,
-                navigateToHomeScreen = navigateToHomeScreen,
                 navigateToForgotPasswordScreen = navigateToForgotPasswordScreen,
                 navigateToSignUpScreen = navigateToSignUpScreen,
                 error = signInDataState.value.error
@@ -32,7 +35,6 @@ fun SignInScreen(
         is DataState.Success ->  {
             SignInScreenContent(
                 signInViewModel = signInViewModel,
-                navigateToHomeScreen = navigateToHomeScreen,
                 navigateToForgotPasswordScreen = navigateToForgotPasswordScreen,
                 navigateToSignUpScreen = navigateToSignUpScreen
             )

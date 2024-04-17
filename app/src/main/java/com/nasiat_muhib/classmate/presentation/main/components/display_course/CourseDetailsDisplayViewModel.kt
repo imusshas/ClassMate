@@ -3,6 +3,7 @@ package com.nasiat_muhib.classmate.presentation.main.components.display_course
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.core.Constants.EVENTS
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
@@ -40,6 +41,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val resourceLinkRepo: ResourceLinkRepository,
     private val notificationRepo: NotificationRepository,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
     private val _currentUser = MutableStateFlow<DataState<User>>(DataState.Success(User()))
@@ -117,8 +119,10 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
 
     fun getUser() = viewModelScope.launch {
-        userRepo.getCurrentUser("CourseDetailsDisplayViewModel").collectLatest {
-            _currentUser.value = it
+        auth.currentUser?.email?.let {email ->
+            userRepo.getCurrentUser(email).collectLatest {
+                _currentUser.value = it
+            }
         }
     }
 

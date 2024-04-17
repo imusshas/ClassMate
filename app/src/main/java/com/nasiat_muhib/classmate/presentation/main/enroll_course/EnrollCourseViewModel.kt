@@ -2,6 +2,7 @@ package com.nasiat_muhib.classmate.presentation.main.enroll_course
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.EnrollCourseUIEvent
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class EnrollCourseViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val courseRepo: CourseRepository,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
     private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
@@ -29,8 +31,10 @@ class EnrollCourseViewModel @Inject constructor(
 
 
     fun getUser() = viewModelScope.launch {
-        userRepo.getCurrentUser( "EnrollCourseViewModel").collectLatest {
-            _userState.value = it
+        auth.currentUser?.email?.let { email ->
+            userRepo.getCurrentUser(email).collectLatest {
+                _userState.value = it
+            }
         }
     }
 

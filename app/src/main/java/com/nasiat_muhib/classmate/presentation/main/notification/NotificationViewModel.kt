@@ -12,6 +12,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.MainActivity
 import com.nasiat_muhib.classmate.core.Constants
 import com.nasiat_muhib.classmate.data.model.Course
@@ -33,7 +34,8 @@ import javax.inject.Inject
 class NotificationViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val notificationRepo: NotificationRepository,
-    private val courseRepo: CourseRepository
+    private val courseRepo: CourseRepository,
+    private val auth: FirebaseAuth
 ): ViewModel() {
 
     private val _userState = MutableStateFlow<DataState<User>>(DataState.Loading)
@@ -47,8 +49,10 @@ class NotificationViewModel @Inject constructor(
 
 
     fun getUser() = viewModelScope.launch {
-        userRepo.getCurrentUser("NotificationViewModel").collectLatest {
-            _userState.value = it
+        auth.currentUser?.email?.let {email ->
+            userRepo.getCurrentUser(email).collectLatest {
+                _userState.value = it
+            }
         }
     }
 

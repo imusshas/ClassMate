@@ -2,6 +2,7 @@ package com.nasiat_muhib.classmate.presentation.main.create_semester
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.CreateSemesterUIEvent
@@ -21,6 +22,7 @@ import javax.inject.Inject
 class CreateSemesterViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val courseRepo: CourseRepository,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
     private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
@@ -44,8 +46,10 @@ class CreateSemesterViewModel @Inject constructor(
     }
 
     fun getUser() = viewModelScope.launch(Dispatchers.IO) {
-        userRepo.getCurrentUser( "CreateSemesterViewModel").collect {
-            _userState.value = it
+        auth.currentUser?.email?.let {email ->
+            userRepo.getCurrentUser( email).collect {
+                _userState.value = it
+            }
         }
     }
 

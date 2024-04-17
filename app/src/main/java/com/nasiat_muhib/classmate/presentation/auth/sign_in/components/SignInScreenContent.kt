@@ -31,14 +31,12 @@ import com.nasiat_muhib.classmate.strings.SIGN_UP_BUTTON
 @Composable
 fun SignInScreenContent(
     signInViewModel: SignInViewModel,
-    navigateToHomeScreen: () -> Unit,
     navigateToForgotPasswordScreen: () -> Unit,
     navigateToSignUpScreen: () -> Unit,
     error: String? = null
 ) {
 
     val signInUIState = signInViewModel.signInUIState.collectAsState()
-    val signInDataState = signInViewModel.signInDataState.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -71,9 +69,6 @@ fun SignInScreenContent(
 
             CustomElevatedButton(text = SIGN_IN_BUTTON, onClick = {
                 signInViewModel.onEvent(SignInUIEvent.SignInButtonClicked)
-                if (signInDataState.value == DataState.Success(true)) {
-                    navigateToHomeScreen()
-                }
             })
             CustomClickableText(text = FORGOT_PASSWORD_BUTTON, onClick = {
                 navigateToForgotPasswordScreen()

@@ -3,6 +3,7 @@ package com.nasiat_muhib.classmate.presentation.main.menu.profile
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.EditProfileUIEvent
 import com.nasiat_muhib.classmate.domain.repository.UserRepository
@@ -20,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val userRepo: UserRepository,
+    private val auth: FirebaseAuth
 ) : ViewModel() {
 
     private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
@@ -35,8 +37,10 @@ class ProfileViewModel @Inject constructor(
     private val allEditProfileValidationPassed = _allEditProfileValidationPassed.asStateFlow()
 
     fun getUser() = viewModelScope.launch {
-        userRepo.getCurrentUser("ProfileViewModel").collectLatest {
-            _userState.value = it
+        auth.currentUser?.email?.let { email ->
+            userRepo.getCurrentUser(email).collectLatest {
+                _userState.value = it
+            }
         }
     }
 

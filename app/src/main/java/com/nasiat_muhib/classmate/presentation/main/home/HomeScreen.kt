@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.messaging.messaging
@@ -20,19 +22,21 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     navigationViewModel: NavigationViewModel,
     navigateToTab: (TabItem) -> Unit,
-    navigateToCourseDetailsDisplay: () -> Unit
+    navigateToCourseDetailsDisplay: () -> Unit,
 ) {
+    homeViewModel.getUser()
     val userState by homeViewModel.userState.collectAsState()
 
     when (userState) {
         is DataState.Error -> {
             TODO()
         }
+
         DataState.Loading -> {
             LoadingScreen()
         }
+
         is DataState.Success -> {
-//            Log.d(TAG, "HomeScreen: ${userState.data}")
             userState.data?.let { user ->
                 homeViewModel.getCourseList(user.courses)
                 homeViewModel.getRequestedCourseList(user.requestedCourses)
@@ -42,7 +46,7 @@ fun HomeScreen(
                 try {
                     val token = Firebase.messaging.token.result
                     if (token != null) {
-                    homeViewModel.updateToken(token)
+                        homeViewModel.updateToken(token)
                     }
                 } catch (e: Exception) {
                     Log.d(TAG, "HomeScreen: ${e.message}")
@@ -58,5 +62,4 @@ fun HomeScreen(
             }
         }
     }
-
 }

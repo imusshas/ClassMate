@@ -38,8 +38,6 @@ fun HomeScreenContent(
     navigateToTab: (TabItem) -> Unit,
     navigateToCourseDetailsDisplay: () -> Unit,
 ) {
-
-    homeViewModel.getUser(user.email)
     homeViewModel.getTodayAndTomorrowClassesClasses()
     val todayClasses by homeViewModel.todayClasses.collectAsState()
     val tomorrowClasses by homeViewModel.tomorrowClasses.collectAsState()

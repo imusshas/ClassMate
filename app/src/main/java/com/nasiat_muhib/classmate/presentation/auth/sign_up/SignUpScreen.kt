@@ -14,25 +14,25 @@ fun SignUpScreen(
 ) {
     val signUpDataState = signUpViewModel.signUpDataState.collectAsState()
 
+    if (signUpDataState.value.data != null) {
+        navigateToHomeScreen()
+    }
+
     when (signUpDataState.value) {
+        DataState.Loading -> {
+            LoadingScreen()
+        }
         is DataState.Error -> {
             SignUpScreenContent(
                 signUpViewModel = signUpViewModel,
                 navigateBackToSignInScreen = navigateBackToSignInScreen,
             )
         }
-        DataState.Loading -> {
-            LoadingScreen()
-        }
         is DataState.Success -> {
-            if (signUpDataState.value == DataState.Success(false)) {
-                SignUpScreenContent(
-                    signUpViewModel = signUpViewModel,
-                    navigateBackToSignInScreen = navigateBackToSignInScreen,
-                )
-            } else {
-                navigateToHomeScreen()
-            }
+            SignUpScreenContent(
+                signUpViewModel = signUpViewModel,
+                navigateBackToSignInScreen = navigateBackToSignInScreen,
+            )
         }
     }
 }

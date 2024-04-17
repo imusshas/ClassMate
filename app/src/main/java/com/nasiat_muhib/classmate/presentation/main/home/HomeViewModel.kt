@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
@@ -33,8 +34,12 @@ class HomeViewModel @Inject constructor(
     private val courseRepo: CourseRepository,
     private val classDetailsRepo: ClassDetailsRepository,
     private val postRepo: PostRepository,
-    private val notificationRepo: NotificationRepository
+    private val notificationRepo: NotificationRepository,
+    private val auth: FirebaseAuth,
 ) : ViewModel() {
+
+    private val _loadingState = MutableStateFlow(false)
+    val loadingState = _loadingState.asStateFlow()
 
     private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
     val userState = _userState.asStateFlow()
@@ -73,20 +78,16 @@ class HomeViewModel @Inject constructor(
     val createPostDialogState = _createPostDialogState.asStateFlow()
 
 
-    init {
-        viewModelScope.launch {
-            val currentUser = Firebase.auth.currentUser
-            if (currentUser?.email != null) {
-                getUser(currentUser.email!!)
+
+    fun getUser() = viewModelScope.launch(Dispatchers.IO) {
+        _loadingState.value = true
+        auth.currentUser?.email?.let { email ->
+            Log.d(TAG, "getUser: $email")
+            userRepo.getCurrentUser(email).collectLatest {
+                _userState.value = it
             }
         }
-    }
-
-    fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
-        userRepo.getCurrentUser(email).collectLatest {
-            _userState.value = it
-        }
-
+        _loadingState.value = false
     }
 
     fun getCourseList(courseIds: List<String>) = viewModelScope.launch(Dispatchers.IO) {

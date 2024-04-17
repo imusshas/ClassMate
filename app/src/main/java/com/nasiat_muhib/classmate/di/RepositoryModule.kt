@@ -35,7 +35,7 @@ class RepositoryModule {
     @Provides
     @Singleton
     fun providesAuthenticationRepository(
-        auth: FirebaseAuth, firestoreRef: FirebaseFirestore
+        auth: FirebaseAuth, firestoreRef: FirebaseFirestore,
     ): AuthenticationRepository = AuthenticationRepositoryImpl(
         auth, firestoreRef
     )
@@ -43,46 +43,46 @@ class RepositoryModule {
     @Provides
     @Singleton
     fun providesUserRepository(
-        auth: FirebaseAuth, firestoreRef: FirebaseFirestore
+        firestoreRef: FirebaseFirestore,
     ): UserRepository = UserRepositoryImpl(
-        auth, firestoreRef
+        firestoreRef
     )
 
     @Provides
     @Singleton
-    fun providesSearchRepository (
-        firestoreRef: FirebaseFirestore
+    fun providesSearchRepository(
+        firestoreRef: FirebaseFirestore,
     ): SearchRepository = SearchRepositoryImpl(firestoreRef)
 
     @Provides
     @Singleton
-    fun providesCourseRepository (
-        firestoreRef: FirebaseFirestore
-    ): CourseRepository = CourseRepositoryImpl (firestoreRef)
+    fun providesCourseRepository(
+        firestoreRef: FirebaseFirestore,
+    ): CourseRepository = CourseRepositoryImpl(firestoreRef)
 
     @Provides
     @Singleton
-    fun providesEventRepository (
-        firestoreRef: FirebaseFirestore
+    fun providesEventRepository(
+        firestoreRef: FirebaseFirestore,
     ): EventRepository = EventRepositoryImpl(firestoreRef)
 
 
     @Provides
     @Singleton
-    fun providesClassDetailsRepository (
-        firestoreRef: FirebaseFirestore
-    ): ClassDetailsRepository = ClassDetailsRepositoryImpl (firestoreRef)
+    fun providesClassDetailsRepository(
+        firestoreRef: FirebaseFirestore,
+    ): ClassDetailsRepository = ClassDetailsRepositoryImpl(firestoreRef)
 
     @Provides
     @Singleton
-    fun providesPostRepository (
-        firestoreRef: FirebaseFirestore
+    fun providesPostRepository(
+        firestoreRef: FirebaseFirestore,
     ): PostRepository = PostRepositoryImpl(firestoreRef)
 
     @Provides
     @Singleton
     fun providesResourceLinkRepository(
-        firestoreRef: FirebaseFirestore
+        firestoreRef: FirebaseFirestore,
     ): ResourceLinkRepository = ResourceLinkRepositoryImpl(firestoreRef)
 
     @Provides

@@ -5,7 +5,7 @@ import com.nasiat_muhib.classmate.domain.state.DataState
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
-    fun getCurrentUser (from: String): Flow<DataState<User>>
+    fun getCurrentUser (email: String): Flow<DataState<User>>
 
     fun updateUser(user: User): Flow<DataState<User>>
 }

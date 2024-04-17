@@ -2,6 +2,7 @@ package com.nasiat_muhib.classmate.data.repository
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.repository.AuthenticationRepository
@@ -21,26 +22,30 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     private val usersCollection = firestoreRef.collection(USERS_COLLECTION)
 
-    override fun signIn(email: String, password: String): Flow<DataState<Boolean>> =
+    override fun signIn(email: String, password: String): Flow<DataState<FirebaseUser?>> =
         flow {
             emit(DataState.Loading)
+            var firebaseUser: FirebaseUser? = null
             auth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener {
+                    firebaseUser = it.user
                 }.await()
-            emit(DataState.Success(true))
+            emit(DataState.Success(firebaseUser))
         }
             .catch {
                 emit(DataState.Error("Unable To Sign In"))
                 Log.d(TAG, "signIn: ${it.localizedMessage}")
             }
 
-    override fun signUp(email: String, password: String, user: User): Flow<DataState<Boolean>> =
+    override fun signUp(email: String, password: String, user: User): Flow<DataState<FirebaseUser?>> =
         flow {
             emit(DataState.Loading)
+            var firebaseUser: FirebaseUser? = null
             auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener {
-                usersCollection.document(email).set(user.toMap())
+                firebaseUser = it.user
             }.await()
-            emit(DataState.Success(true))
+            usersCollection.document(email).set(user.toMap()).await()
+            emit(DataState.Success(firebaseUser))
 
         }.catch {
             if (
@@ -55,13 +60,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
 
     override fun signOut(): Flow<DataState<Boolean>> = flow {
         emit(DataState.Loading)
-        try {
-            auth.signOut()
-            Log.d(TAG, "signOut: ${auth.currentUser}")
-            emit(DataState.Success(true))
-        } catch (e: Exception) {
-            emit(DataState.Error(e.message.toString()))
-        }
+        auth.signOut()
         emit(DataState.Success(true))
     }.catch {
         emit(DataState.Error("Unable To Sign Out"))
