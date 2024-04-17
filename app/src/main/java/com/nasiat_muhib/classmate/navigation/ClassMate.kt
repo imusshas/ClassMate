@@ -88,7 +88,7 @@ fun ClassMate(
                     navigateWithoutClearingBackStack(navController, Screen.CourseDetailsDisplay)
                 },
                 recomposeHomeScreen = {
-                    navigateTo(navController, Screen.HomeScreen)
+                    navigateToTab(navController,TabItem.Home)
                 }
             )
         }

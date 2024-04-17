@@ -162,7 +162,6 @@ class NotificationRepositoryImpl @Inject constructor(
             val currentUser = usersCollection.document(user).get().await()
             currentUser?.data?.let {
                 val fcmToken = it[FCMToken].toString()
-                Log.d(TAG, "sendUpdateNotification: $fcmToken")
 //                if (fcmToken != token) {
                 json.put(sendTo, fcmToken)
                 json.put(notificationData, notification)
@@ -186,7 +185,7 @@ class NotificationRepositoryImpl @Inject constructor(
 
                 createNotification(
                     documentId = user,
-                    type =  NEW_TERM_TEST,
+                    type = NEW_TERM_TEST,
                     courseDepartment = courseDepartment,
                     courseCode = courseCode,
                     courseTitle = courseTitle
@@ -217,7 +216,6 @@ class NotificationRepositoryImpl @Inject constructor(
             val currentUser = usersCollection.document(user).get().await()
             currentUser?.data?.let {
                 val fcmToken = it[FCMToken].toString()
-                Log.d(TAG, "sendUpdateNotification: $fcmToken")
 //                if (fcmToken != token) {
                 json.put(sendTo, fcmToken)
                 json.put(notificationData, notification)
@@ -241,7 +239,7 @@ class NotificationRepositoryImpl @Inject constructor(
 
                 createNotification(
                     documentId = user,
-                    type =  NEW_ASSIGNMENT,
+                    type = NEW_ASSIGNMENT,
                     courseDepartment = courseDepartment,
                     courseCode = courseCode,
                     courseTitle = courseTitle

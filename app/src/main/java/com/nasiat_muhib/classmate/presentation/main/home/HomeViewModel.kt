@@ -82,7 +82,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-
     fun getUser(email: String) = viewModelScope.launch(Dispatchers.IO) {
         userRepo.getCurrentUser(email).collectLatest {
             _userState.value = it
@@ -336,7 +335,6 @@ class HomeViewModel @Inject constructor(
             }
 
             is PostUIEvent.PostButtonClicked -> {
-//                Log.d(TAG, "onPostEvent: ${createPostUIState.value}")
                 createPost(
                     timestamp = event.timestamp,
                     creator = event.creator,
@@ -378,7 +376,6 @@ class HomeViewModel @Inject constructor(
             val courseTitle = createPostUIState.value.courseCode.substringAfter(":").trim()
             courses.value.forEach {
                 if (it.courseCode == courseCode && it.courseTitle == courseTitle) {
-                    Log.d(TAG, "onPost: sending notification")
                     val courseUsers = mutableListOf(it.courseCreator)
                     courseUsers.add(it.courseTeacher)
                     courseUsers.addAll(it.enrolledStudents)

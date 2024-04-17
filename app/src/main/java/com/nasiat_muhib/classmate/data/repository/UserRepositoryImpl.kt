@@ -31,30 +31,28 @@ class UserRepositoryImpl @Inject constructor(
     override fun getCurrentUser(from: String): Flow<DataState<User>> = callbackFlow {
         var response: DataState<User> = DataState.Loading
 
-        Log.d(TAG, "getCurrentUser: ${auth.currentUser?.email}")
-        val snapshotListener: ListenerRegistration = usersCollection.document(
-            if (Patterns.EMAIL_ADDRESS.matcher(from).matches()) from else
-            auth.currentUser?.email!!
-        )
-            .addSnapshotListener { value, error ->
-                if (value != null) {
+        auth.currentUser?.email?.let {
+            val snapshotListener: ListenerRegistration = usersCollection.document(it)
+                .addSnapshotListener { value, error ->
+                    if (value != null) {
 //                    Log.d(TAG, "getUser: Document: ${value.data}")
-                    val user = getUserFromFirestoreDocument(value)
+                        val user = getUserFromFirestoreDocument(value)
 //                    Log.d(TAG, "getUser From: $from : User: $user")
-                    response = DataState.Success(user)
-                } else if (error != null) {
-                    Log.d(TAG, "getUser: ${error.localizedMessage}")
-                    response = DataState.Error(error.localizedMessage!!)
-                } else {
-                    Log.d(TAG, "getUser: Nothing")
+                        response = DataState.Success(user)
+                    } else if (error != null) {
+                        Log.d(TAG, "getUser: ${error.localizedMessage}")
+                        response = DataState.Error(error.localizedMessage!!)
+                    } else {
+                        Log.d(TAG, "getUser: Nothing")
+                    }
+
+                    trySend(response).isSuccess
                 }
 
-                trySend(response).isSuccess
+
+            awaitClose {
+                snapshotListener.remove()
             }
-
-
-        awaitClose {
-            snapshotListener.remove()
         }
 
         awaitClose {
