@@ -1,6 +1,7 @@
 package com.nasiat_muhib.classmate.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +16,8 @@ import com.nasiat_muhib.classmate.strings.CLASSMATE_LOGO
 
 @Composable
 fun Logo() {
+
+    val classMateTextImage = if (isSystemInDarkTheme()) R.drawable.classmate_dark else R.drawable.classmate
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -27,7 +30,7 @@ fun Logo() {
         )
 
         Image(
-            painter = painterResource(id = R.drawable.classmate),
+            painter = painterResource(id = classMateTextImage),
             contentDescription = CLASSMATE_LOGO,
             modifier = Modifier.weight(0.2f)
         )

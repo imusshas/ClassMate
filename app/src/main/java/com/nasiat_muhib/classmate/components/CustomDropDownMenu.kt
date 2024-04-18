@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -38,7 +39,8 @@ fun CustomDropDownMenu(
     itemList: List<String>,
     selectedItem: String = itemList[0],
     onItemChange: (String) -> Unit,
-    horizontalPadding: Dp = MediumSpace
+    horizontalPadding: Dp = MediumSpace,
+    clip: RoundedCornerShape = MediumRounded
 ) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
 
@@ -61,7 +63,7 @@ fun CustomDropDownMenu(
             Row(
                 modifier = Modifier
                     .menuAnchor()
-                    .clip(MediumRounded)
+                    .clip(clip)
                     .fillMaxWidth()
                     .border(
                         SmallBorder,

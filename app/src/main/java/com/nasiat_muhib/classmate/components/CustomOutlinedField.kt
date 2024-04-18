@@ -1,14 +1,19 @@
 package com.nasiat_muhib.classmate.components
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,9 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
+import com.nasiat_muhib.classmate.ui.theme.Dark
+import com.nasiat_muhib.classmate.ui.theme.DarkText
 import com.nasiat_muhib.classmate.ui.theme.MediumRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.ExtraExtraSmallSpace
+import com.nasiat_muhib.classmate.ui.theme.Light
+import com.nasiat_muhib.classmate.ui.theme.LightText
+import com.nasiat_muhib.classmate.ui.theme.PrimaryRed
 import com.nasiat_muhib.classmate.ui.theme.ZeroSpace
 
 @Composable
@@ -40,11 +50,15 @@ fun CustomOutlinedField(
     errorMessage: String? = null
 ) {
     val textValue = remember { mutableStateOf(value) }
+    val backgroundColor = if (isSystemInDarkTheme()) Dark else Light
+    val textColor = if (isSystemInDarkTheme()) DarkText else LightText
 
     Column(
-        modifier = modifier.fillMaxWidth().padding(
-            start = startPadding, top = topPadding, end = endPadding, bottom = bottomPadding
-        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                start = startPadding, top = topPadding, end = endPadding, bottom = bottomPadding
+            ),
         verticalArrangement = Arrangement.spacedBy(ExtraExtraSmallSpace)
     ) {
         OutlinedTextField(
@@ -63,6 +77,15 @@ fun CustomOutlinedField(
             shape = shape,
             readOnly = readOnly,
             isError = errorMessage != null,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = textColor,
+                focusedBorderColor = textColor,
+                focusedLabelColor = textColor,
+                focusedPlaceholderColor = textColor,
+                focusedSupportingTextColor = textColor,
+                focusedPrefixColor = textColor,
+                focusedSuffixColor = textColor,
+            )
         )
 
         if (errorMessage != null) {

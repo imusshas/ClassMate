@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.nasiat_muhib.classmate.navigation.TabItem
+import com.nasiat_muhib.classmate.ui.theme.PrimaryRed
 
 @Composable
 fun ClassMateTabRow(
@@ -34,13 +35,13 @@ fun ClassMateTabRow(
                         modifier = Modifier
                             .padding(24.dp),
                         tint = if (tabItem == tab) {
-                            MaterialTheme.colorScheme.primary
+                            PrimaryRed
                         } else {
                             MaterialTheme.colorScheme.onSurface
                         }
                     )
                     if(tab == tabItem) {
-                        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.primary)
+                        HorizontalDivider(thickness = 1.dp, color = PrimaryRed)
                     }
                 }
             }

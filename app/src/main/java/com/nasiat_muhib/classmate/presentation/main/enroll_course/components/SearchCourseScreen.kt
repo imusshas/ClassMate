@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.presentation.main.enroll_course.components
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -25,10 +27,13 @@ import com.nasiat_muhib.classmate.domain.event.SearchUIEvent
 import com.nasiat_muhib.classmate.strings.ENROLL_BUTTON
 import com.nasiat_muhib.classmate.strings.SEARCH
 import com.nasiat_muhib.classmate.strings.TEACHER
+import com.nasiat_muhib.classmate.ui.theme.DarkText
 import com.nasiat_muhib.classmate.ui.theme.ExtraSmallSpace
+import com.nasiat_muhib.classmate.ui.theme.LightText
 import com.nasiat_muhib.classmate.ui.theme.MediumRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
+import com.nasiat_muhib.classmate.ui.theme.PrimaryRed
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 import com.nasiat_muhib.classmate.ui.theme.TitleStyle
 
@@ -40,6 +45,8 @@ fun SearchCourseScreen(
     searchViewModel.getAllCourses(user)
     val searchText = searchViewModel.searchText.collectAsState()
     val courses = searchViewModel.courses.collectAsState()
+
+    val textColor = if (isSystemInDarkTheme()) DarkText else LightText
 
 
     Column(
@@ -102,7 +109,8 @@ fun SearchCourseScreen(
                                     )
                                 )
                             },
-                            shape = MediumRounded
+                            shape = MediumRounded,
+                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryRed, contentColor = textColor)
                         ) {
                             Text(text = ENROLL_BUTTON)
                         }

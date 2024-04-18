@@ -1,5 +1,7 @@
 package com.nasiat_muhib.classmate.presentation.auth.sign_in.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +29,10 @@ import com.nasiat_muhib.classmate.strings.NEW_IN_CLASSMATE_HARDCODED
 import com.nasiat_muhib.classmate.strings.PASSWORD_LABEL
 import com.nasiat_muhib.classmate.strings.SIGN_IN_BUTTON
 import com.nasiat_muhib.classmate.strings.SIGN_UP_BUTTON
+import com.nasiat_muhib.classmate.ui.theme.Dark
+import com.nasiat_muhib.classmate.ui.theme.DarkText
+import com.nasiat_muhib.classmate.ui.theme.Light
+import com.nasiat_muhib.classmate.ui.theme.LightText
 
 @Composable
 fun SignInScreenContent(
@@ -37,9 +43,11 @@ fun SignInScreenContent(
 ) {
 
     val signInUIState = signInViewModel.signInUIState.collectAsState()
+    val textColor = if (isSystemInDarkTheme()) DarkText else LightText
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -81,7 +89,7 @@ fun SignInScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = NEW_IN_CLASSMATE_HARDCODED)
+            Text(text = NEW_IN_CLASSMATE_HARDCODED, color = textColor)
             CustomElevatedButton(
                 text = SIGN_UP_BUTTON,
                 onClick = navigateToSignUpScreen

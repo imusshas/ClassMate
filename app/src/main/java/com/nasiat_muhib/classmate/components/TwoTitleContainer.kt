@@ -2,6 +2,7 @@ package com.nasiat_muhib.classmate.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,7 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.nasiat_muhib.classmate.ui.theme.DarkText
 import com.nasiat_muhib.classmate.ui.theme.LargeRounded
+import com.nasiat_muhib.classmate.ui.theme.LightText
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
@@ -38,6 +41,8 @@ fun TwoTitleContainer(
 ) {
     val isLeftSelected = rememberSaveable { mutableStateOf(true) }
 
+    val containerColor = if (isSystemInDarkTheme()) DarkText else LightText
+    val contentColor = if (isSystemInDarkTheme()) LightText else DarkText
 
     ElevatedCard(
         modifier = Modifier
@@ -46,8 +51,8 @@ fun TwoTitleContainer(
             .padding(horizontal = MediumSpace),
         shape = LargeRounded,
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            contentColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = containerColor,
+            contentColor = contentColor
         )
     ) {
         Row(
@@ -61,9 +66,9 @@ fun TwoTitleContainer(
                     .weight(1f)
                     .background(
                         if (isLeftSelected.value) {
-                            MaterialTheme.colorScheme.onPrimaryContainer
+                            containerColor
                         } else {
-                            MaterialTheme.colorScheme.primaryContainer
+                            contentColor
                         }
                     )
                     .clickable {
@@ -77,11 +82,11 @@ fun TwoTitleContainer(
                     text = leftTitle,
                     style = SomeStyle,
                     color = if (!isLeftSelected.value) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
+                        containerColor
                     } else {
-                        MaterialTheme.colorScheme.primaryContainer
+                        contentColor
                     }
-                    )
+                )
             }
             VerticalDivider(color = Color.White, modifier = Modifier.height(NormalHeight))
             Row(
@@ -90,9 +95,9 @@ fun TwoTitleContainer(
                     .weight(1f)
                     .background(
                         if (!isLeftSelected.value) {
-                            MaterialTheme.colorScheme.onPrimaryContainer
+                            containerColor
                         } else {
-                            MaterialTheme.colorScheme.primaryContainer
+                            contentColor
                         }
                     )
                     .clickable {
@@ -106,9 +111,9 @@ fun TwoTitleContainer(
                     text = rightTitle,
                     style = SomeStyle,
                     color = if (isLeftSelected.value) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
+                        containerColor
                     } else {
-                        MaterialTheme.colorScheme.primaryContainer
+                        contentColor
                     }
                 )
             }

@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.components
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +29,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import com.nasiat_muhib.classmate.strings.HIDE_PASSWORD_ICON
 import com.nasiat_muhib.classmate.strings.SHOW_PASSWORD_ICON
+import com.nasiat_muhib.classmate.ui.theme.DarkText
 import com.nasiat_muhib.classmate.ui.theme.ExtraExtraSmallSpace
+import com.nasiat_muhib.classmate.ui.theme.LightText
 import com.nasiat_muhib.classmate.ui.theme.MediumRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.ZeroSpace
@@ -51,6 +55,8 @@ fun CustomPasswordField(
     val password = remember { mutableStateOf("") }
 
     val passwordVisibility = remember { mutableStateOf(false) }
+
+    val textColor = if (isSystemInDarkTheme()) DarkText else LightText
 
     Column(
         modifier = modifier
@@ -89,7 +95,17 @@ fun CustomPasswordField(
             shape = shape,
             visualTransformation = if (passwordVisibility.value) VisualTransformation.None else PasswordVisualTransformation(),
             readOnly = readOnly,
-            isError = errorMessage != null
+            isError = errorMessage != null,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = textColor,
+                focusedBorderColor = textColor,
+                focusedLabelColor = textColor,
+                focusedPlaceholderColor = textColor,
+                focusedSupportingTextColor = textColor,
+                focusedPrefixColor = textColor,
+                focusedSuffixColor = textColor,
+                focusedTrailingIconColor = textColor
+            )
         )
 
         if (errorMessage != null) {

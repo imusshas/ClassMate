@@ -54,12 +54,15 @@ fun CourseDetailsDisplay(
 
     courseDetailsDisplayViewModel.getUser()
     courseDetailsDisplayViewModel.setCurrentCourse(course)
+    courseDetailsDisplayViewModel.getCurrentCourse()
     courseDetailsDisplayViewModel.getClassDetailsList()
     courseDetailsDisplayViewModel.getTermTestsList()
     courseDetailsDisplayViewModel.getAssignmentList()
     courseDetailsDisplayViewModel.getResourceList()
 
     val userState by courseDetailsDisplayViewModel.currentUser.collectAsState()
+
+    val currentCourse by courseDetailsDisplayViewModel.currentCourse.collectAsState()
 
     val classes by courseDetailsDisplayViewModel.classes.collectAsState()
     val createClassDialogState by courseDetailsDisplayViewModel.createClassDialogState.collectAsState()
@@ -84,7 +87,7 @@ fun CourseDetailsDisplay(
             onBackIconClick = navigateBack
         )
 
-        BlackBoardContent(course = course)
+        BlackBoardContent(course = currentCourse)
 
         Spacer(modifier = Modifier.height(LargeSpace))
 
@@ -99,7 +102,6 @@ fun CourseDetailsDisplay(
                     title = ADD_CLASS_TITLE,
                     onTitleClick = {
                         courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.ClassTitleClicked)
-//                        recomposeCourseDetailsDisplay()
                     }
                 )
             } else {
@@ -126,7 +128,6 @@ fun CourseDetailsDisplay(
                     title = ADD_TERM_TEST_TITLE,
                     onTitleClick = {
                         courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.TermTestTitleClicked)
-//                        recomposeCourseDetailsDisplay()
                     }
                 )
             } else {
@@ -154,7 +155,6 @@ fun CourseDetailsDisplay(
                     title = ADD_ASSIGNMENT_TITLE,
                     onTitleClick = {
                         courseDetailsDisplayViewModel.onDisplayEvent(CourseDetailsDisplayUIEvent.AssignmentTitleClicked)
-//                        recomposeCourseDetailsDisplay()
                     }
                 )
             } else {

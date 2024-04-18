@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.presentation.main.menu.components
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -16,6 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import com.nasiat_muhib.classmate.navigation.MenuItem
 import com.nasiat_muhib.classmate.ui.theme.ButtonStyle
+import com.nasiat_muhib.classmate.ui.theme.Dark
+import com.nasiat_muhib.classmate.ui.theme.DarkText
+import com.nasiat_muhib.classmate.ui.theme.Light
+import com.nasiat_muhib.classmate.ui.theme.LightText
 import com.nasiat_muhib.classmate.ui.theme.MediumRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
@@ -23,13 +29,20 @@ import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 
 @Composable
 fun MenuItem(menuItem: MenuItem, onClick: () -> Unit) {
+    val containerColor = if (isSystemInDarkTheme()) Dark else Light
+    val contentColor = if (isSystemInDarkTheme()) DarkText else LightText
+
     ElevatedButton(
         onClick = { onClick() },
         modifier = Modifier
             .fillMaxWidth()
             .height(NormalHeight)
             .padding(horizontal = MediumSpace),
-        shape = MediumRounded
+        shape = MediumRounded,
+        colors = ButtonDefaults.elevatedButtonColors(
+            containerColor = containerColor,
+            contentColor = contentColor
+        )
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),

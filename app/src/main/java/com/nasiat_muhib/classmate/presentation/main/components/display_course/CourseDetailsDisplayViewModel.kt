@@ -16,6 +16,7 @@ import com.nasiat_muhib.classmate.domain.event.CreateClassUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateResourceUIEvent
 import com.nasiat_muhib.classmate.domain.event.CreateTermTestUIEvent
 import com.nasiat_muhib.classmate.domain.repository.ClassDetailsRepository
+import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.repository.EventRepository
 import com.nasiat_muhib.classmate.domain.repository.NotificationRepository
 import com.nasiat_muhib.classmate.domain.repository.ResourceLinkRepository
@@ -36,6 +37,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CourseDetailsDisplayViewModel @Inject constructor(
+    private val courseRepo: CourseRepository,
     private val classRepo: ClassDetailsRepository,
     private val eventRepo: EventRepository,
     private val userRepo: UserRepository,
@@ -48,7 +50,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     val currentUser = _currentUser.asStateFlow()
 
     private val _currentCourse = MutableStateFlow(Course())
-    private val currentCourse = _currentCourse.asStateFlow()
+    val currentCourse = _currentCourse.asStateFlow()
 
     private val _token = MutableStateFlow("")
     private val token = _token.asStateFlow()
@@ -129,6 +131,15 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
     fun setCurrentCourse(course: Course) {
         _currentCourse.value = course
+    }
+
+    fun getCurrentCourse() = viewModelScope.launch {
+        val courseId = "${currentCourse.value.courseDepartment}:${currentCourse.value.courseCode}"
+        courseRepo.getCourses(courseIds = listOf(courseId)).collectLatest {
+            if (it.isNotEmpty()) {
+                _currentCourse.value = it[0]
+            }
+        }
     }
 
     private fun getToken(email: String) = viewModelScope.launch {

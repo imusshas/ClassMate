@@ -10,6 +10,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import com.nasiat_muhib.classmate.ui.theme.ClickableLinkStyle
 import com.nasiat_muhib.classmate.ui.theme.ClickableTextStyle
+import com.nasiat_muhib.classmate.ui.theme.PrimaryRed
 
 @Composable
 fun CustomClickableLinks(
@@ -22,7 +23,7 @@ fun CustomClickableLinks(
 
     val annotatedText = buildAnnotatedString {
         withStyle(
-            style = style
+            style = style.copy(color = PrimaryRed)
         ) {
             pushStringAnnotation(
                 tag = text,

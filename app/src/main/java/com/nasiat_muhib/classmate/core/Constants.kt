@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.core
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import com.nasiat_muhib.classmate.strings.CLASS_REPRESENTATIVE
 import com.nasiat_muhib.classmate.strings.FIRST_YEAR_FIRST_SEMESTER
 import com.nasiat_muhib.classmate.strings.FIRST_YEAR_SECOND_SEMESTER

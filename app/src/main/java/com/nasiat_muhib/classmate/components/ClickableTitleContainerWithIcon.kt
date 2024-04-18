@@ -1,6 +1,7 @@
 package com.nasiat_muhib.classmate.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.nasiat_muhib.classmate.ui.theme.DarkText
 import com.nasiat_muhib.classmate.ui.theme.LargeRounded
+import com.nasiat_muhib.classmate.ui.theme.LightText
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
 import com.nasiat_muhib.classmate.ui.theme.SomeStyle
@@ -28,6 +31,10 @@ fun ClickableTitleContainerWithIcon(
     title: String,
     onTitleClick: () -> Unit,
 ) {
+
+    val containerColor = if (isSystemInDarkTheme()) DarkText else LightText
+    val contentColor = if (isSystemInDarkTheme()) LightText else DarkText
+
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -38,8 +45,8 @@ fun ClickableTitleContainerWithIcon(
             },
         shape = LargeRounded,
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            contentColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = containerColor,
+            contentColor = contentColor
         )
     ) {
         Row (
