@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +30,7 @@ import com.nasiat_muhib.classmate.strings.TEACHER
 import com.nasiat_muhib.classmate.ui.theme.LargeRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
+import com.nasiat_muhib.classmate.ui.theme.PrimaryRed
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 import com.nasiat_muhib.classmate.ui.theme.SomeStyle
 
@@ -95,6 +97,9 @@ fun ClassDisplay(
                     }
                     recomposeHomeScreen()
                 },
+                colors = SwitchDefaults.colors(
+                    checkedTrackColor = PrimaryRed
+                )
             )
         }
     }
