@@ -43,14 +43,7 @@ fun HomeScreen(
                 homeViewModel.getClassDetails(user.courses)
                 homeViewModel.getAllPosts()
                 homeViewModel.getUserPosts()
-                try {
-                    val token = Firebase.messaging.token.result
-                    if (token != null) {
-                        homeViewModel.updateToken(token)
-                    }
-                } catch (e: Exception) {
-                    Log.d(TAG, "HomeScreen: ${e.message}")
-                }
+                homeViewModel.updateToken()
                 HomeScreenContent(
                     homeViewModel = homeViewModel,
                     navigationViewModel = navigationViewModel,

@@ -90,5 +90,6 @@ class RepositoryModule {
     fun providesNotificationRepository(
         auth: FirebaseAuth,
         firestoreRef: FirebaseFirestore,
-    ): NotificationRepository = NotificationRepositoryImpl(auth, firestoreRef)
+        messagingRef: FirebaseMessaging
+    ): NotificationRepository = NotificationRepositoryImpl(auth, firestoreRef, messagingRef = messagingRef)
 }

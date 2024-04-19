@@ -73,10 +73,8 @@ class HomeViewModel @Inject constructor(
     val createPostDialogState = _createPostDialogState.asStateFlow()
 
 
-
     fun getUser() = viewModelScope.launch(Dispatchers.IO) {
         auth.currentUser?.email?.let { email ->
-            Log.d(TAG, "getUser: $email")
             userRepo.getCurrentUser(email).collectLatest {
                 _userState.value = it
             }
@@ -249,25 +247,23 @@ class HomeViewModel @Inject constructor(
         courseDepartment: String,
         courseCode: String,
         courseTitle: String,
-        courseUsers: List<String>
+        courseUsers: List<String>,
     ) = viewModelScope.launch {
-        userState.value.data?.let {
-            getToken(it.email)
-            notificationRepo.sendClassCancelNotification(
-                courseDepartment,
-                courseCode,
-                courseTitle,
-                courseUsers,
-                token.value
-            ).collectLatest {
+        notificationRepo.sendClassCancelNotification(
+            courseDepartment,
+            courseCode,
+            courseTitle,
+            courseUsers,
+            token.value
+        ).collectLatest {
 
-            }
         }
     }
 
-    private fun getToken(email: String) = viewModelScope.launch {
+    fun getToken(email: String) = viewModelScope.launch {
         notificationRepo.getToken(email).collectLatest {
             _token.value = it
+            Log.d(TAG, "getToken: $it")
         }
     }
 
@@ -302,12 +298,11 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    fun updateToken(token: String) = viewModelScope.launch {
-        notificationRepo.updateToken(token).collectLatest {
+    fun updateToken() = viewModelScope.launch {
+        notificationRepo.updateToken().collectLatest {
 
         }
     }
-
 
 
     fun onPostEvent(event: PostUIEvent) {
@@ -363,30 +358,26 @@ class HomeViewModel @Inject constructor(
             sendUpdateNotification()
         }
 
-    private fun sendUpdateNotification () = viewModelScope.launch {
-        userState.value.data?.let { user ->
-            getToken(user.email)
-            val courseCode = createPostUIState.value.courseCode.substringBefore(":").trim()
-            val courseTitle = createPostUIState.value.courseCode.substringAfter(":").trim()
-            courses.value.forEach {
-                if (it.courseCode == courseCode && it.courseTitle == courseTitle) {
-                    val courseUsers = mutableListOf(it.courseCreator)
-                    courseUsers.add(it.courseTeacher)
-                    courseUsers.addAll(it.enrolledStudents)
-                    notificationRepo.sendUpdateNotification(
-                        courseCode = courseCode,
-                        courseTitle = courseTitle,
-                        courseDepartment = it.courseDepartment,
-                        courseUsers = courseUsers,
-                        token = token.value
-                    ).collectLatest {
+    private fun sendUpdateNotification() = viewModelScope.launch {
+        val courseCode = createPostUIState.value.courseCode.substringBefore(":").trim()
+        val courseTitle = createPostUIState.value.courseCode.substringAfter(":").trim()
+        courses.value.forEach {
+            if (it.courseCode == courseCode && it.courseTitle == courseTitle) {
+                val courseUsers = mutableListOf(it.courseCreator)
+                courseUsers.add(it.courseTeacher)
+                courseUsers.addAll(it.enrolledStudents)
+                notificationRepo.sendUpdateNotification(
+                    courseCode = courseCode,
+                    courseTitle = courseTitle,
+                    courseDepartment = it.courseDepartment,
+                    courseUsers = courseUsers,
+                    token = token.value
+                ).collectLatest {
 
-                    }
                 }
             }
         }
     }
-
 
 
     companion object {

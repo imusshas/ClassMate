@@ -5,7 +5,7 @@ import com.nasiat_muhib.classmate.data.model.Notification
 import kotlinx.coroutines.flow.Flow
 
 interface NotificationRepository {
-    fun updateToken(token: String): Flow<Boolean>
+    fun updateToken(): Flow<Boolean>
     fun getToken(email: String): Flow<String>
     fun sendUpdateNotification(
         courseDepartment: String,

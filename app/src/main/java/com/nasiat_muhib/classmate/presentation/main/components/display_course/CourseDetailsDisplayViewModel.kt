@@ -43,7 +43,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     private val userRepo: UserRepository,
     private val resourceLinkRepo: ResourceLinkRepository,
     private val notificationRepo: NotificationRepository,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
 ) : ViewModel() {
 
     private val _currentUser = MutableStateFlow<DataState<User>>(DataState.Success(User()))
@@ -121,7 +121,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
 
 
     fun getUser() = viewModelScope.launch {
-        auth.currentUser?.email?.let {email ->
+        auth.currentUser?.email?.let { email ->
             userRepo.getCurrentUser(email).collectLatest {
                 _currentUser.value = it
             }
@@ -142,14 +142,14 @@ class CourseDetailsDisplayViewModel @Inject constructor(
         }
     }
 
-    private fun getToken(email: String) = viewModelScope.launch {
+    fun getToken(email: String) = viewModelScope.launch {
         notificationRepo.getToken(email).collectLatest {
             _token.value = it
         }
     }
 
-    fun updateToken(token: String) = viewModelScope.launch {
-        notificationRepo.updateToken(token).collectLatest {
+    fun updateToken() = viewModelScope.launch {
+        notificationRepo.updateToken().collectLatest {
 
         }
     }
@@ -469,20 +469,17 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     }
 
     private fun sendTermTestNotification() = viewModelScope.launch {
-        currentUser.value.data?.let {
-            getToken(it.email)
-            val courseUsers = mutableListOf<String>()
-            courseUsers.add(currentCourse.value.courseTeacher)
-            courseUsers.add(currentCourse.value.courseCreator)
-            courseUsers.addAll(currentCourse.value.enrolledStudents)
-            notificationRepo.sendTermTestNotification(
-                courseDepartment = currentCourse.value.courseDepartment,
-                courseCode = currentCourse.value.courseCode,
-                courseTitle = currentCourse.value.courseTitle,
-                courseUsers = courseUsers,
-                token = token.value
-            ).collectLatest {
-            }
+        val courseUsers = mutableListOf<String>()
+        courseUsers.add(currentCourse.value.courseTeacher)
+        courseUsers.add(currentCourse.value.courseCreator)
+        courseUsers.addAll(currentCourse.value.enrolledStudents)
+        notificationRepo.sendTermTestNotification(
+            courseDepartment = currentCourse.value.courseDepartment,
+            courseCode = currentCourse.value.courseCode,
+            courseTitle = currentCourse.value.courseTitle,
+            courseUsers = courseUsers,
+            token = token.value
+        ).collectLatest {
         }
     }
 
@@ -537,7 +534,8 @@ class CourseDetailsDisplayViewModel @Inject constructor(
         validateAssignmentUIDataWithRules()
         if (assignmentValidationPassed.value) {
             _createAssignmentDialogState.value = false
-            val lastAssignment = if (assignments.value.isEmpty()) Event() else assignments.value.last()
+            val lastAssignment =
+                if (assignments.value.isEmpty()) Event() else assignments.value.last()
             val assignment = Event(
                 type = EVENTS[1],
                 eventNo = lastAssignment.eventNo + 1,
@@ -590,21 +588,18 @@ class CourseDetailsDisplayViewModel @Inject constructor(
     }
 
     private fun sendAssignmentNotification() = viewModelScope.launch {
-        currentUser.value.data?.let {
-            getToken(it.email)
-            val courseUsers = mutableListOf<String>()
-            courseUsers.add(currentCourse.value.courseTeacher)
-            courseUsers.add(currentCourse.value.courseCreator)
-            courseUsers.addAll(currentCourse.value.enrolledStudents)
-            notificationRepo.sendAssignmentNotification(
-                courseDepartment = currentCourse.value.courseDepartment,
-                courseCode = currentCourse.value.courseCode,
-                courseTitle = currentCourse.value.courseTitle,
-                courseUsers = courseUsers,
-                token = token.value
-            ).collectLatest {
+        val courseUsers = mutableListOf<String>()
+        courseUsers.add(currentCourse.value.courseTeacher)
+        courseUsers.add(currentCourse.value.courseCreator)
+        courseUsers.addAll(currentCourse.value.enrolledStudents)
+        notificationRepo.sendAssignmentNotification(
+            courseDepartment = currentCourse.value.courseDepartment,
+            courseCode = currentCourse.value.courseCode,
+            courseTitle = currentCourse.value.courseTitle,
+            courseUsers = courseUsers,
+            token = token.value
+        ).collectLatest {
 
-            }
         }
     }
 

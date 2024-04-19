@@ -4,18 +4,12 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
-import com.nasiat_muhib.classmate.core.Constants.EVENTS
-import com.nasiat_muhib.classmate.core.GetModelFromDocument.getCourseFromFirestoreDocument
 import com.nasiat_muhib.classmate.core.GetModelFromDocument.getNotificationFromFirestoreDocument
 import com.nasiat_muhib.classmate.core.GetModelFromDocument.getUserFromFirestoreDocument
-import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.data.model.Notification
-import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.repository.NotificationRepository
 import com.nasiat_muhib.classmate.strings.CLASS_CANCELLED
 import com.nasiat_muhib.classmate.strings.CLASS_UPDATE
-import com.nasiat_muhib.classmate.strings.COURSES_COLLECTION
-import com.nasiat_muhib.classmate.strings.EMAIL
 import com.nasiat_muhib.classmate.strings.FCMToken
 import com.nasiat_muhib.classmate.strings.NEW_ASSIGNMENT
 import com.nasiat_muhib.classmate.strings.NEW_TERM_TEST
@@ -43,10 +37,10 @@ import javax.inject.Inject
 class NotificationRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val firestoreRef: FirebaseFirestore,
+    private val messagingRef: FirebaseMessaging,
 ) : NotificationRepository {
 
     private val usersCollection = firestoreRef.collection(USERS_COLLECTION)
-    private val coursesCollection = firestoreRef.collection(COURSES_COLLECTION)
 
     private val postUrl = "https://fcm.googleapis.com/fcm/send"
     private val fcmServerKey =
@@ -61,12 +55,20 @@ class NotificationRepositoryImpl @Inject constructor(
     private val authorization = "Authorization"
     private val key = "key"
 
-    override fun updateToken(token: String): Flow<Boolean> = flow<Boolean> {
-        auth.currentUser?.email?.let { email ->
-            val currentUser = usersCollection.document(email).get().await()
-            val user = getUserFromFirestoreDocument(currentUser)
-            val userWithToken = user.copy(token = token)
-            usersCollection.document(email).update(userWithToken.toMap()).await()
+    override fun updateToken(): Flow<Boolean> = flow<Boolean> {
+        var fcmToken: String? = null
+        messagingRef.token.addOnCompleteListener { task ->
+            task.result?.let {
+                fcmToken = it
+            }
+        }.await()
+        if (fcmToken != null) {
+            auth.currentUser?.email?.let { email ->
+                val currentUser = usersCollection.document(email).get().await()
+                val user = getUserFromFirestoreDocument(currentUser)
+                val userWithToken = user.copy(token = fcmToken!!)
+                usersCollection.document(email).update(userWithToken.toMap()).await()
+            }
         }
     }.catch {
         Log.d(TAG, "updateToken: error: ${it.message}")
@@ -77,6 +79,7 @@ class NotificationRepositoryImpl @Inject constructor(
             .addSnapshotListener { value, error ->
                 if (value != null) {
                     trySend(value[FCMToken].toString()).isSuccess
+                    Log.d(TAG, "getToken: ${value[FCMToken].toString()}")
                 }
             }
         awaitClose {
@@ -104,19 +107,19 @@ class NotificationRepositoryImpl @Inject constructor(
         notification.put(NOTIFICATION_BODY, notificationBody)
 
         courseUsers.forEach { user ->
-            val currentUser = usersCollection.document(user).get().await()
-            currentUser?.data?.let {
+            val courseUser = usersCollection.document(user).get().await()
+            courseUser?.data?.let {
                 val fcmToken = it[FCMToken].toString()
                 Log.d(TAG, "sendUpdateNotification: $fcmToken")
-//                if (fcmToken != token) {
-                json.put(sendTo, fcmToken)
-                json.put(notificationData, notification)
-                val body = json.toString().toRequestBody(jsonType.toMediaTypeOrNull())
-                val request = Request.Builder()
-                    .url(postUrl)
-                    .post(body)
-                    .addHeader(authorization, "$key=$fcmServerKey")
-                    .build()
+                if (fcmToken != token) {
+                    json.put(sendTo, fcmToken)
+                    json.put(notificationData, notification)
+                    val body = json.toString().toRequestBody(jsonType.toMediaTypeOrNull())
+                    val request = Request.Builder()
+                        .url(postUrl)
+                        .post(body)
+                        .addHeader(authorization, "$key=$fcmServerKey")
+                        .build()
                     client.newCall(request).enqueue(object : Callback {
                         override fun onFailure(call: Call, e: IOException) {
 //                println("FCM Notification sending failed: ${e.message}")
@@ -136,7 +139,7 @@ class NotificationRepositoryImpl @Inject constructor(
                         courseCode = courseCode,
                         courseTitle = courseTitle
                     )
-//                }
+                }
             }
         }
     }
@@ -159,38 +162,38 @@ class NotificationRepositoryImpl @Inject constructor(
         notification.put(NOTIFICATION_BODY, notificationBody)
 
         courseUsers.forEach { user ->
-            val currentUser = usersCollection.document(user).get().await()
-            currentUser?.data?.let {
+            val courseUser = usersCollection.document(user).get().await()
+            courseUser?.data?.let {
                 val fcmToken = it[FCMToken].toString()
-//                if (fcmToken != token) {
-                json.put(sendTo, fcmToken)
-                json.put(notificationData, notification)
-                val body = json.toString().toRequestBody(jsonType.toMediaTypeOrNull())
-                val request = Request.Builder()
-                    .url(postUrl)
-                    .post(body)
-                    .addHeader(authorization, "$key=$fcmServerKey")
-                    .build()
-                client.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
+                if (fcmToken != token) {
+                    json.put(sendTo, fcmToken)
+                    json.put(notificationData, notification)
+                    val body = json.toString().toRequestBody(jsonType.toMediaTypeOrNull())
+                    val request = Request.Builder()
+                        .url(postUrl)
+                        .post(body)
+                        .addHeader(authorization, "$key=$fcmServerKey")
+                        .build()
+                    client.newCall(request).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
 //                println("FCM Notification sending failed: ${e.message}")
-                        Log.d(TAG, "onFailure: ${e.message}")
-                    }
+                            Log.d(TAG, "onFailure: ${e.message}")
+                        }
 
-                    override fun onResponse(call: Call, response: Response) {
+                        override fun onResponse(call: Call, response: Response) {
 //                println("FCM Notification sent successfully")
-                        Log.d(TAG, "onResponse: FCM Notification sent successfully")
-                    }
-                })
+                            Log.d(TAG, "onResponse: FCM Notification sent successfully")
+                        }
+                    })
 
-                createNotification(
-                    documentId = user,
-                    type = NEW_TERM_TEST,
-                    courseDepartment = courseDepartment,
-                    courseCode = courseCode,
-                    courseTitle = courseTitle
-                )
-//                }
+                    createNotification(
+                        documentId = user,
+                        type = NEW_TERM_TEST,
+                        courseDepartment = courseDepartment,
+                        courseCode = courseCode,
+                        courseTitle = courseTitle
+                    )
+                }
             }
         }
     }
@@ -213,38 +216,38 @@ class NotificationRepositoryImpl @Inject constructor(
         notification.put(NOTIFICATION_BODY, notificationBody)
 
         courseUsers.forEach { user ->
-            val currentUser = usersCollection.document(user).get().await()
-            currentUser?.data?.let {
+            val courseUser = usersCollection.document(user).get().await()
+            courseUser?.data?.let {
                 val fcmToken = it[FCMToken].toString()
-//                if (fcmToken != token) {
-                json.put(sendTo, fcmToken)
-                json.put(notificationData, notification)
-                val body = json.toString().toRequestBody(jsonType.toMediaTypeOrNull())
-                val request = Request.Builder()
-                    .url(postUrl)
-                    .post(body)
-                    .addHeader(authorization, "$key=$fcmServerKey")
-                    .build()
-                client.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
+                if (fcmToken != token) {
+                    json.put(sendTo, fcmToken)
+                    json.put(notificationData, notification)
+                    val body = json.toString().toRequestBody(jsonType.toMediaTypeOrNull())
+                    val request = Request.Builder()
+                        .url(postUrl)
+                        .post(body)
+                        .addHeader(authorization, "$key=$fcmServerKey")
+                        .build()
+                    client.newCall(request).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
 //                println("FCM Notification sending failed: ${e.message}")
-                        Log.d(TAG, "onFailure: ${e.message}")
-                    }
+                            Log.d(TAG, "onFailure: ${e.message}")
+                        }
 
-                    override fun onResponse(call: Call, response: Response) {
+                        override fun onResponse(call: Call, response: Response) {
 //                println("FCM Notification sent successfully")
-                        Log.d(TAG, "onResponse: FCM Notification sent successfully")
-                    }
-                })
+                            Log.d(TAG, "onResponse: FCM Notification sent successfully")
+                        }
+                    })
 
-                createNotification(
-                    documentId = user,
-                    type = NEW_ASSIGNMENT,
-                    courseDepartment = courseDepartment,
-                    courseCode = courseCode,
-                    courseTitle = courseTitle
-                )
-//                }
+                    createNotification(
+                        documentId = user,
+                        type = NEW_ASSIGNMENT,
+                        courseDepartment = courseDepartment,
+                        courseCode = courseCode,
+                        courseTitle = courseTitle
+                    )
+                }
             }
         }
     }
@@ -268,18 +271,19 @@ class NotificationRepositoryImpl @Inject constructor(
 
 
         courseUsers.forEach { user ->
-            val currentUser = usersCollection.document(user).get().await()
-            currentUser?.data?.let {
+            val courseUser = usersCollection.document(user).get().await()
+            courseUser?.data?.let {
                 val fcmToken = it[FCMToken].toString()
-//                if (fcmToken != token) {
+                Log.d(TAG, "sendClassCancelNotification: \ncurrentUserToken: $token \ncourseUserToken: $fcmToken")
+                if (fcmToken != token) {
                     json.put(sendTo, fcmToken)
                     json.put(notificationData, notification)
-                val body = json.toString().toRequestBody(jsonType.toMediaTypeOrNull())
-                val request = Request.Builder()
-                    .url(postUrl)
-                    .post(body)
-                    .addHeader(authorization, "$key=$fcmServerKey")
-                    .build()
+                    val body = json.toString().toRequestBody(jsonType.toMediaTypeOrNull())
+                    val request = Request.Builder()
+                        .url(postUrl)
+                        .post(body)
+                        .addHeader(authorization, "$key=$fcmServerKey")
+                        .build()
                     client.newCall(request).enqueue(object : Callback {
                         override fun onFailure(call: Call, e: IOException) {
 //                println("FCM Notification sending failed: ${e.message}")
@@ -299,7 +303,7 @@ class NotificationRepositoryImpl @Inject constructor(
                         courseCode = courseCode,
                         courseTitle = courseTitle
                     )
-//                }
+                }
             }
         }
     }
