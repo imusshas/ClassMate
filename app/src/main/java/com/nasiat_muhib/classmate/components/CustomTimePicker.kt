@@ -38,6 +38,7 @@ import com.nasiat_muhib.classmate.ui.theme.LargeHeight
 import com.nasiat_muhib.classmate.ui.theme.LargeRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.PickerStyle
+import com.nasiat_muhib.classmate.ui.theme.PrimaryRed
 import com.nasiat_muhib.classmate.ui.theme.SmallBorder
 import com.nasiat_muhib.classmate.ui.theme.SmallHeight
 import com.nasiat_muhib.classmate.ui.theme.SmallPickerStyle
@@ -80,13 +81,13 @@ fun CustomTimePicker(
 
 
     val amContainerColor =
-        if (isAmSelected.value) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f) else MaterialTheme.colorScheme.background
+        if (isAmSelected.value) PrimaryRed.copy(alpha = 0.33f) else MaterialTheme.colorScheme.background
     val amContentColor =
-        if (isAmSelected.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+        if (isAmSelected.value) PrimaryRed else MaterialTheme.colorScheme.onBackground
     val pmContainerColor =
-        if (!isAmSelected.value) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f) else MaterialTheme.colorScheme.background
+        if (!isAmSelected.value) PrimaryRed.copy(alpha = 0.33f) else MaterialTheme.colorScheme.background
     val pmContentColor =
-        if (!isAmSelected.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+        if (!isAmSelected.value) PrimaryRed else MaterialTheme.colorScheme.onBackground
 
     Column(
         modifier = Modifier
@@ -100,7 +101,7 @@ fun CustomTimePicker(
     ) {
         Text(
             text = title,
-            color = MaterialTheme.colorScheme.primary,
+            color = PrimaryRed,
             fontSize = SmallPickerStyle.fontSize
         )
         Row(
@@ -117,12 +118,11 @@ fun CustomTimePicker(
                     onValueChange = {
                     onHourChange(it)
                     hourClicked.value = true
-//                    Log.d(TAG, "CustomTimePicker: hour $it")
                 })
                 Text(
                     text = COLON,
                     style = PickerStyle,
-                    color = MaterialTheme.colorScheme.primary
+                    color = PrimaryRed
                 )
                 CustomBasicTextField(
                     value = minute.value,

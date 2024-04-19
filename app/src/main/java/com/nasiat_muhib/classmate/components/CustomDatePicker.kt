@@ -26,6 +26,7 @@ import com.nasiat_muhib.classmate.strings.TIME
 import com.nasiat_muhib.classmate.ui.theme.ExtraSmallSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.PickerStyle
+import com.nasiat_muhib.classmate.ui.theme.PrimaryRed
 import com.nasiat_muhib.classmate.ui.theme.SmallPickerStyle
 import com.nasiat_muhib.classmate.ui.theme.SmallSpace
 import com.nasiat_muhib.classmate.ui.theme.TitleStyle
@@ -94,7 +95,7 @@ fun CustomDatePicker(
     ) {
         Text(
             text = DATE,
-            color = MaterialTheme.colorScheme.primary,
+            color = PrimaryRed,
             fontSize = SmallPickerStyle.fontSize
         )
         Row(
@@ -113,7 +114,7 @@ fun CustomDatePicker(
                 Text(
                     text = FORWARD_SLASH,
                     style = PickerStyle,
-                    color = MaterialTheme.colorScheme.primary
+                    color = PrimaryRed
                 )
                 CustomBasicTextField(
                     value = month.value,
@@ -129,7 +130,7 @@ fun CustomDatePicker(
                 Text(
                     text = FORWARD_SLASH,
                     style = PickerStyle,
-                    color = MaterialTheme.colorScheme.primary
+                    color = PrimaryRed
                 )
                 CustomBasicTextField(
                     value = year.value,

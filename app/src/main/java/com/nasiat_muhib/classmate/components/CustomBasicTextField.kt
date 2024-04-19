@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.nasiat_muhib.classmate.ui.theme.LargeHeight
 import com.nasiat_muhib.classmate.ui.theme.LargeRounded
 import com.nasiat_muhib.classmate.ui.theme.PickerStyle
+import com.nasiat_muhib.classmate.ui.theme.PrimaryRed
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -55,7 +56,7 @@ fun CustomBasicTextField(
                 text.value = it
             },
             textStyle = PickerStyle,
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            cursorBrush = SolidColor(PrimaryRed),
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             lineLimits = TextFieldLineLimits.SingleLine,
