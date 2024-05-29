@@ -15,11 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import com.nasiat_muhib.classmate.components.CustomElevatedButton
 import com.nasiat_muhib.classmate.data.model.User
 import com.nasiat_muhib.classmate.domain.event.EditProfileUIEvent
 import com.nasiat_muhib.classmate.presentation.main.menu.profile.ProfileViewModel
-import com.nasiat_muhib.classmate.strings.TEACHER
 import com.nasiat_muhib.classmate.ui.theme.LargeSpace
 import com.nasiat_muhib.classmate.ui.theme.MediumRounded
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
@@ -112,7 +110,7 @@ fun ProfileContent(
                 profileViewModel.onEditProfileEvent(EditProfileUIEvent.PhoneNoChanged(phoneNo))
             },
             errorMessage = editUserState.phoneNoError,
-            readOnly = !editState,
+            readOnly = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done
