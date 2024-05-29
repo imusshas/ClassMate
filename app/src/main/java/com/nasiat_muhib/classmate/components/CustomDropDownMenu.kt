@@ -44,8 +44,14 @@ fun CustomDropDownMenu(
 ) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
 
+    var hasItemClicked by rememberSaveable { mutableStateOf(false) }
+
     var item by rememberSaveable {
         mutableStateOf(selectedItem)
+    }
+
+    if (!hasItemClicked) {
+        onItemChange(item)
     }
 
     ExposedDropdownMenuBox(
@@ -100,6 +106,7 @@ fun CustomDropDownMenu(
                             }
                         },
                         onClick = {
+                            hasItemClicked = true
                             isExpanded = false
                             item = it
                             onItemChange(it)
