@@ -10,21 +10,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import com.nasiat_muhib.classmate.components.CustomDropDownMenu
 import com.nasiat_muhib.classmate.components.CustomElevatedButton
-import com.nasiat_muhib.classmate.components.CustomLazyColumn
 import com.nasiat_muhib.classmate.components.CustomOutlinedField
 import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.components.TitleContainer
@@ -178,7 +174,7 @@ fun CreateCourse(
                     "${it.hashCode()}"
                 }
             ) {
-                DisplayClassDetails(classDetails = it, createCourseViewModel = createCourseViewModel)
+                DisplayClassDetails(classDetails = it, createCourseViewModel = createCourseViewModel, isVisible = createCourseUIState.courseClasses.contains(it))
             }
         }
     }

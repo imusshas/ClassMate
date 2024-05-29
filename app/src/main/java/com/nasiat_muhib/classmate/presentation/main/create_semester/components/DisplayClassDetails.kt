@@ -40,21 +40,18 @@ import me.saket.swipe.SwipeableActionsBox
 fun DisplayClassDetails(
     classDetails: ClassDetails,
     createCourseViewModel: CreateCourseViewModel,
+    isVisible: Boolean
 ) {
-
-    val isVisible = rememberSaveable { mutableStateOf(true) }
 
     val delete = SwipeAction(
         onSwipe = {
             createCourseViewModel.onCreateCourse(
                 CreateCourseUIEvent.ClassDetailsDeleteSwipe(classDetails)
             )
-            isVisible.value = false
         },
         icon = {
             Icon(
                 painter = painterResource(id = R.drawable.delete),
-//                imageVector = Icons.Default.Delete,
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(ExtraSmallHeight)
@@ -72,7 +69,7 @@ fun DisplayClassDetails(
             .height(NormalHeight)
             .padding(horizontal = MediumSpace),
     ) {
-        AnimatedVisibility(visible = isVisible.value) {
+        AnimatedVisibility(visible = isVisible) {
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxSize(),

@@ -97,7 +97,7 @@ fun CreateSemesterContent(
             CustomSwipeAbleLazyColumn(
                 items = if (createdOrPending.value) createdCourses else pendingCourses,
                 key = {
-                      "${it.courseDepartment}:${it.courseCode}:${it.courseCreator}"
+                      "${it.hashCode()}"
                 },
                 modifier = Modifier.fillMaxHeight()
             ) {
@@ -105,6 +105,7 @@ fun CreateSemesterContent(
                     course = it,
                     createSemesterViewModel = createSemesterViewModel,
                     navigationViewModel = navigationViewModel,
+                    isVisible = if (createdOrPending.value) createdCourses.contains(it) else pendingCourses.contains(it),
                     navigateToCourseDetailsDisplay = navigateToCourseDetailsDisplay
                 )
             }

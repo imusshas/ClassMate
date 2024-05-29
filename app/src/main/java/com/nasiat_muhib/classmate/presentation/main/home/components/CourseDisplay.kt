@@ -42,14 +42,13 @@ fun CourseDisplay(
     homeViewModel: HomeViewModel,
     navigationViewModel: NavigationViewModel,
     isRequested: Boolean,
+    isVisible: Boolean,
     navigateToCourseDetailsDisplay: () -> Unit
 ) {
-    val isVisible = rememberSaveable { mutableStateOf(true) }
 
     val accept = SwipeAction(
         onSwipe = {
             homeViewModel.onHomeEvent(HomeUIEvent.AcceptCourseRequest(course))
-            isVisible.value = false
         },
         icon = {
             Icon(
@@ -65,7 +64,6 @@ fun CourseDisplay(
     val delete = SwipeAction(
         onSwipe = {
             homeViewModel.onHomeEvent(HomeUIEvent.DeleteCourseRequest(course))
-            isVisible.value = false
         },
         icon = {
             Icon(
@@ -106,7 +104,7 @@ fun CourseDisplay(
                 .padding(horizontal = MediumSpace),
         ) {
             AnimatedVisibility(
-                visible = isVisible.value,
+                visible = isVisible,
                 exit = shrinkHorizontally()
             ) {
                 ElevatedCard(
@@ -129,7 +127,7 @@ fun CourseDisplay(
                 }
             }
         }
-    } else if (isVisible.value) {
+    } else {
         SwipeableActionsBox(
             startActions = listOf(display),
             swipeThreshold = LargeHeight,
@@ -140,7 +138,7 @@ fun CourseDisplay(
                 .padding(horizontal = MediumSpace),
         ) {
             AnimatedVisibility(
-                visible = isVisible.value,
+                visible = isVisible,
                 exit = shrinkHorizontally()
             ) {
                 ElevatedCard(

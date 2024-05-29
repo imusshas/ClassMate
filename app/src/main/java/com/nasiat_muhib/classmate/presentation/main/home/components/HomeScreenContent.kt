@@ -103,13 +103,14 @@ fun HomeScreenContent(
 
             FixedHeightSwipeAbleLazyColumn(items = if (courseOrRequest.value) courses else requestedCourses,
                 key = {
-                    "${it.courseDepartment}:${it.courseCode}"
+                    "${it.hashCode()}"
                 }) {
                 CourseDisplay(
                     course = it,
                     homeViewModel = homeViewModel,
                     navigationViewModel = navigationViewModel,
                     isRequested = requestedCourses.contains(it),
+                    isVisible = if (courseOrRequest.value) courses.contains(it) else requestedCourses.contains(it),
                     navigateToCourseDetailsDisplay = navigateToCourseDetailsDisplay
                 )
             }

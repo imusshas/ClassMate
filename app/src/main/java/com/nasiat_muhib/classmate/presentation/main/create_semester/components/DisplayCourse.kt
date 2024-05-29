@@ -39,9 +39,10 @@ fun DisplayCourse(
     course: Course,
     createSemesterViewModel: CreateSemesterViewModel,
     navigationViewModel: NavigationViewModel,
+    isVisible: Boolean,
     navigateToCourseDetailsDisplay: () -> Unit
 ) {
-    val isVisible = rememberSaveable { mutableStateOf(true) }
+
 
     val display = SwipeAction(
         onSwipe = {
@@ -62,7 +63,6 @@ fun DisplayCourse(
     val delete = SwipeAction(
         onSwipe = {
             createSemesterViewModel.onCreateSemesterEvent(CreateSemesterUIEvent.DeleteCourseSwipe(course))
-            isVisible.value = false
         },
         icon = {
             Icon(
@@ -86,7 +86,7 @@ fun DisplayCourse(
             .padding(horizontal = MediumSpace),
     ) {
         AnimatedVisibility(
-            visible = isVisible.value,
+            visible = isVisible,
             exit = shrinkHorizontally()
         ) {
             ElevatedCard(
