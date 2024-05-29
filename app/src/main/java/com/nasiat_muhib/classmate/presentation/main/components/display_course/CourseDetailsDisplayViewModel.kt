@@ -474,6 +474,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
         courseUsers.add(currentCourse.value.courseCreator)
         courseUsers.addAll(currentCourse.value.enrolledStudents)
         notificationRepo.sendTermTestNotification(
+            courseCreator = currentCourse.value.courseCreator,
             courseDepartment = currentCourse.value.courseDepartment,
             courseCode = currentCourse.value.courseCode,
             courseTitle = currentCourse.value.courseTitle,
@@ -593,6 +594,7 @@ class CourseDetailsDisplayViewModel @Inject constructor(
         courseUsers.add(currentCourse.value.courseCreator)
         courseUsers.addAll(currentCourse.value.enrolledStudents)
         notificationRepo.sendAssignmentNotification(
+            courseCreator = currentCourse.value.courseCreator,
             courseDepartment = currentCourse.value.courseDepartment,
             courseCode = currentCourse.value.courseCode,
             courseTitle = currentCourse.value.courseTitle,

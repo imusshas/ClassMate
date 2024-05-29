@@ -6,12 +6,9 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -20,9 +17,6 @@ import com.nasiat_muhib.classmate.core.Constants.REQUEST_NOTIFICATION_PERMISSION
 import com.nasiat_muhib.classmate.navigation.ClassMate
 import com.nasiat_muhib.classmate.ui.theme.ClassMateTheme
 import dagger.hilt.android.AndroidEntryPoint
-import java.sql.Timestamp
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

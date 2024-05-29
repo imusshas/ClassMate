@@ -3,6 +3,7 @@ package com.nasiat_muhib.classmate.data.model
 import com.nasiat_muhib.classmate.core.Constants.EVENTS
 import com.nasiat_muhib.classmate.strings.EVENT_CLASSROOM
 import com.nasiat_muhib.classmate.strings.EVENT_COURSE_CODE
+import com.nasiat_muhib.classmate.strings.EVENT_COURSE_CREATOR
 import com.nasiat_muhib.classmate.strings.EVENT_DAY
 import com.nasiat_muhib.classmate.strings.EVENT_DEPARTMENT
 import com.nasiat_muhib.classmate.strings.EVENT_HOUR
@@ -16,6 +17,7 @@ import com.nasiat_muhib.classmate.strings.EVENT_YEAR
 data class Event(
     val type: String = EVENTS[0],
     val courseCode: String = "",
+    val courseCreator: String = "",
     val department: String = "",
     val eventNo: Int = -1,
     val classroom: String = "",
@@ -30,6 +32,7 @@ data class Event(
         EVENT_TYPE to type,
         EVENT_NO to eventNo,
         EVENT_COURSE_CODE to courseCode,
+        EVENT_COURSE_CREATOR to courseCreator,
         EVENT_DEPARTMENT to  department,
         EVENT_CLASSROOM to classroom,
         EVENT_DAY to day,

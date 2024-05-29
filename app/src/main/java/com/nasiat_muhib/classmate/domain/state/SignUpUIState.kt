@@ -7,12 +7,17 @@ data class SignUpUIState (
     val lastName: String = "",
     val role: String = ROLES[0],
     val department: String = "",
+    val phoneNo: String = "",
     val email: String = "",
     val password: String = "",
 
     val firstNameError: String? = null,
     val lastNameError: String? = null,
     val departmentError: String? = null,
+    val phoneNoError: String? = null,
     val emailError: String? = null,
     val passwordError: String? = null,
+
+    val otp: String = "",
+    val otpError: String? = null
 )

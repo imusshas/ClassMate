@@ -233,6 +233,7 @@ class HomeViewModel @Inject constructor(
                         val title = getCourseTitle(it.classDepartment, it.classCourseCode)
                         val courseUsers = getCourseUsers(it.classDepartment, it.classCourseCode)
                         sendClassCancelNotification(
+                            courseCreator = it.classCourseCreator,
                             courseDepartment = it.classDepartment,
                             courseCode = it.classCourseCode,
                             courseTitle = title,
@@ -244,16 +245,18 @@ class HomeViewModel @Inject constructor(
         }
 
     private fun sendClassCancelNotification(
+        courseCreator: String,
         courseDepartment: String,
         courseCode: String,
         courseTitle: String,
         courseUsers: List<String>,
     ) = viewModelScope.launch {
         notificationRepo.sendClassCancelNotification(
-            courseDepartment,
-            courseCode,
-            courseTitle,
-            courseUsers,
+            courseCreator = courseCreator,
+            courseDepartment = courseDepartment,
+            courseCode = courseCode,
+            courseTitle = courseTitle,
+            courseUsers = courseUsers,
             token.value
         ).collectLatest {
 
@@ -367,6 +370,7 @@ class HomeViewModel @Inject constructor(
                 courseUsers.add(it.courseTeacher)
                 courseUsers.addAll(it.enrolledStudents)
                 notificationRepo.sendUpdateNotification(
+                    courseCreator = it.courseCreator,
                     courseCode = courseCode,
                     courseTitle = courseTitle,
                     courseDepartment = it.courseDepartment,

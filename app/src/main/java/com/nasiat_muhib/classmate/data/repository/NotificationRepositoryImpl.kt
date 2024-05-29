@@ -90,6 +90,7 @@ class NotificationRepositoryImpl @Inject constructor(
     }
 
     override fun sendUpdateNotification(
+        courseCreator: String,
         courseDepartment: String,
         courseCode: String,
         courseTitle: String,
@@ -136,6 +137,7 @@ class NotificationRepositoryImpl @Inject constructor(
                         documentId = user,
                         type = CLASS_UPDATE,
                         courseDepartment = courseDepartment,
+                        courseCreator = courseCreator,
                         courseCode = courseCode,
                         courseTitle = courseTitle
                     )
@@ -145,6 +147,7 @@ class NotificationRepositoryImpl @Inject constructor(
     }
 
     override fun sendTermTestNotification(
+        courseCreator: String,
         courseDepartment: String,
         courseCode: String,
         courseTitle: String,
@@ -189,6 +192,7 @@ class NotificationRepositoryImpl @Inject constructor(
                     createNotification(
                         documentId = user,
                         type = NEW_TERM_TEST,
+                        courseCreator = courseCreator,
                         courseDepartment = courseDepartment,
                         courseCode = courseCode,
                         courseTitle = courseTitle
@@ -199,6 +203,7 @@ class NotificationRepositoryImpl @Inject constructor(
     }
 
     override fun sendAssignmentNotification(
+        courseCreator: String,
         courseDepartment: String,
         courseCode: String,
         courseTitle: String,
@@ -243,6 +248,7 @@ class NotificationRepositoryImpl @Inject constructor(
                     createNotification(
                         documentId = user,
                         type = NEW_ASSIGNMENT,
+                        courseCreator = courseCreator,
                         courseDepartment = courseDepartment,
                         courseCode = courseCode,
                         courseTitle = courseTitle
@@ -253,6 +259,7 @@ class NotificationRepositoryImpl @Inject constructor(
     }
 
     override fun sendClassCancelNotification(
+        courseCreator: String,
         courseDepartment: String,
         courseCode: String,
         courseTitle: String,
@@ -299,6 +306,7 @@ class NotificationRepositoryImpl @Inject constructor(
                     createNotification(
                         documentId = user,
                         type = CLASS_CANCELLED,
+                        courseCreator = courseCreator,
                         courseDepartment = courseDepartment,
                         courseCode = courseCode,
                         courseTitle = courseTitle
@@ -335,6 +343,7 @@ class NotificationRepositoryImpl @Inject constructor(
         documentId: String,
         type: String,
         courseDepartment: String,
+        courseCreator: String,
         courseCode: String,
         courseTitle: String,
     ) {
@@ -343,6 +352,7 @@ class NotificationRepositoryImpl @Inject constructor(
             creationTime = creationTime,
             type = type,
             courseDepartment = courseDepartment,
+            courseCreator = courseCreator,
             courseCode = courseCode,
             courseTitle = courseTitle,
             isRead = false

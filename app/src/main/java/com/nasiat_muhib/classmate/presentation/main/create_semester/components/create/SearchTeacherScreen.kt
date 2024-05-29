@@ -31,7 +31,7 @@ import com.nasiat_muhib.classmate.ui.theme.TitleStyle
 fun SearchTeacherScreen(
     searchTeacherViewModel: SearchTeacherViewModel = hiltViewModel(),
     createCourseViewModel: CreateCourseViewModel,
-    navigateToCreateCourse: () -> Unit
+    navigateBackToCreateCourse: () -> Unit
 ) {
     val searchText = searchTeacherViewModel.searchText.collectAsState()
     val users = searchTeacherViewModel.users.collectAsState()
@@ -81,7 +81,7 @@ fun SearchTeacherScreen(
                                 createCourseViewModel.onCreateCourse(
                                     CreateCourseUIEvent.SearchUIRequestButtonClick(courseTeacherEmail = it.email)
                                 )
-                                navigateToCreateCourse()
+                                navigateBackToCreateCourse()
                             },
                             shape = MediumRounded
                         ) {

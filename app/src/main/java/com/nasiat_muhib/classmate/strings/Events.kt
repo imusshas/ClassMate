@@ -3,6 +3,7 @@ package com.nasiat_muhib.classmate.strings
 const val EVENT_TYPE = "type"
 const val EVENT_NO = "event_no"
 const val EVENT_COURSE_CODE = "course_code"
+const val EVENT_COURSE_CREATOR = "course_creator"
 const val EVENT_DEPARTMENT = "event_department"
 const val EVENT_CLASSROOM = "classroom"
 const val EVENT_DAY = "day"

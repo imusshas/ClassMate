@@ -13,8 +13,9 @@ fun SignUpScreen(
     navigateBackToSignInScreen: () -> Unit,
 ) {
     val signUpDataState = signUpViewModel.signUpDataState.collectAsState()
+    val otpScreenState = signUpViewModel.otpScreenState.collectAsState()
 
-    if (signUpDataState.value.data != null) {
+    if (signUpDataState.value.data != null && !otpScreenState.value) {
         navigateToHomeScreen()
     }
 

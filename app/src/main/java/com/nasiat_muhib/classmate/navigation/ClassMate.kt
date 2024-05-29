@@ -172,7 +172,7 @@ fun ClassMate(
         composable(Screen.SearchTeacher.route) {
             SearchTeacherScreen(
                 createCourseViewModel = createCourseViewModel,
-                navigateToCreateCourse = { navigateTo(navController, Screen.CreateCourse) }
+                navigateBackToCreateCourse = { navigateBack(navController) }
             )
         }
         /***************************  Create Course  *******************************/

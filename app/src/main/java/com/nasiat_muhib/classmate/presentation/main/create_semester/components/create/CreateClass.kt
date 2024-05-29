@@ -165,9 +165,3 @@ fun CreateClass(
         }
     }
 }
-
-@Composable
-@Preview(showBackground = true)
-fun CreateClassPreview() {
-//    CreateClass(hiltViewModel())
-}

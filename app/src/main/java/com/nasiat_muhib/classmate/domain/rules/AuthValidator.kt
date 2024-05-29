@@ -48,6 +48,17 @@ object AuthValidator {
         return AuthValidationResult(message)
     }
 
+    fun validatePhoneNo(phoneNo: String): AuthValidationResult {
+
+        var message: String? = null
+        val bangladeshiPhoneNumberPattern = "^(?:\\+88|88)?01[3-9]\\d{8}$".toRegex()
+         if (!phoneNo.matches(bangladeshiPhoneNumberPattern)) {
+             message = "Invalid Phone No"
+         }
+
+        return AuthValidationResult(message)
+    }
+
     data class AuthValidationResult(
         val message: String? = null,
     )

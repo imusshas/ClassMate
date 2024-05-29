@@ -8,6 +8,7 @@ interface NotificationRepository {
     fun updateToken(): Flow<Boolean>
     fun getToken(email: String): Flow<String>
     fun sendUpdateNotification(
+        courseCreator: String,
         courseDepartment: String,
         courseCode: String,
         courseTitle: String,
@@ -15,6 +16,7 @@ interface NotificationRepository {
         token: String,
     ): Flow<Boolean>
     fun sendTermTestNotification(
+        courseCreator: String,
         courseDepartment: String,
         courseCode: String,
         courseTitle: String,
@@ -23,6 +25,7 @@ interface NotificationRepository {
     ): Flow<Boolean>
 
     fun sendAssignmentNotification(
+        courseCreator: String,
         courseDepartment: String,
         courseCode: String,
         courseTitle: String,
@@ -30,6 +33,7 @@ interface NotificationRepository {
         token: String,
     ): Flow<Boolean>
     fun sendClassCancelNotification(
+        courseCreator: String,
         courseDepartment: String,
         courseCode: String,
         courseTitle: String,

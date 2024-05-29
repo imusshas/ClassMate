@@ -5,6 +5,7 @@ import com.nasiat_muhib.classmate.strings.NOTIFICATION_COURSE_DEPARTMENT
 import com.nasiat_muhib.classmate.strings.NOTIFICATION_COURSE_TITLE
 import com.nasiat_muhib.classmate.strings.NOTIFICATION_TYPE
 import com.nasiat_muhib.classmate.strings.NOTIFICATION_COURSE_CODE
+import com.nasiat_muhib.classmate.strings.NOTIFICATION_COURSE_CREATOR
 import com.nasiat_muhib.classmate.strings.READ_STATUS
 
 data class Notification(
@@ -12,6 +13,7 @@ data class Notification(
     val type: String,
     val courseDepartment: String,
     val courseCode: String,
+    val courseCreator: String,
     val courseTitle: String,
     val isRead: Boolean
 ) {
@@ -20,6 +22,7 @@ data class Notification(
         NOTIFICATION_TYPE to type,
         NOTIFICATION_COURSE_DEPARTMENT to courseDepartment,
         NOTIFICATION_COURSE_CODE to courseCode,
+        NOTIFICATION_COURSE_CREATOR to courseCreator,
         NOTIFICATION_COURSE_TITLE to courseTitle,
         READ_STATUS to isRead
     )

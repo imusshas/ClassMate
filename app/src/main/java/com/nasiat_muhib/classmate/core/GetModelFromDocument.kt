@@ -12,6 +12,7 @@ import com.nasiat_muhib.classmate.strings.ACTIVE_STATUS
 import com.nasiat_muhib.classmate.strings.BLOOD_GROUP
 import com.nasiat_muhib.classmate.strings.CLASSROOM
 import com.nasiat_muhib.classmate.strings.CLASS_COURSE_CODE
+import com.nasiat_muhib.classmate.strings.CLASS_COURSE_CREATOR
 import com.nasiat_muhib.classmate.strings.CLASS_DEPARTMENT
 import com.nasiat_muhib.classmate.strings.CLASS_NO
 import com.nasiat_muhib.classmate.strings.COURSES
@@ -31,6 +32,7 @@ import com.nasiat_muhib.classmate.strings.END_MINUTE
 import com.nasiat_muhib.classmate.strings.END_SHIFT
 import com.nasiat_muhib.classmate.strings.EVENT_CLASSROOM
 import com.nasiat_muhib.classmate.strings.EVENT_COURSE_CODE
+import com.nasiat_muhib.classmate.strings.EVENT_COURSE_CREATOR
 import com.nasiat_muhib.classmate.strings.EVENT_DAY
 import com.nasiat_muhib.classmate.strings.EVENT_DEPARTMENT
 import com.nasiat_muhib.classmate.strings.EVENT_HOUR
@@ -43,6 +45,7 @@ import com.nasiat_muhib.classmate.strings.EVENT_YEAR
 import com.nasiat_muhib.classmate.strings.FIRST_NAME
 import com.nasiat_muhib.classmate.strings.LAST_NAME
 import com.nasiat_muhib.classmate.strings.NOTIFICATION_COURSE_CODE
+import com.nasiat_muhib.classmate.strings.NOTIFICATION_COURSE_CREATOR
 import com.nasiat_muhib.classmate.strings.NOTIFICATION_COURSE_DEPARTMENT
 import com.nasiat_muhib.classmate.strings.NOTIFICATION_COURSE_TITLE
 import com.nasiat_muhib.classmate.strings.NOTIFICATION_TYPE
@@ -57,6 +60,7 @@ import com.nasiat_muhib.classmate.strings.POST_TIMESTAMP
 import com.nasiat_muhib.classmate.strings.READ_STATUS
 import com.nasiat_muhib.classmate.strings.REQUESTED_COURSES
 import com.nasiat_muhib.classmate.strings.RESOURCE_COURSE_CODE
+import com.nasiat_muhib.classmate.strings.RESOURCE_COURSE_CREATOR
 import com.nasiat_muhib.classmate.strings.RESOURCE_DEPARTMENT
 import com.nasiat_muhib.classmate.strings.RESOURCE_LINK
 import com.nasiat_muhib.classmate.strings.RESOURCE_NO
@@ -68,8 +72,6 @@ import com.nasiat_muhib.classmate.strings.START_HOUR
 import com.nasiat_muhib.classmate.strings.START_MINUTE
 import com.nasiat_muhib.classmate.strings.START_SHIFT
 import com.nasiat_muhib.classmate.strings.WEEKDAY
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 object GetModelFromDocument {
     fun getUserFromFirestoreDocument(snapshot: DocumentSnapshot): User {
@@ -142,6 +144,8 @@ object GetModelFromDocument {
             if (snapshot[CLASS_DEPARTMENT] != null) snapshot[CLASS_DEPARTMENT] as String else ""
         val classCourseCode: String =
             if (snapshot[CLASS_COURSE_CODE] != null) snapshot[CLASS_COURSE_CODE] as String else ""
+        val classCourseCreator: String =
+            if (snapshot[CLASS_COURSE_CREATOR] != null) snapshot[CLASS_COURSE_CREATOR] as String else ""
         val classNo: Long = if (snapshot[CLASS_NO] != null) snapshot[CLASS_NO] as Long else -1
         val weekDay: String = if (snapshot[WEEKDAY] != null) snapshot[WEEKDAY] as String else ""
         val classroom: String =
@@ -162,6 +166,7 @@ object GetModelFromDocument {
         return ClassDetails(
             classDepartment = classDepartment,
             classCourseCode = classCourseCode,
+            classCourseCreator = classCourseCreator,
             classNo = classNo.toInt(),
             weekDay = weekDay,
             classroom = classroom,
@@ -180,6 +185,7 @@ object GetModelFromDocument {
         val type: String = snapshot[EVENT_TYPE].toString()
         val eventNo: Long = if (snapshot[EVENT_NO] != null) snapshot[EVENT_NO] as Long else -1
         val courseCode: String = snapshot[EVENT_COURSE_CODE].toString()
+        val courseCreator: String = snapshot[EVENT_COURSE_CREATOR].toString()
         val department: String = snapshot[EVENT_DEPARTMENT].toString()
         val classroom: String = snapshot[EVENT_CLASSROOM].toString()
         val day: Long = if (snapshot[EVENT_DAY] != null) snapshot[EVENT_DAY] as Long else -1
@@ -194,6 +200,7 @@ object GetModelFromDocument {
             type = type,
             eventNo = eventNo.toInt(),
             courseCode = courseCode,
+            courseCreator = courseCreator,
             department = department,
             classroom = classroom,
             day = day.toInt(),
@@ -227,6 +234,7 @@ object GetModelFromDocument {
     fun getResourceLinkFromFirestoreDocument(snapshot: DocumentSnapshot): ResourceLink {
         val department = snapshot[RESOURCE_DEPARTMENT].toString()
         val courseCode = snapshot[RESOURCE_COURSE_CODE].toString()
+        val resourceCourseCreator = snapshot[RESOURCE_COURSE_CREATOR].toString()
         val title = snapshot[RESOURCE_TITLE].toString()
         val link = snapshot[RESOURCE_LINK].toString()
         val resourceNo = if (snapshot[RESOURCE_NO] != null) snapshot[RESOURCE_NO] as Long else 0L
@@ -234,6 +242,7 @@ object GetModelFromDocument {
         return ResourceLink(
             resourceDepartment = department,
             resourceCourseCode = courseCode,
+            resourceCourseCreator  = resourceCourseCreator,
             title = title,
             link = link,
             resourceNo = resourceNo.toInt()
@@ -247,6 +256,7 @@ object GetModelFromDocument {
         val type = snapshot[NOTIFICATION_TYPE].toString()
         val courseDepartment = snapshot[NOTIFICATION_COURSE_DEPARTMENT].toString()
         val courseCode = snapshot[NOTIFICATION_COURSE_CODE].toString()
+        val courseCreator = snapshot[NOTIFICATION_COURSE_CREATOR].toString()
         val courseTitle = snapshot[NOTIFICATION_COURSE_TITLE].toString()
         val isRead =
             if (snapshot[READ_STATUS] != null) snapshot[READ_STATUS] as Boolean else false
@@ -256,6 +266,7 @@ object GetModelFromDocument {
             type = type,
             courseDepartment = courseDepartment,
             courseCode = courseCode,
+            courseCreator = courseCreator,
             courseTitle = courseTitle,
             isRead = isRead
         )

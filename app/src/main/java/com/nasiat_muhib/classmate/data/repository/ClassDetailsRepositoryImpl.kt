@@ -24,7 +24,7 @@ class ClassDetailsRepositoryImpl @Inject constructor(
 
     override fun createClass(classDetails: ClassDetails): Flow<DataState<ClassDetails>> = flow{
         emit(DataState.Loading)
-        val classId = "${classDetails.classDepartment}:${classDetails.classCourseCode}:${classDetails.classNo}"
+        val classId = "${classDetails.classDepartment}:${classDetails.classCourseCode}:${classDetails.classCourseCreator}:${classDetails.classNo}"
         classesCollection.document(classId).set(classDetails.toMap()).await()
         emit(DataState.Success(classDetails))
     }.catch {
@@ -33,7 +33,7 @@ class ClassDetailsRepositoryImpl @Inject constructor(
 
     override fun deleteClass(classDetails: ClassDetails): Flow<DataState<ClassDetails>> = flow{
         emit(DataState.Loading)
-        val classId = "${classDetails.classDepartment}:${classDetails.classCourseCode}:${classDetails.classNo}"
+        val classId = "${classDetails.classDepartment}:${classDetails.classCourseCode}:${classDetails.classCourseCreator}:${classDetails.classNo}"
         classesCollection.document(classId).delete().await()
         emit(DataState.Success(classDetails))
     }.catch {
@@ -87,7 +87,7 @@ class ClassDetailsRepositoryImpl @Inject constructor(
         status: Boolean,
     ): Flow<DataState<ClassDetails>> = flow {
         emit(DataState.Loading)
-        val classId = "${classDetails.classDepartment}:${classDetails.classCourseCode}:${classDetails.classNo}"
+        val classId = "${classDetails.classDepartment}:${classDetails.classCourseCode}:${classDetails.classCourseCreator}:${classDetails.classNo}"
         classesCollection.document(classId).update(ACTIVE_STATUS, status).await()
         emit(DataState.Success(classDetails))
     }.catch {

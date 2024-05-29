@@ -22,12 +22,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import com.nasiat_muhib.classmate.R
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.event.CreateSemesterUIEvent
 import com.nasiat_muhib.classmate.navigation.NavigationViewModel
-import com.nasiat_muhib.classmate.navigation.Screen
 import com.nasiat_muhib.classmate.presentation.main.create_semester.CreateSemesterViewModel
 import com.nasiat_muhib.classmate.ui.theme.ExtraSmallHeight
 import com.nasiat_muhib.classmate.ui.theme.LargeHeight

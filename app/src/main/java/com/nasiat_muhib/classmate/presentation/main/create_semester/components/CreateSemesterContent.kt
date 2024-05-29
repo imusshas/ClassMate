@@ -99,7 +99,7 @@ fun CreateSemesterContent(
             CustomSwipeAbleLazyColumn(
                 items = if (createdOrPending.value) createdCourses else pendingCourses,
                 key = {
-                    "${it.courseDepartment}:${it.courseCode}"
+                      it.hashCode().toString()
                 },
                 modifier = Modifier.fillMaxHeight()
             ) {
@@ -113,10 +113,4 @@ fun CreateSemesterContent(
 
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CreateCourseContentPreview() {
-//    CreateSemesterContent(user = User(), createSemesterViewModel = null)
 }

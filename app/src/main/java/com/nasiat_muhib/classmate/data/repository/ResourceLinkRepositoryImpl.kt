@@ -22,7 +22,7 @@ class ResourceLinkRepositoryImpl @Inject constructor(
     private val resourcesCollection = firestoreRef.collection(RESOURCES_COLLECTION)
     override fun createResource(resourceLink: ResourceLink): Flow<DataState<ResourceLink>> = flow {
         emit(DataState.Loading)
-        val resourceId = "${resourceLink.resourceDepartment}:${resourceLink.resourceCourseCode}:${resourceLink.resourceNo}"
+        val resourceId = "${resourceLink.resourceDepartment}:${resourceLink.resourceCourseCode}:${resourceLink.resourceCourseCreator}:${resourceLink.resourceNo}"
         resourcesCollection.document(resourceId).set(resourceLink.toMap()).await()
         emit(DataState.Success(resourceLink))
     }.catch {
@@ -51,7 +51,7 @@ class ResourceLinkRepositoryImpl @Inject constructor(
 
     override fun deleteResource(resourceLink: ResourceLink): Flow<DataState<ResourceLink>> = flow {
         emit(DataState.Loading)
-        val resourceId = "${resourceLink.resourceDepartment}:${resourceLink.resourceCourseCode}:${resourceLink.resourceNo}"
+        val resourceId = "${resourceLink.resourceDepartment}:${resourceLink.resourceCourseCode}:${resourceLink.resourceCourseCreator}:${resourceLink.resourceNo}"
         resourcesCollection.document(resourceId).delete().await()
         emit(DataState.Success(resourceLink))
     }.catch {

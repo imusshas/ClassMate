@@ -27,7 +27,7 @@ class EventRepositoryImpl @Inject constructor(
 
         emit(DataState.Loading)
 
-        val eventId = "${event.department}:${event.courseCode}:${event.eventNo}"
+        val eventId = "${event.department}:${event.courseCode}:${event.courseCreator}:${event.eventNo}"
 
         if (event.type == EVENTS[0]) {
             termTestCollection.document(eventId).set(event.toMap()).await()
@@ -37,7 +37,7 @@ class EventRepositoryImpl @Inject constructor(
 
         emit(DataState.Success(event))
     }.catch {
-        Log.d(TAG, "createTermTest: ${it.localizedMessage}")
+        Log.d(TAG, "createEvent: ${it.localizedMessage}")
     }
 
     override fun getEventList(courseId: String, whichEvent: String): Flow<List<Event>> =
@@ -72,7 +72,7 @@ class EventRepositoryImpl @Inject constructor(
     override fun deleteEvent(event: Event): Flow<DataState<Event>> = flow<DataState<Event>> {
         emit(DataState.Loading)
 
-        val eventId = "${event.department}:${event.courseCode}:${event.eventNo}"
+        val eventId = "${event.department}:${event.courseCode}:${event.courseCreator}:${event.eventNo}"
 
         if (event.type == EVENTS[0]) {
             termTestCollection.document(eventId).delete().await()

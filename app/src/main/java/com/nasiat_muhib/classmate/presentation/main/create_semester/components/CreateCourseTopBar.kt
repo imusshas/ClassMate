@@ -1,5 +1,6 @@
 package com.nasiat_muhib.classmate.presentation.main.create_semester.components
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import com.nasiat_muhib.classmate.domain.event.CreateCourseUIEvent
 import com.nasiat_muhib.classmate.strings.CREATE_ICON
 import com.nasiat_muhib.classmate.strings.CREATE_COURSE
 import com.nasiat_muhib.classmate.strings.GO_BACK_ICON
+import com.nasiat_muhib.classmate.strings.TAG
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
 import com.nasiat_muhib.classmate.ui.theme.TitleStyle
@@ -63,6 +65,9 @@ fun CreateCourseTopBar(
                 if (allCreateCourseValidationPassed && allCreateClassValidationPassed && createClassDetailsListValidationPassed) {
                     navigateBackToCreateSemester()
                 }
+                Log.d(TAG, "CreateCourseTopBar: class validation: $allCreateClassValidationPassed")
+                Log.d(TAG, "CreateCourseTopBar: course validation: $allCreateCourseValidationPassed")
+                Log.d(TAG, "CreateCourseTopBar: class details list validation: $createClassDetailsListValidationPassed")
             }
         )
     }

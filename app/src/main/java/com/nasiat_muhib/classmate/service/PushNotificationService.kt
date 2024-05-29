@@ -1,34 +1,22 @@
 package com.nasiat_muhib.classmate.service
 
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.TaskStackBuilder
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.nasiat_muhib.classmate.MainActivity
-import com.nasiat_muhib.classmate.R
 import com.nasiat_muhib.classmate.core.Constants
 import com.nasiat_muhib.classmate.strings.FCMToken
 import com.nasiat_muhib.classmate.strings.NOTIFICATION_BODY
 import com.nasiat_muhib.classmate.strings.NOTIFICATION_TITLE
 import com.nasiat_muhib.classmate.strings.USERS_COLLECTION
-import javax.inject.Inject
 
 class PushNotificationService : FirebaseMessagingService() {
 

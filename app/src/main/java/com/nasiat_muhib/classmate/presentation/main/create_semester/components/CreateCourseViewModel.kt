@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -53,7 +54,7 @@ class CreateCourseViewModel @Inject constructor(
     val createCourseDialogState = _createClassDialogState.asStateFlow()
 
     // Create Class Details List Data State
-    private val _createClassDetailsDataList = MutableStateFlow<MutableSet<ClassDetails>>(mutableSetOf())
+    private val _createClassDetailsDataList = MutableStateFlow<Set<ClassDetails>>(mutableSetOf())
     val createClassDetailsDataList = _createClassDetailsDataList.asStateFlow()
 
     // Create Class Details List Validation
@@ -109,7 +110,7 @@ class CreateCourseViewModel @Inject constructor(
             // Back Button
             CreateCourseUIEvent.BackButtonClick -> {
                 _createCourseUIState.value = CreateCourseUIState()
-                _createClassDetailsDataList.value.clear()
+                _createClassDetailsDataList.update { emptySet() }
             }
 
             // Create Class
@@ -131,7 +132,13 @@ class CreateCourseViewModel @Inject constructor(
             }
 
             is CreateCourseUIEvent.ClassDetailsDeleteSwipe -> {
-                _createClassDetailsDataList.value.remove(event.classDetails)
+                val classDetailsList = mutableSetOf<ClassDetails>()
+                createClassDetailsDataList.value.forEach { classDetails ->
+                    classDetailsList.add(classDetails)
+                }
+                classDetailsList.remove(event.classDetails)
+
+                _createClassDetailsDataList.update { classDetailsList }
             }
         }
     }
@@ -162,19 +169,15 @@ class CreateCourseViewModel @Inject constructor(
                     courseSemester = createCourseUIState.value.courseSemester,
                     courseClasses = courseClasses
                 )
-//                Log.d(TAG, "onCreate: $course")
+
                 courseRepo.createCourse(course, createClassDetailsDataList.value).collectLatest {
-//                    Log.d(TAG, "onCreate: courseRepo: course: ${it.first.data}")
-//                    Log.d(TAG, "onCreate: courseRepo: classes: ${it.second.data}")
                 }
 
-                _createClassDetailsDataList.value.clear()
+                _createClassDetailsDataList.update { emptySet() }
                 _createCourseUIState.value = CreateCourseUIState()
                 _createClassUIState.value = CreateClassUIState()
             }
         }
-
-//        Log.d(TAG, "onCreate: createCourse: ${allCreateCourseValidationPassed.value}: createClass: ${allCreateCourseValidationPassed.value}: classDetails: ${classDetailsListValidationPassed.value}")
     }
 
     private fun validateCreateCourseUIDataWithRules() {
@@ -197,8 +200,6 @@ class CreateCourseViewModel @Inject constructor(
             courseTitleError = courseTitleResult.message,
             courseTeacherEmailError = courseTeacherEmailResult.message,
         )
-
-//        Log.d(TAG, "validateCreateCourseUIDataWithRules: ${createCourseUIState.value}")
 
         _allCreateCourseValidationPassed.value =
             courseCodeResult.message == null &&
@@ -227,7 +228,6 @@ class CreateCourseViewModel @Inject constructor(
                 _createClassUIState.value = _createClassUIState.value.copy(
                     classroom = event.classroom
                 )
-//                Log.d(TAG, "onCreateClass: classroom: ${createClassUIState.value.classroom}")
             }
 
             is CreateClassUIEvent.EndHourChanged -> {
@@ -235,7 +235,6 @@ class CreateCourseViewModel @Inject constructor(
                 _createClassUIState.value = _createClassUIState.value.copy(
                     endHour = hour
                 )
-//                Log.d(TAG, "onCreateClass: endHour: ${createClassUIState.value.endHour}")
             }
 
             is CreateClassUIEvent.EndMinuteChanged -> {
@@ -243,20 +242,17 @@ class CreateCourseViewModel @Inject constructor(
                 _createClassUIState.value = _createClassUIState.value.copy(
                     endMinute = minute
                 )
-//                Log.d(TAG, "onCreateClass: endMinute ${createClassUIState.value.endMinute}")
             }
             is CreateClassUIEvent.EndShiftChanged -> {
                 _createClassUIState.value = _createClassUIState.value.copy(
                     endShift = event.endShift
                 )
-//                Log.d(TAG, "onCreateClass: endShift ${createClassUIState.value.endShift}")
             }
 
             is CreateClassUIEvent.SectionChanged -> {
                 _createClassUIState.value = _createClassUIState.value.copy(
                     section = event.section
                 )
-//                Log.d(TAG, "onCreateClass: section ${createClassUIState.value.section}")
             }
 
 
@@ -265,7 +261,6 @@ class CreateCourseViewModel @Inject constructor(
                 _createClassUIState.value = _createClassUIState.value.copy(
                     startHour = hour
                 )
-//                Log.d(TAG, "onCreateClass: startHour ${createClassUIState.value.startHour}")
             }
 
             is CreateClassUIEvent.StartMinuteChanged -> {
@@ -273,14 +268,12 @@ class CreateCourseViewModel @Inject constructor(
                 _createClassUIState.value = _createClassUIState.value.copy(
                     startMinute = minute
                 )
-//                Log.d(TAG, "onCreateClass: startMinute ${createClassUIState.value.startMinute}")
             }
 
             is CreateClassUIEvent.StartShiftChanged -> {
                 _createClassUIState.value = _createClassUIState.value.copy(
                     startShift = event.startShift
                 )
-//                Log.d(TAG, "onCreateClass: startShift ${createClassUIState.value.startShift}")
             }
 
             is CreateClassUIEvent.WeekDayChanged -> {
@@ -294,7 +287,6 @@ class CreateCourseViewModel @Inject constructor(
             }
 
             CreateClassUIEvent.CreateButtonClick -> {
-//                Log.d(TAG, "onCreateClass: ${createClassUIState.value}")
                 createClass()
             }
         }
@@ -316,9 +308,15 @@ class CreateCourseViewModel @Inject constructor(
                 endMinute = _createClassUIState.value.endMinute,
                 endShift = _createClassUIState.value.endShift,
             )
-            
-            _createClassDetailsDataList.value.add(details)
-//            Log.d(TAG, "createClass: ${createClassDetailsDataList.value}")
+
+            val classDetailsList = mutableSetOf<ClassDetails>()
+
+            createClassDetailsDataList.value.forEach { classDetails ->
+                classDetailsList.add(classDetails)
+            }
+
+            classDetailsList.add(details)
+            _createClassDetailsDataList.update { classDetailsList }
         }
     }
 
@@ -361,8 +359,6 @@ class CreateCourseViewModel @Inject constructor(
                 ?: (endHourResult.message ?: (startMinuteResult.message
                     ?: (endMinuteResult.message ?: durationResult.message))))
         )
-
-//        Log.d(TAG, "validateCreateClassUIDataWithRules: ${createClassUIState.value}")
 
         _allCreateClassValidationPassed.value =
             classRoomResult.message == null &&

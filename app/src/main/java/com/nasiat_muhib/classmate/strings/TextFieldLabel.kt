@@ -1,7 +1,9 @@
 package com.nasiat_muhib.classmate.strings
 
+const val PHONE_NO_LABEL = "Phone No"
 const val EMAIL_LABEL = "Email"
 const val PASSWORD_LABEL = "Password"
+const val OTP_LABEL = "OTP"
 
 const val FIRST_NAME_LABEL = "First Name"
 const val LAST_NAME_LABEL = "Last Name"

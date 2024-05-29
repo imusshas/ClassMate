@@ -17,6 +17,5 @@ interface CourseRepository {
     fun deleteCourse(course: Course): Flow<DataState<Course>>
     fun  enrollCourse(courseId: String, email: String): Flow<DataState<Boolean>>
     fun leaveCourse(courseId: String, email: String): Flow<DataState<Boolean>>
-    fun updateClassStatus(details: ClassDetails): Flow<DataState<ClassDetails>>
 
 }

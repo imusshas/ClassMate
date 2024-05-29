@@ -42,7 +42,7 @@ class CourseRepositoryImpl @Inject constructor(
         classDetailsSet: Set<ClassDetails>,
     ): Flow<Pair<DataState<Course>, DataState<List<ClassDetails>>>> = flow {
         emit(Pair(DataState.Loading, DataState.Loading))
-        val courseId = "${course.courseDepartment}:${course.courseCode}"
+        val courseId = "${course.courseDepartment}:${course.courseCode}:${course.courseCreator}"
 
         // Send Course Delete Request
         val firestoreCourseDocument = coursesCollection.document(courseId).get().await()
@@ -78,7 +78,9 @@ class CourseRepositoryImpl @Inject constructor(
         usersCollection.document(course.courseCreator).get().addOnSuccessListener { creator ->
             if (creator.exists() && creator != null) {
                 val creatorCourses =
-                    if (creator[COURSES] != null) creator[COURSES] as MutableList<String> else mutableListOf()
+                    if (creator[COURSES] != null) {
+                        creator[COURSES] as MutableList<String>
+                    } else mutableListOf()
                 creatorCourses.add(courseId)
                 usersCollection.document(course.courseCreator).update(COURSES, creatorCourses)
             }
@@ -91,7 +93,8 @@ class CourseRepositoryImpl @Inject constructor(
             val details = classDetails.copy(
                 classNo = classIndex,
                 classCourseCode = course.courseCode,
-                classDepartment = course.courseDepartment
+                classDepartment = course.courseDepartment,
+                classCourseCreator = course.courseCreator
             )
 //            Log.d(TAG, "createCourse: $details")
             classesCollection.document(classId).set(details.toMap()).await()
@@ -165,7 +168,10 @@ class CourseRepositoryImpl @Inject constructor(
 //        Log.d(TAG, "getCourseList: ${it.localizedMessage}")
     }
 
-    override fun getPendingCourseList(courseIds: List<String>, creatorEmail: String): Flow<List<Course>> = callbackFlow {
+    override fun getPendingCourseList(
+        courseIds: List<String>,
+        creatorEmail: String,
+    ): Flow<List<Course>> = callbackFlow {
 
         val snapshotListener = coursesCollection.addSnapshotListener { value, error ->
             val pendingCourses = mutableListOf<Course>()
@@ -226,7 +232,7 @@ class CourseRepositoryImpl @Inject constructor(
     override fun acceptCourse(course: Course): Flow<DataState<Course>> = flow<DataState<Course>> {
         emit(DataState.Loading)
 
-        val courseId = "${course.courseDepartment}:${course.courseCode}"
+        val courseId = "${course.courseDepartment}:${course.courseCode}:${course.courseCreator}"
 
         // Change Teacher's request status
         usersCollection.document(course.courseTeacher).get().addOnSuccessListener {
@@ -267,7 +273,7 @@ class CourseRepositoryImpl @Inject constructor(
     override fun deleteCourse(course: Course): Flow<DataState<Course>> = flow<DataState<Course>> {
         emit(DataState.Loading)
 
-        val courseId = "${course.courseDepartment}:${course.courseCode}"
+        val courseId = "${course.courseDepartment}:${course.courseCode}:${course.courseCreator}"
 
         // Delete the course from teacher
         usersCollection.document(course.courseTeacher).get().addOnSuccessListener { courseIds ->
@@ -449,20 +455,6 @@ class CourseRepositoryImpl @Inject constructor(
         }.catch {
             Log.d(TAG, "leaveCourse: ${it.localizedMessage}")
         }
-
-    override fun updateClassStatus(details: ClassDetails): Flow<DataState<ClassDetails>> = flow {
-
-        emit(DataState.Loading)
-        val classId = "${details.classDepartment}:${details.classCourseCode}:${details.classNo}"
-        classesCollection.document(classId).update(ACTIVE_STATUS, details.isActive)
-            .addOnFailureListener {
-                Log.d(TAG, "updateClassStatus: ${it.localizedMessage}")
-            }
-        emit(DataState.Success(details))
-    }.catch {
-        emit(DataState.Error(it.localizedMessage!!))
-        Log.d(TAG, "updateClassStatus: ${it.localizedMessage}")
-    }
 
     companion object {
         const val TAG = "CourseRepositoryImpl"
