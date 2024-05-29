@@ -1,6 +1,5 @@
 package com.nasiat_muhib.classmate.presentation.main.create_semester.components
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -14,18 +13,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.nasiat_muhib.classmate.domain.event.CreateCourseUIEvent
-import com.nasiat_muhib.classmate.strings.CREATE_ICON
 import com.nasiat_muhib.classmate.strings.CREATE_COURSE
+import com.nasiat_muhib.classmate.strings.CREATE_ICON
 import com.nasiat_muhib.classmate.strings.GO_BACK_ICON
-import com.nasiat_muhib.classmate.strings.TAG
 import com.nasiat_muhib.classmate.ui.theme.MediumSpace
 import com.nasiat_muhib.classmate.ui.theme.NormalHeight
 import com.nasiat_muhib.classmate.ui.theme.TitleStyle
@@ -36,7 +29,6 @@ fun CreateCourseTopBar(
     navigateBackToCreateSemester: () -> Unit
 ) {
     val navigationState = createCourseViewModel.navigationState.collectAsState().value
-    val clickTime = rememberSaveable { mutableIntStateOf(0) }
 
     Row (
         modifier = Modifier
@@ -66,15 +58,7 @@ fun CreateCourseTopBar(
                 if (navigationState) {
                     navigateBackToCreateSemester()
                 }
-                clickTime.intValue = clickTime.intValue + 1
-                Log.d(TAG, "CreateCourseTopBar: clicked: ${clickTime.intValue}")
             }
         )
     }
-}
-
-@Preview(showSystemUi = true, showBackground = true)
-@Composable
-fun CreateSemesterTopBarPreview() {
-//    CreateCourseTopBar(hiltViewModel())
 }

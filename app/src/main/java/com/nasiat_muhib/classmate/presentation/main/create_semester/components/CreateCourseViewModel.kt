@@ -29,7 +29,7 @@ import javax.inject.Inject
 class CreateCourseViewModel @Inject constructor(
     private val courseRepo: CourseRepository,
     private val userRepo: UserRepository,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
 ) : ViewModel() {
 
 
@@ -55,7 +55,11 @@ class CreateCourseViewModel @Inject constructor(
 
     // Create Class Details List Validation
     private val _createClassDetailsListValidationPassed = MutableStateFlow(false)
-    private val createClassDetailsListValidationPassed = _createClassDetailsListValidationPassed.asStateFlow()
+    private val createClassDetailsListValidationPassed =
+        _createClassDetailsListValidationPassed.asStateFlow()
+
+    private val _clickTime = MutableStateFlow(0)
+    val clickTime = _clickTime.asStateFlow()
 
     // Navigate Back To Create Semester Screen
     private val _navigationState = MutableStateFlow(false)
@@ -64,7 +68,6 @@ class CreateCourseViewModel @Inject constructor(
     // Current User
     private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
     private val userState = _userState.asStateFlow()
-
 
 
     fun getUser() = viewModelScope.launch(Dispatchers.IO) {
@@ -88,7 +91,8 @@ class CreateCourseViewModel @Inject constructor(
 
             // Course Credit Change
             is CreateCourseUIEvent.CourseCreditChanged -> {
-                val credit = if (event.courseCredit.isBlank()) 0.0 else event.courseCredit.toDouble()
+                val credit =
+                    if (event.courseCredit.isBlank()) 0.0 else event.courseCredit.toDouble()
                 _createCourseUIState.value =
                     _createCourseUIState.value.copy(
                         courseCredit = credit
@@ -110,7 +114,6 @@ class CreateCourseViewModel @Inject constructor(
             // Back Button
             CreateCourseUIEvent.BackButtonClick -> {
                 _createCourseUIState.value = CreateCourseUIState()
-                _navigationState.update { true }
             }
 
             // Create Class
@@ -128,7 +131,16 @@ class CreateCourseViewModel @Inject constructor(
 
             // Create Course
             is CreateCourseUIEvent.CreateClick -> {
-                onCreate()
+                validateCreateCourseUIDataWithRules()
+                validateCreateClassUIDataWithRules()
+                validateCreateClassDetailsListDataWithRules()
+                if (allCreateCourseValidationPassed.value && allCreateClassValidationPassed.value && createClassDetailsListValidationPassed.value) {
+                    _navigationState.value = true
+                    _clickTime.value = clickTime.value + 1
+                }
+                if (clickTime.value == 2) {
+                    onCreate()
+                }
             }
 
             is CreateCourseUIEvent.ClassDetailsDeleteSwipe -> {
@@ -138,23 +150,25 @@ class CreateCourseViewModel @Inject constructor(
                 }
                 classDetailsList.remove(event.classDetails)
 
-                _createCourseUIState.value = createCourseUIState.value.copy(courseClasses = classDetailsList)
+                _createCourseUIState.value =
+                    createCourseUIState.value.copy(courseClasses = classDetailsList)
             }
         }
     }
 
-    private fun createCourse() = viewModelScope.launch(Dispatchers.IO) {
+    private fun createCourse()  {
         validateCreateCourseUIDataWithRules()
         if (allCreateCourseValidationPassed.value) {
             _createClassDialogState.value = true
         }
     }
 
-    private fun onCreate() = viewModelScope.launch(Dispatchers.IO) {
-        validateCreateClassDetailsListDataWithRules()
-        if (allCreateCourseValidationPassed.value && allCreateClassValidationPassed.value && createClassDetailsListValidationPassed.value) {
-            _navigationState.update { true }
+    private fun onCreate() = viewModelScope.launch {
 
+        validateCreateClassDetailsListDataWithRules()
+        Log.d(TAG, "onCreate: ${createClassDetailsListValidationPassed.value}")
+
+        if (createClassDetailsListValidationPassed.value) {
             userState.value.data?.let { user ->
                 val courseClasses = mutableListOf<String>()
                 createCourseUIState.value.courseClasses.forEachIndexed { index, _ ->
@@ -171,12 +185,13 @@ class CreateCourseViewModel @Inject constructor(
                     courseClasses = courseClasses
                 )
 
-                courseRepo.createCourse(course, createCourseUIState.value.courseClasses).collectLatest {
-                }
+                courseRepo.createCourse(course, createCourseUIState.value.courseClasses)
+                    .collectLatest {
+                        _createCourseUIState.value = CreateCourseUIState()
+                        _createClassUIState.value = CreateClassUIState()
+                        _navigationState.value = false
+                    }
             }
-
-            _createCourseUIState.value = CreateCourseUIState()
-            _createClassUIState.value = CreateClassUIState()
         }
     }
 
@@ -209,7 +224,10 @@ class CreateCourseViewModel @Inject constructor(
     }
 
     private fun validateCreateClassDetailsListDataWithRules() {
-        Log.d(TAG, "validateCreateClassDetailsListDataWithRules: classes: ${createCourseUIState.value.courseClasses}")
+        Log.d(
+            TAG,
+            "validateCreateClassDetailsListDataWithRules: classes: ${createCourseUIState.value.courseClasses}"
+        )
         val createClassResult =
             CreateCourseValidator.validateClassDetails(createCourseUIState.value.courseClasses)
 
@@ -244,6 +262,7 @@ class CreateCourseViewModel @Inject constructor(
                     endMinute = minute
                 )
             }
+
             is CreateClassUIEvent.EndShiftChanged -> {
                 _createClassUIState.value = _createClassUIState.value.copy(
                     endShift = event.endShift
@@ -288,35 +307,36 @@ class CreateCourseViewModel @Inject constructor(
             }
 
             CreateClassUIEvent.CreateButtonClick -> {
-                createClass()
+                validateCreateClassUIDataWithRules()
+                if (allCreateClassValidationPassed.value) {
+                    _createClassDialogState.update { false }
+                    createClass()
+                }
             }
         }
     }
 
     // Checks Create Class Validation Validation and Adds Created Class to the existing list
     private fun createClass() {
-        validateCreateClassUIDataWithRules()
-        if (allCreateClassValidationPassed.value) {
-            _createClassDialogState.value = false
-            val details = ClassDetails(
-                weekDay = _createClassUIState.value.weekDay,
-                classroom = _createClassUIState.value.classroom,
-                section = _createClassUIState.value.section,
-                startHour = _createClassUIState.value.startHour,
-                startMinute = _createClassUIState.value.startMinute,
-                startShift = _createClassUIState.value.startShift,
-                endHour = _createClassUIState.value.endHour,
-                endMinute = _createClassUIState.value.endMinute,
-                endShift = _createClassUIState.value.endShift,
-            )
+        val details = ClassDetails(
+            weekDay = _createClassUIState.value.weekDay,
+            classroom = _createClassUIState.value.classroom,
+            section = _createClassUIState.value.section,
+            startHour = _createClassUIState.value.startHour,
+            startMinute = _createClassUIState.value.startMinute,
+            startShift = _createClassUIState.value.startShift,
+            endHour = _createClassUIState.value.endHour,
+            endMinute = _createClassUIState.value.endMinute,
+            endShift = _createClassUIState.value.endShift,
+        )
 
-            val classDetailsList = mutableSetOf<ClassDetails>()
-            _createCourseUIState.value.courseClasses.forEach { classDetails ->
-                classDetailsList.add(classDetails)
-            }
-            classDetailsList.add(details)
-            _createCourseUIState.value =  createCourseUIState.value.copy(courseClasses = classDetailsList)
+        val classDetailsList = mutableSetOf<ClassDetails>()
+        _createCourseUIState.value.courseClasses.forEach { classDetails ->
+            classDetailsList.add(classDetails)
         }
+        classDetailsList.add(details)
+        _createCourseUIState.value =
+            createCourseUIState.value.copy(courseClasses = classDetailsList)
     }
 
     // Validates create class UI data
