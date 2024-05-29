@@ -55,10 +55,10 @@ class CourseRepositoryImpl @Inject constructor(
         // Send Teacher request
         val teacherDocument = usersCollection.document(course.courseTeacher).get().await()
         val teacher = getUserFromFirestoreDocument(teacherDocument)
-        val requestedCourses = mutableListOf<String>()
+        val requestedCourses = mutableSetOf<String>()
         requestedCourses.addAll(teacher.requestedCourses)
         requestedCourses.add(courseId)
-        usersCollection.document(course.courseTeacher).update(REQUESTED_COURSES, requestedCourses).await()
+        usersCollection.document(course.courseTeacher).update(REQUESTED_COURSES, requestedCourses.toList()).await()
 
 
         // Update Creators Course List
@@ -221,16 +221,16 @@ class CourseRepositoryImpl @Inject constructor(
         val teacherDocument = usersCollection.document(course.courseCode).get().await()
         if (teacherDocument.exists() && teacherDocument != null) {
             val teacher = getUserFromFirestoreDocument(teacherDocument)
-            val requestedCourses = mutableListOf<String>()
-            val courses = mutableListOf<String>()
+            val requestedCourses = mutableSetOf<String>()
+            val courses = mutableSetOf<String>()
             requestedCourses.addAll(teacher.requestedCourses)
             courses.addAll(teacher.courses)
             requestedCourses.remove(courseId)
             courses.add(courseId)
 
-            usersCollection.document(course.courseTeacher).update(COURSES, courses).await()
+            usersCollection.document(course.courseTeacher).update(COURSES, courses.toList()).await()
             usersCollection.document(course.courseTeacher)
-                .update(REQUESTED_COURSES, requestedCourses).await()
+                .update(REQUESTED_COURSES, requestedCourses.toList()).await()
         } else {
             Log.d(TAG, "acceptCourse: teacher does not exists")
             return@flow
@@ -250,33 +250,33 @@ class CourseRepositoryImpl @Inject constructor(
         // Delete the course from teacher
         val teacherDocument = usersCollection.document(course.courseTeacher).get().await()
         val teacher = getUserFromFirestoreDocument(teacherDocument)
-        val requestedCourses = mutableListOf<String>()
-        val courses = mutableListOf<String>()
+        val requestedCourses = mutableSetOf<String>()
+        val courses = mutableSetOf<String>()
         requestedCourses.addAll(teacher.requestedCourses)
         courses.addAll(teacher.courses)
         requestedCourses.remove(courseId)
         courses.remove(courseId)
 
-        usersCollection.document(course.courseTeacher).update(COURSES, courses).await()
-        usersCollection.document(course.courseTeacher).update(REQUESTED_COURSES, courses).await()
+        usersCollection.document(course.courseTeacher).update(COURSES, courses.toList()).await()
+        usersCollection.document(course.courseTeacher).update(REQUESTED_COURSES, requestedCourses.toList()).await()
 
 
         // Delete the course from creator
         val creatorDocument = usersCollection.document(course.courseCreator).get().await()
         val creator = getUserFromFirestoreDocument(creatorDocument)
-        val createdCourses = mutableListOf<String>()
+        val createdCourses = mutableSetOf<String>()
         createdCourses.addAll(creator.courses)
         createdCourses.remove(courseId)
-        usersCollection.document(course.courseCreator).update(COURSES, createdCourses).await()
+        usersCollection.document(course.courseCreator).update(COURSES, createdCourses.toList()).await()
 
         // Delete the course from enrolled students
         course.enrolledStudents.forEach { student ->
             val enrolledStudentDocument = usersCollection.document(student).get().await()
             val enrolledStudent = getUserFromFirestoreDocument(enrolledStudentDocument)
-            val enrolledCourses = mutableListOf<String>()
+            val enrolledCourses = mutableSetOf<String>()
             enrolledCourses.addAll(enrolledStudent.courses)
             enrolledCourses.remove(courseId)
-            usersCollection.document(student).update(COURSES, enrolledCourses).await()
+            usersCollection.document(student).update(COURSES, enrolledCourses.toList()).await()
         }
 
 
@@ -298,18 +298,6 @@ class CourseRepositoryImpl @Inject constructor(
         }
 
         // Delete the course assignments
-        assignmentsCollection.get().addOnSuccessListener { querySnapshot ->
-            querySnapshot?.forEach { queryDocumentSnapshot ->
-                if (queryDocumentSnapshot != null && queryDocumentSnapshot.id.contains(courseId)) {
-                    assignmentsCollection.document(queryDocumentSnapshot.id).delete()
-                        .addOnFailureListener {
-                            Log.d(TAG, "deleteCourse classes: ${it.localizedMessage}")
-                            return@addOnFailureListener
-                        }
-                }
-            }
-        }.await()
-
         val allAssignments = assignmentsCollection.get().await()
         allAssignments?.forEach { queryDocumentSnapshot ->
             if (queryDocumentSnapshot != null && queryDocumentSnapshot.id.contains(courseId)) {
@@ -334,18 +322,18 @@ class CourseRepositoryImpl @Inject constructor(
         // Update The User's Course List
         val userDocument = usersCollection.document(email).get().await()
         val user = getUserFromFirestoreDocument(userDocument)
-        val enrolledCourses: MutableList<String> = mutableListOf()
+        val enrolledCourses = mutableSetOf<String>()
         enrolledCourses.addAll(user.courses)
         enrolledCourses.add(courseId)
-        usersCollection.document(email).update(COURSES, enrolledCourses).await()
+        usersCollection.document(email).update(COURSES, enrolledCourses.toList()).await()
 
         // Update The Course's enrolled students list
         val courseDocument = coursesCollection.document(courseId).get().await()
         val course = getCourseFromFirestoreDocument(courseDocument)
-        val enrolledStudents = mutableListOf<String>()
+        val enrolledStudents = mutableSetOf<String>()
         enrolledStudents.addAll(course.enrolledStudents)
         enrolledStudents.add(email)
-        coursesCollection.document(courseId).update(ENROLLED_STUDENTS, enrolledStudents).await()
+        coursesCollection.document(courseId).update(ENROLLED_STUDENTS, enrolledStudents.toList()).await()
 
         emit(DataState.Success(true))
 
@@ -361,18 +349,18 @@ class CourseRepositoryImpl @Inject constructor(
             // Update The User's Course List
             val userDocument = usersCollection.document(email).get().await()
             val user = getUserFromFirestoreDocument(userDocument)
-            val enrolledCourses: MutableList<String> = mutableListOf()
+            val enrolledCourses = mutableSetOf<String>()
             enrolledCourses.addAll(user.courses)
             enrolledCourses.remove(courseId)
-            usersCollection.document(email).update(COURSES, enrolledCourses).await()
+            usersCollection.document(email).update(COURSES, enrolledCourses.toList()).await()
 
             // Update The Course's enrolled students list
             val courseDocument = coursesCollection.document(courseId).get().await()
             val course = getCourseFromFirestoreDocument(courseDocument)
-            val enrolledStudents = mutableListOf<String>()
+            val enrolledStudents = mutableSetOf<String>()
             enrolledStudents.addAll(course.enrolledStudents)
             enrolledStudents.remove(email)
-            coursesCollection.document(courseId).update(ENROLLED_STUDENTS, enrolledStudents).await()
+            coursesCollection.document(courseId).update(ENROLLED_STUDENTS, enrolledStudents.toList()).await()
 
             emit(DataState.Success(true))
 

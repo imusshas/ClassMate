@@ -175,7 +175,7 @@ fun CreateCourse(
             CustomSwipeAbleLazyColumn(
                 items = createCourseUIState.courseClasses.toList(),
                 key = {
-                    "${it.classDepartment}:${it.classCourseCode}:${it.classNo}:${it.classCourseCreator}"
+                    "${it.hashCode()}"
                 }
             ) {
                 DisplayClassDetails(classDetails = it, createCourseViewModel = createCourseViewModel)
