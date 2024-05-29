@@ -15,6 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,9 +35,8 @@ fun CreateCourseTopBar(
     createCourseViewModel: CreateCourseViewModel,
     navigateBackToCreateSemester: () -> Unit
 ) {
-    val allCreateCourseValidationPassed by createCourseViewModel.allCreateCourseValidationPassed.collectAsState()
-    val allCreateClassValidationPassed by createCourseViewModel.allCreateClassValidationPassed.collectAsState()
-    val createClassDetailsListValidationPassed by createCourseViewModel.createClassDetailsListValidationPassed.collectAsState()
+    val navigationState = createCourseViewModel.navigationState.collectAsState().value
+    val clickTime = rememberSaveable { mutableIntStateOf(0) }
 
     Row (
         modifier = Modifier
@@ -62,12 +63,11 @@ fun CreateCourseTopBar(
             contentDescription = CREATE_ICON,
             modifier = Modifier.clickable {
                 createCourseViewModel.onCreateCourse(CreateCourseUIEvent.CreateClick)
-                if (allCreateCourseValidationPassed && allCreateClassValidationPassed && createClassDetailsListValidationPassed) {
+                if (navigationState) {
                     navigateBackToCreateSemester()
                 }
-                Log.d(TAG, "CreateCourseTopBar: class validation: $allCreateClassValidationPassed")
-                Log.d(TAG, "CreateCourseTopBar: course validation: $allCreateCourseValidationPassed")
-                Log.d(TAG, "CreateCourseTopBar: class details list validation: $createClassDetailsListValidationPassed")
+                clickTime.intValue = clickTime.intValue + 1
+                Log.d(TAG, "CreateCourseTopBar: clicked: ${clickTime.intValue}")
             }
         )
     }

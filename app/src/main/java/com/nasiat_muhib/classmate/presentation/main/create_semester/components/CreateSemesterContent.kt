@@ -18,11 +18,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.nasiat_muhib.classmate.components.CustomSwipeAbleLazyColumn
 import com.nasiat_muhib.classmate.components.TwoTitleContainer
 import com.nasiat_muhib.classmate.data.model.User
-import com.nasiat_muhib.classmate.domain.event.CreateSemesterUIEvent
 import com.nasiat_muhib.classmate.navigation.NavigationViewModel
 import com.nasiat_muhib.classmate.navigation.TabItem
 import com.nasiat_muhib.classmate.presentation.main.components.ClassMateTabRow
@@ -99,7 +97,7 @@ fun CreateSemesterContent(
             CustomSwipeAbleLazyColumn(
                 items = if (createdOrPending.value) createdCourses else pendingCourses,
                 key = {
-                      it.hashCode().toString()
+                      "${it.courseDepartment}:${it.courseCode}:${it.courseCreator}"
                 },
                 modifier = Modifier.fillMaxHeight()
             ) {

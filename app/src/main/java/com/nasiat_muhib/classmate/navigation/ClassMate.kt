@@ -99,7 +99,7 @@ fun ClassMate(
                     navigateToTab(navController, tabItem)
                 },
                 navigateToCreateCourse =  {
-                    navigateTo(navController, Screen.CreateCourse)
+                    navigateWithoutClearingBackStack(navController, Screen.CreateCourse)
                 },
                 navigateToCourseDetailsDisplay = {
                     navigateWithoutClearingBackStack(navController, Screen.CourseDetailsDisplay)
@@ -166,7 +166,7 @@ fun ClassMate(
             CreateCourse(
                 createCourseViewModel = createCourseViewModel,
                 navigateToSearchTeacher = { navigateWithoutClearingBackStack(navController, Screen.SearchTeacher) },
-                navigateBackToCreateSemester = { navigateTo(navController, Screen.CreateSemesterScreen) }
+                navigateBackToCreateSemester = { navigateBack(navController) }
             )
         }
         composable(Screen.SearchTeacher.route) {

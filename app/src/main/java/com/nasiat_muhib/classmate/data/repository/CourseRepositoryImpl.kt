@@ -1,14 +1,13 @@
 package com.nasiat_muhib.classmate.data.repository
 
 import android.util.Log
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.nasiat_muhib.classmate.core.GetModelFromDocument.getCourseFromFirestoreDocument
+import com.nasiat_muhib.classmate.core.GetModelFromDocument.getUserFromFirestoreDocument
 import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Course
 import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.state.DataState
-import com.nasiat_muhib.classmate.strings.ACTIVE_STATUS
 import com.nasiat_muhib.classmate.strings.ASSIGNMENTS_COLLECTION
 import com.nasiat_muhib.classmate.strings.CLASSES_COLLECTION
 import com.nasiat_muhib.classmate.strings.COURSES
@@ -44,47 +43,32 @@ class CourseRepositoryImpl @Inject constructor(
         emit(Pair(DataState.Loading, DataState.Loading))
         val courseId = "${course.courseDepartment}:${course.courseCode}:${course.courseCreator}"
 
-        // Send Course Delete Request
+        // Return If Course Already Exists
         val firestoreCourseDocument = coursesCollection.document(courseId).get().await()
         if (firestoreCourseDocument.data != null) {
-            val firestoreCourse = getCourseFromFirestoreDocument(firestoreCourseDocument)
-            if (firestoreCourse.courseCreator != course.courseCreator) {
-                usersCollection.document(firestoreCourse.courseCreator).get()
-                    .addOnSuccessListener { creator ->
-                        if (creator.exists() && creator != null) {
-                            val requestedCourses =
-                                if (creator[REQUESTED_COURSES] != null) creator[REQUESTED_COURSES] as MutableList<String> else mutableListOf()
-                            requestedCourses.add(courseId)
-                            usersCollection.document(course.courseTeacher)
-                                .update(REQUESTED_COURSES, requestedCourses)
-                        }
-                    }.await()
-            }
+            Log.d(TAG, "createCourse: returning because course already exists.")
             return@flow
         }
 
+        Log.d(TAG, "createCourse: returning before doing anything")
+
         // Send Teacher request
-        usersCollection.document(course.courseTeacher).get().addOnSuccessListener { teacher ->
-            if (teacher.exists() && teacher != null) {
-                val requestedCourses =
-                    if (teacher[REQUESTED_COURSES] != null) teacher[REQUESTED_COURSES] as MutableList<String> else mutableListOf()
-                requestedCourses.add(courseId)
-                usersCollection.document(course.courseTeacher)
-                    .update(REQUESTED_COURSES, requestedCourses)
-            }
-        }.await()
+        val teacherDocument = usersCollection.document(course.courseTeacher).get().await()
+        val teacher = getUserFromFirestoreDocument(teacherDocument)
+        val requestedCourses = mutableListOf<String>()
+        requestedCourses.addAll(teacher.requestedCourses)
+        requestedCourses.add(courseId)
+        usersCollection.document(course.courseTeacher).update(REQUESTED_COURSES, requestedCourses).await()
+
 
         // Update Creators Course List
-        usersCollection.document(course.courseCreator).get().addOnSuccessListener { creator ->
-            if (creator.exists() && creator != null) {
-                val creatorCourses =
-                    if (creator[COURSES] != null) {
-                        creator[COURSES] as MutableList<String>
-                    } else mutableListOf()
-                creatorCourses.add(courseId)
-                usersCollection.document(course.courseCreator).update(COURSES, creatorCourses)
-            }
-        }.await()
+        val creatorDocument = usersCollection.document(course.courseCreator).get().await()
+        val creator = getUserFromFirestoreDocument(creatorDocument)
+        val creatorCourses = mutableSetOf<String>()
+        creatorCourses.addAll(creator.courses)
+        creatorCourses.add(courseId)
+        usersCollection.document(course.courseCreator).update(COURSES, creatorCourses.toList())
+            .await()
 
         // Create Course Classes
         classDetailsSet.forEach { classDetails ->
@@ -106,9 +90,10 @@ class CourseRepositoryImpl @Inject constructor(
 
         emit(Pair(DataState.Success(course), DataState.Success(classDetailsSet.toList())))
 
-    }.catch {
-        Log.d(TAG, "createCourse: ${it.localizedMessage}")
     }
+        .catch {
+            Log.d(TAG, "createCourse: ${it.localizedMessage}")
+        }
 
 
     override fun getRequestedCourses(courseIds: List<String>): Flow<List<Course>> = callbackFlow {
@@ -134,9 +119,10 @@ class CourseRepositoryImpl @Inject constructor(
             snapshotListener.remove()
         }
 
-    }.catch {
-//        Log.d(TAG, "getCourseList: ${it.localizedMessage}")
     }
+        .catch {
+            Log.d(TAG, "getRequestedCourses: ${it.localizedMessage}")
+        }
 
     override fun getCreatedCourses(
         courseIds: List<String>,
@@ -144,19 +130,20 @@ class CourseRepositoryImpl @Inject constructor(
     ): Flow<List<Course>> = callbackFlow {
 
         val snapshotListener = coursesCollection.addSnapshotListener { value, error ->
-            val pendingCourses = mutableListOf<Course>()
+            val createdCourses = mutableListOf<Course>()
             value?.documents?.forEach { document ->
                 courseIds.forEach {
                     val course = getCourseFromFirestoreDocument(document)
                     if (!course.pendingStatus && document.id.contains(it) && document[COURSE_CREATOR] == creatorEmail) {
-                        pendingCourses.add(course)
+                        createdCourses.add(course)
                     }
                 }
-                trySend(pendingCourses).isSuccess
             }
 
+            trySend(createdCourses).isSuccess
+
             if (error != null) {
-                Log.d(TAG, "getCourseCreatedCourses: ${error.localizedMessage}")
+                Log.d(TAG, "getCreatedCourses: ${error.localizedMessage}")
             }
         }
 
@@ -165,7 +152,7 @@ class CourseRepositoryImpl @Inject constructor(
         }
 
     }.catch {
-//        Log.d(TAG, "getCourseList: ${it.localizedMessage}")
+        Log.d(TAG, "getCreatedCourses: $it")
     }
 
     override fun getPendingCourseList(
@@ -182,38 +169,8 @@ class CourseRepositoryImpl @Inject constructor(
                         pendingCourses.add(course)
                     }
                 }
-                trySend(pendingCourses).isSuccess
             }
-
-            if (error != null) {
-                Log.d(TAG, "getCourseCreatedCourses: ${error.localizedMessage}")
-            }
-        }
-
-        awaitClose {
-            snapshotListener.remove()
-        }
-
-    }.catch {
-//        Log.d(TAG, "getPendingCourseList: $it")
-    }
-
-    override fun getCourses(courseIds: List<String>): Flow<List<Course>> = callbackFlow {
-//        Log.d(TAG, "getPendingCourseList: $courseIds")
-        val snapshotListener = coursesCollection.addSnapshotListener { value, error ->
-            val courses = mutableListOf<Course>()
-            value?.documents?.forEach { document ->
-//                Log.d(TAG, "getPendingCourseList: ${document.data}")
-                courseIds.forEach {
-//                    Log.d(TAG, "getPendingCourseList: $it, ${document.id}")
-                    val course = getCourseFromFirestoreDocument(document)
-                    if (!course.pendingStatus && document.id.contains(it)) {
-                        courses.add(course)
-//                        Log.d(TAG, "getPendingCourseList: true")
-                    }
-                }
-                trySend(courses).isSuccess
-            }
+            trySend(pendingCourses).isSuccess
 
             if (error != null) {
                 Log.d(TAG, "getPendingCourseList: ${error.localizedMessage}")
@@ -225,7 +182,33 @@ class CourseRepositoryImpl @Inject constructor(
         }
 
     }.catch {
-//        Log.d(TAG, "getPendingCourseList: $it")
+        Log.d(TAG, "getPendingCourseList: $it")
+    }
+
+    override fun getCourses(courseIds: List<String>): Flow<List<Course>> = callbackFlow {
+        val snapshotListener = coursesCollection.addSnapshotListener { value, error ->
+            val courses = mutableListOf<Course>()
+            value?.documents?.forEach { document ->
+                courseIds.forEach {
+                    val course = getCourseFromFirestoreDocument(document)
+                    if (!course.pendingStatus && document.id.contains(it)) {
+                        courses.add(course)
+                    }
+                }
+            }
+            trySend(courses).isSuccess
+
+            if (error != null) {
+                Log.d(TAG, "getCourses: ${error.localizedMessage}")
+            }
+        }
+
+        awaitClose {
+            snapshotListener.remove()
+        }
+
+    }.catch {
+        Log.d(TAG, "getCourses: $it")
     }
 
 
@@ -235,37 +218,26 @@ class CourseRepositoryImpl @Inject constructor(
         val courseId = "${course.courseDepartment}:${course.courseCode}:${course.courseCreator}"
 
         // Change Teacher's request status
-        usersCollection.document(course.courseTeacher).get().addOnSuccessListener {
-            if (it.exists() && it != null) {
-                val requestedCourses =
-                    if (it[REQUESTED_COURSES] != null) it[REQUESTED_COURSES] as MutableList<String> else mutableListOf()
+        val teacherDocument = usersCollection.document(course.courseCode).get().await()
+        if (teacherDocument.exists() && teacherDocument != null) {
+            val teacher = getUserFromFirestoreDocument(teacherDocument)
+            val requestedCourses = mutableListOf<String>()
+            val courses = mutableListOf<String>()
+            requestedCourses.addAll(teacher.requestedCourses)
+            courses.addAll(teacher.courses)
+            requestedCourses.remove(courseId)
+            courses.add(courseId)
 
-                requestedCourses.remove(courseId)
-                usersCollection.document(course.courseTeacher)
-                    .update(REQUESTED_COURSES, requestedCourses).addOnFailureListener {
-                        return@addOnFailureListener
-                    }
-            }
-        }.await()
-
-        usersCollection.document(course.courseTeacher).get().addOnSuccessListener {
-            if (it.exists() && it != null) {
-                val courses =
-                    if (it[COURSES] != null) it[COURSES] as MutableList<String> else mutableListOf()
-                courses.add(courseId)
-
-                usersCollection.document(course.courseTeacher).update(COURSES, courses)
-                    .addOnFailureListener {
-                        return@addOnFailureListener
-                    }
-            }
-        }.await()
+            usersCollection.document(course.courseTeacher).update(COURSES, courses).await()
+            usersCollection.document(course.courseTeacher)
+                .update(REQUESTED_COURSES, requestedCourses).await()
+        } else {
+            Log.d(TAG, "acceptCourse: teacher does not exists")
+            return@flow
+        }
 
         // Change course pending status
-        coursesCollection.document(courseId).update(PENDING_STATUS, false).addOnSuccessListener {
-            return@addOnSuccessListener
-        }.await()
-
+        coursesCollection.document(courseId).update(PENDING_STATUS, false).await()
     }.catch {
         Log.d(TAG, "acceptCourse: ${it.localizedMessage}")
     }
@@ -276,82 +248,54 @@ class CourseRepositoryImpl @Inject constructor(
         val courseId = "${course.courseDepartment}:${course.courseCode}:${course.courseCreator}"
 
         // Delete the course from teacher
-        usersCollection.document(course.courseTeacher).get().addOnSuccessListener { courseIds ->
-            val requestedCourses =
-                if (courseIds[REQUESTED_COURSES] != null) courseIds[REQUESTED_COURSES] as MutableList<String> else mutableListOf()
+        val teacherDocument = usersCollection.document(course.courseTeacher).get().await()
+        val teacher = getUserFromFirestoreDocument(teacherDocument)
+        val requestedCourses = mutableListOf<String>()
+        val courses = mutableListOf<String>()
+        requestedCourses.addAll(teacher.requestedCourses)
+        courses.addAll(teacher.courses)
+        requestedCourses.remove(courseId)
+        courses.remove(courseId)
 
-            requestedCourses.remove(courseId)
-            usersCollection.document(course.courseTeacher)
-                .update(REQUESTED_COURSES, requestedCourses).addOnFailureListener {
-                    Log.d(TAG, "deleteCourse from teacher: ${it.localizedMessage}")
-                    return@addOnFailureListener
-                }
-        }.await()
+        usersCollection.document(course.courseTeacher).update(COURSES, courses).await()
+        usersCollection.document(course.courseTeacher).update(REQUESTED_COURSES, courses).await()
 
 
         // Delete the course from creator
-        usersCollection.document(course.courseCreator).get().addOnSuccessListener { courseIds ->
-            val courses =
-                if (courseIds[COURSES] != null) courseIds[COURSES] as MutableList<String> else mutableListOf()
-            courses.remove(courseId)
-            usersCollection.document(course.courseCreator).update(COURSES, course)
-                .addOnFailureListener {
-                    Log.d(TAG, "deleteCourse from creator: ${it.localizedMessage}")
-                    return@addOnFailureListener
-                }
-        }.await()
-
-        usersCollection.document(course.courseCreator).get().addOnSuccessListener { courseIds ->
-            val requestedCourses =
-                if (courseIds[REQUESTED_COURSES] != null) courseIds[REQUESTED_COURSES] as MutableList<String> else mutableListOf()
-            requestedCourses.remove(courseId)
-            usersCollection.document(course.courseCreator)
-                .update(REQUESTED_COURSES, requestedCourses).addOnFailureListener {
-                    Log.d(TAG, "deleteCourse from creator: ${it.localizedMessage}")
-                    return@addOnFailureListener
-                }
-        }.await()
+        val creatorDocument = usersCollection.document(course.courseCreator).get().await()
+        val creator = getUserFromFirestoreDocument(creatorDocument)
+        val createdCourses = mutableListOf<String>()
+        createdCourses.addAll(creator.courses)
+        createdCourses.remove(courseId)
+        usersCollection.document(course.courseCreator).update(COURSES, createdCourses).await()
 
         // Delete the course from enrolled students
         course.enrolledStudents.forEach { student ->
-            usersCollection.document(student).get().addOnSuccessListener { courseIds ->
-                val courses =
-                    if (courseIds[COURSES] != null) courseIds[COURSES] as MutableList<String> else mutableListOf()
-                courses.remove(courseId)
-
-                usersCollection.document(student).update(COURSES, course).addOnFailureListener {
-                    Log.d(TAG, "deleteCourse from students: ${it.localizedMessage}")
-                    return@addOnFailureListener
-                }
-            }
+            val enrolledStudentDocument = usersCollection.document(student).get().await()
+            val enrolledStudent = getUserFromFirestoreDocument(enrolledStudentDocument)
+            val enrolledCourses = mutableListOf<String>()
+            enrolledCourses.addAll(enrolledStudent.courses)
+            enrolledCourses.remove(courseId)
+            usersCollection.document(student).update(COURSES, enrolledCourses).await()
         }
 
 
         // Delete the course classes
-        classesCollection.get().addOnSuccessListener { querySnapshot ->
-            querySnapshot?.forEach { queryDocumentSnapshot ->
-                if (queryDocumentSnapshot != null && queryDocumentSnapshot.id.contains(courseId)) {
-                    classesCollection.document(queryDocumentSnapshot.id).delete()
-                        .addOnFailureListener {
-                            Log.d(TAG, "deleteCourse classes: ${it.localizedMessage}")
-                            return@addOnFailureListener
-                        }
-                }
+        val allClasses = classesCollection.get().await()
+        allClasses?.forEach { queryDocumentSnapshot ->
+            if (queryDocumentSnapshot != null && queryDocumentSnapshot.id.contains(courseId)) {
+                classesCollection.document(queryDocumentSnapshot.id).delete().await()
             }
-        }.await()
+        }
 
         // Delete the course term tests
-        termTestsCollection.get().addOnSuccessListener { querySnapshot ->
-            querySnapshot?.forEach { queryDocumentSnapshot ->
-                if (queryDocumentSnapshot != null && queryDocumentSnapshot.id.contains(courseId)) {
-                    termTestsCollection.document(queryDocumentSnapshot.id).delete()
-                        .addOnFailureListener {
-                            Log.d(TAG, "deleteCourse classes: ${it.localizedMessage}")
-                            return@addOnFailureListener
-                        }
-                }
+        val allTermTest = termTestsCollection.get().await()
+        allTermTest?.forEach { queryDocumentSnapshot ->
+            if (queryDocumentSnapshot != null && queryDocumentSnapshot.id.contains(courseId)) {
+                termTestsCollection.document(queryDocumentSnapshot.id).delete().await()
             }
-        }.await()
+
+        }
 
         // Delete the course assignments
         assignmentsCollection.get().addOnSuccessListener { querySnapshot ->
@@ -366,51 +310,42 @@ class CourseRepositoryImpl @Inject constructor(
             }
         }.await()
 
+        val allAssignments = assignmentsCollection.get().await()
+        allAssignments?.forEach { queryDocumentSnapshot ->
+            if (queryDocumentSnapshot != null && queryDocumentSnapshot.id.contains(courseId)) {
+                assignmentsCollection.document(queryDocumentSnapshot.id).delete().await()
+            }
+
+        }
+
         /*TODO: Consider deleting course related posts */
 
         // Delete the course
-        coursesCollection.document(courseId).delete().addOnFailureListener {
-            Log.d(TAG, "deleteCourse: ${it.localizedMessage}")
-        }.await()
+        coursesCollection.document(courseId).delete().await()
 
 
     }.catch {
-        Log.d(TAG, "deleteCourse: catch block: ${it.localizedMessage}")
+        Log.d(TAG, "deleteCourse: ${it.localizedMessage}")
     }
 
     override fun enrollCourse(courseId: String, email: String): Flow<DataState<Boolean>> = flow {
         emit(DataState.Loading)
-        usersCollection.document(email).get().addOnSuccessListener { user ->
-            if (user.exists() && user != null) {
-                val alreadyEnrolled =
-                    if (user[COURSES] != null) user[COURSES] as List<String> else emptyList()
-                val set = mutableSetOf<String>()
-                alreadyEnrolled.forEach {
-                    set.add(it)
-                }
-                set.add(courseId)
-                Log.d(TAG, "enrollCourse: $email : $set")
-                usersCollection.document(email).update(COURSES, set.toList()).addOnFailureListener {
-                    Log.d(TAG, "enrollCourse: ${it.localizedMessage}")
-                }
-            }
-        }.await()
 
-        coursesCollection.document(courseId).get().addOnSuccessListener { course ->
-            if (course.exists() && course != null) {
-                val enrolledStudents =
-                    if (course[ENROLLED_STUDENTS] != null) course[ENROLLED_STUDENTS] as List<String> else emptyList()
-                val set = mutableSetOf<String>()
-                enrolledStudents.forEach {
-                    set.add(it)
-                }
-                set.add(email)
-                coursesCollection.document(courseId).update(ENROLLED_STUDENTS, set.toList())
-                    .addOnFailureListener {
-                        Log.d(TAG, "enrollCourse: ${it.localizedMessage}")
-                    }
-            }
-        }.await()
+        // Update The User's Course List
+        val userDocument = usersCollection.document(email).get().await()
+        val user = getUserFromFirestoreDocument(userDocument)
+        val enrolledCourses: MutableList<String> = mutableListOf()
+        enrolledCourses.addAll(user.courses)
+        enrolledCourses.add(courseId)
+        usersCollection.document(email).update(COURSES, enrolledCourses).await()
+
+        // Update The Course's enrolled students list
+        val courseDocument = coursesCollection.document(courseId).get().await()
+        val course = getCourseFromFirestoreDocument(courseDocument)
+        val enrolledStudents = mutableListOf<String>()
+        enrolledStudents.addAll(course.enrolledStudents)
+        enrolledStudents.add(email)
+        coursesCollection.document(courseId).update(ENROLLED_STUDENTS, enrolledStudents).await()
 
         emit(DataState.Success(true))
 
@@ -422,33 +357,22 @@ class CourseRepositoryImpl @Inject constructor(
     override fun leaveCourse(courseId: String, email: String): Flow<DataState<Boolean>> =
         flow {
             emit(DataState.Loading)
-            usersCollection.document(email).get().addOnSuccessListener { user ->
-                if (user.exists() && user != null) {
-                    val alreadyEnrolled =
-                        if (user[COURSES] != null) user[COURSES] as MutableList<String> else mutableListOf()
-                    alreadyEnrolled.remove(courseId)
-                    usersCollection.document(email).update(COURSES, alreadyEnrolled)
-                        .addOnFailureListener {
-                            Log.d(TAG, "leaveCourse: ${it.localizedMessage}")
-                        }
-                }
-            }.await()
 
-            coursesCollection.document(courseId).get().addOnSuccessListener { course ->
-                if (course.exists() && course != null) {
-                    val enrolledStudents =
-                        if (course[ENROLLED_STUDENTS] != null) course[ENROLLED_STUDENTS] as List<String> else emptyList()
-                    val set = mutableSetOf<String>()
-                    enrolledStudents.forEach {
-                        set.add(it)
-                    }
-                    set.remove(email)
-                    coursesCollection.document(courseId).update(ENROLLED_STUDENTS, set.toList())
-                        .addOnFailureListener {
-                            Log.d(TAG, "enrollCourse: ${it.localizedMessage}")
-                        }
-                }
-            }
+            // Update The User's Course List
+            val userDocument = usersCollection.document(email).get().await()
+            val user = getUserFromFirestoreDocument(userDocument)
+            val enrolledCourses: MutableList<String> = mutableListOf()
+            enrolledCourses.addAll(user.courses)
+            enrolledCourses.remove(courseId)
+            usersCollection.document(email).update(COURSES, enrolledCourses).await()
+
+            // Update The Course's enrolled students list
+            val courseDocument = coursesCollection.document(courseId).get().await()
+            val course = getCourseFromFirestoreDocument(courseDocument)
+            val enrolledStudents = mutableListOf<String>()
+            enrolledStudents.addAll(course.enrolledStudents)
+            enrolledStudents.remove(email)
+            coursesCollection.document(courseId).update(ENROLLED_STUDENTS, enrolledStudents).await()
 
             emit(DataState.Success(true))
 

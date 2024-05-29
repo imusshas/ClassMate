@@ -46,7 +46,8 @@ object CreateCourseValidator {
         return CreateCourseValidationResult(message)
     }
 
-    fun validateClassDetails(classDetailsList: List<ClassDetails>): CreateCourseValidationResult {
+    fun validateClassDetails(classDetailsList: Set<ClassDetails>): CreateCourseValidationResult {
+        Log.d(TAG, "validateClassDetails: emptyOrNot: ${classDetailsList.isEmpty()}")
         var message: String? = null
         if (classDetailsList.isEmpty()) message = "There should be at least one class"
 

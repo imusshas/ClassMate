@@ -1,9 +1,6 @@
 package com.nasiat_muhib.classmate.data.repository
 
 import android.util.Log
-import android.util.Patterns
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.nasiat_muhib.classmate.core.GetModelFromDocument
@@ -13,7 +10,6 @@ import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.strings.USERS_COLLECTION
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await

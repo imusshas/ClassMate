@@ -43,23 +43,23 @@ class CreateCourseViewModel @Inject constructor(
 
     // Create Course UI Validation
     private val _allCreateCourseValidationPassed = MutableStateFlow(false)
-    val allCreateCourseValidationPassed = _allCreateCourseValidationPassed.asStateFlow()
+    private val allCreateCourseValidationPassed = _allCreateCourseValidationPassed.asStateFlow()
 
     // Create Class Dialog Validation
     private val _allCreateClassValidationPassed = MutableStateFlow(false)
-    val allCreateClassValidationPassed = _allCreateClassValidationPassed.asStateFlow()
+    private val allCreateClassValidationPassed = _allCreateClassValidationPassed.asStateFlow()
 
     // Create Class Dialog State
     private val _createClassDialogState = MutableStateFlow(false)
     val createCourseDialogState = _createClassDialogState.asStateFlow()
 
-    // Create Class Details List Data State
-    private val _createClassDetailsDataList = MutableStateFlow<Set<ClassDetails>>(mutableSetOf())
-    val createClassDetailsDataList = _createClassDetailsDataList.asStateFlow()
-
     // Create Class Details List Validation
     private val _createClassDetailsListValidationPassed = MutableStateFlow(false)
-    val createClassDetailsListValidationPassed = _createClassDetailsListValidationPassed.asStateFlow()
+    private val createClassDetailsListValidationPassed = _createClassDetailsListValidationPassed.asStateFlow()
+
+    // Navigate Back To Create Semester Screen
+    private val _navigationState = MutableStateFlow(false)
+    val navigationState = _navigationState.asStateFlow()
 
     // Current User
     private val _userState = MutableStateFlow<DataState<User>>(DataState.Success(User()))
@@ -110,7 +110,7 @@ class CreateCourseViewModel @Inject constructor(
             // Back Button
             CreateCourseUIEvent.BackButtonClick -> {
                 _createCourseUIState.value = CreateCourseUIState()
-                _createClassDetailsDataList.update { emptySet() }
+                _navigationState.update { true }
             }
 
             // Create Class
@@ -133,12 +133,12 @@ class CreateCourseViewModel @Inject constructor(
 
             is CreateCourseUIEvent.ClassDetailsDeleteSwipe -> {
                 val classDetailsList = mutableSetOf<ClassDetails>()
-                createClassDetailsDataList.value.forEach { classDetails ->
+                createCourseUIState.value.courseClasses.forEach { classDetails ->
                     classDetailsList.add(classDetails)
                 }
                 classDetailsList.remove(event.classDetails)
 
-                _createClassDetailsDataList.update { classDetailsList }
+                _createCourseUIState.value = createCourseUIState.value.copy(courseClasses = classDetailsList)
             }
         }
     }
@@ -153,10 +153,11 @@ class CreateCourseViewModel @Inject constructor(
     private fun onCreate() = viewModelScope.launch(Dispatchers.IO) {
         validateCreateClassDetailsListDataWithRules()
         if (allCreateCourseValidationPassed.value && allCreateClassValidationPassed.value && createClassDetailsListValidationPassed.value) {
+            _navigationState.update { true }
 
             userState.value.data?.let { user ->
                 val courseClasses = mutableListOf<String>()
-                createClassDetailsDataList.value.forEachIndexed { index, _ ->
+                createCourseUIState.value.courseClasses.forEachIndexed { index, _ ->
                     courseClasses.add("$index")
                 }
                 val course = Course(
@@ -170,13 +171,12 @@ class CreateCourseViewModel @Inject constructor(
                     courseClasses = courseClasses
                 )
 
-                courseRepo.createCourse(course, createClassDetailsDataList.value).collectLatest {
+                courseRepo.createCourse(course, createCourseUIState.value.courseClasses).collectLatest {
                 }
-
-                _createClassDetailsDataList.update { emptySet() }
-                _createCourseUIState.value = CreateCourseUIState()
-                _createClassUIState.value = CreateClassUIState()
             }
+
+            _createCourseUIState.value = CreateCourseUIState()
+            _createClassUIState.value = CreateClassUIState()
         }
     }
 
@@ -209,10 +209,11 @@ class CreateCourseViewModel @Inject constructor(
     }
 
     private fun validateCreateClassDetailsListDataWithRules() {
+        Log.d(TAG, "validateCreateClassDetailsListDataWithRules: classes: ${createCourseUIState.value.courseClasses}")
         val createClassResult =
-            CreateCourseValidator.validateClassDetails(createClassDetailsDataList.value.toList())
+            CreateCourseValidator.validateClassDetails(createCourseUIState.value.courseClasses)
 
-        _createCourseUIState.value = _createCourseUIState.value.copy(
+        _createCourseUIState.value = createCourseUIState.value.copy(
             createClassError = createClassResult.message
         )
 
@@ -310,13 +311,11 @@ class CreateCourseViewModel @Inject constructor(
             )
 
             val classDetailsList = mutableSetOf<ClassDetails>()
-
-            createClassDetailsDataList.value.forEach { classDetails ->
+            _createCourseUIState.value.courseClasses.forEach { classDetails ->
                 classDetailsList.add(classDetails)
             }
-
             classDetailsList.add(details)
-            _createClassDetailsDataList.update { classDetailsList }
+            _createCourseUIState.value =  createCourseUIState.value.copy(courseClasses = classDetailsList)
         }
     }
 

@@ -69,7 +69,7 @@ class EventRepositoryImpl @Inject constructor(
             Log.d(TAG, "getEventList: ${it.localizedMessage}")
         }
 
-    override fun deleteEvent(event: Event): Flow<DataState<Event>> = flow<DataState<Event>> {
+    override fun deleteEvent(event: Event): Flow<DataState<Event>> = flow {
         emit(DataState.Loading)
 
         val eventId = "${event.department}:${event.courseCode}:${event.courseCreator}:${event.eventNo}"

@@ -56,9 +56,6 @@ fun CreateCourse(
     val createCourseUIState = createCourseViewModel.createCourseUIState.collectAsState().value
     val createClassDialogState = createCourseViewModel.createCourseDialogState.collectAsState().value
 
-    // Problem arises because it is of type mutable set. 
-    val classDetailsList = createCourseViewModel.createClassDetailsDataList.collectAsState().value
-
 
     Column(
         modifier = Modifier
@@ -168,7 +165,7 @@ fun CreateCourse(
 
             if (createCourseUIState.createClassError != null) {
                 Text(
-                    text = createCourseUIState.createClassError!!,
+                    text = createCourseUIState.createClassError,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error
                 )
@@ -176,9 +173,9 @@ fun CreateCourse(
 
 
             CustomSwipeAbleLazyColumn(
-                items = classDetailsList.toList(),
+                items = createCourseUIState.courseClasses.toList(),
                 key = {
-                    it.hashCode().toString()
+                    "${it.classDepartment}:${it.classCourseCode}:${it.classNo}:${it.classCourseCreator}"
                 }
             ) {
                 DisplayClassDetails(classDetails = it, createCourseViewModel = createCourseViewModel)
