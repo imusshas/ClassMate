@@ -24,12 +24,11 @@ class AuthenticationRepositoryImpl @Inject constructor(
     override fun signIn(email: String, password: String): Flow<DataState<FirebaseUser?>> =
         flow {
             emit(DataState.Loading)
-            var firebaseUser: FirebaseUser? = null
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener {
-                    firebaseUser = it.user
-                }.await()
-            emit(DataState.Success(firebaseUser))
+            val authResult = auth.signInWithEmailAndPassword(email, password).await()
+
+            if (authResult.user != null && authResult.user?.email != null) {
+                emit(DataState.Success(authResult.user))
+            }
         }
             .catch {
                 emit(DataState.Error("Unable To Sign In"))
@@ -39,18 +38,19 @@ class AuthenticationRepositoryImpl @Inject constructor(
     override fun signUp(email: String, password: String, user: User): Flow<DataState<FirebaseUser?>> =
         flow {
             emit(DataState.Loading)
-            var firebaseUser: FirebaseUser? = null
-            auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener {
-                firebaseUser = it.user
-            }.await()
-            usersCollection.document(email).set(user.toMap()).await()
-            emit(DataState.Success(firebaseUser))
+
+            val authResult = auth.createUserWithEmailAndPassword(email, password).await()
+
+            if (authResult.user != null && authResult.user?.email != null) {
+                usersCollection.document(email).set(user.toMap()).await()
+                emit(DataState.Success(authResult.user))
+            } else {
+                emit(DataState.Error("Unable To Create User"))
+            }
 
         }.catch {
-            if (
-                it.localizedMessage == "The email address is already in use by another account." || it.localizedMessage == "null cannot be cast to com.google.android.gms.tasks.OnSuccessListener"
-            ) {
-                emit(DataState.Error("Account already exists"))
+            if (it.localizedMessage == "The email address is already in use by another account.") {
+                emit(DataState.Error("Account Already Exists"))
             } else {
                 emit(DataState.Error("Unable To Sign Up"))
             }

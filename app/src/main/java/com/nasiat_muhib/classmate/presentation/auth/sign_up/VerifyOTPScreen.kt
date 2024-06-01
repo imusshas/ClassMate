@@ -44,6 +44,7 @@ fun VerifyOTPScreen(
             fontWeight = FontWeight.Light
         )
         CustomOutlinedFieldWithPlaceholder(
+            value = signUpUIState.otp,
             labelValue = OTP_LABEL,
             placeholderValue = OTP_PLACEHOLDER,
             onValueChange = {otp ->

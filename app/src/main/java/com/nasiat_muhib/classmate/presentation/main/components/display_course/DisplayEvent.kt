@@ -15,15 +15,12 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import com.nasiat_muhib.classmate.R
-import com.nasiat_muhib.classmate.data.model.ClassDetails
 import com.nasiat_muhib.classmate.data.model.Event
 import com.nasiat_muhib.classmate.domain.event.CourseDetailsDisplayUIEvent
 import com.nasiat_muhib.classmate.strings.COLON
@@ -41,10 +38,11 @@ import me.saket.swipe.SwipeableActionsBox
 fun DisplayEvent(
     event: Event,
     courseDetailsDisplayViewModel: CourseDetailsDisplayViewModel,
-    isSwipeAble: Boolean
+    isSwipeAble: Boolean,
+    isVisible: Boolean
 ) {
 
-    val isVisible = rememberSaveable { mutableStateOf(true) }
+
 
     val delete = SwipeAction(
         onSwipe = {
@@ -53,7 +51,6 @@ fun DisplayEvent(
                     event
                 )
             )
-            isVisible.value = false
         },
         icon = {
             Icon(
@@ -78,7 +75,7 @@ fun DisplayEvent(
                 .padding(horizontal = MediumSpace),
         ) {
             AnimatedVisibility(
-                visible = isVisible.value,
+                visible = isVisible,
                 exit = shrinkHorizontally()
             ) {
                 ElevatedCard(

@@ -70,7 +70,7 @@ fun CustomOutlinedFieldWithPlaceholder(
                 onValueChange(it)
             },
             label = {
-                Text(text = labelValue)
+                Text(text = labelValue, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
                     },
             placeholder = {
                 Text(text = placeholderValue, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)

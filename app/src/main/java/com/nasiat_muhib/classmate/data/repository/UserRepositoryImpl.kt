@@ -23,7 +23,9 @@ class UserRepositoryImpl @Inject constructor(
 
 
     override fun getCurrentUser(email: String): Flow<DataState<User>> = callbackFlow {
+
         var response: DataState<User> = DataState.Loading
+
 
         val snapshotListener: ListenerRegistration = usersCollection.document(email)
             .addSnapshotListener { value, error ->

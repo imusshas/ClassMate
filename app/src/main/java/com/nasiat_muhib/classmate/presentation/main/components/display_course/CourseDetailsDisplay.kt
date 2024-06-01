@@ -58,7 +58,7 @@ fun CourseDetailsDisplay(
 
     when (userState) {
         is DataState.Error -> {
-            TODO()
+
         }
         DataState.Loading -> {
             LoadingScreen()

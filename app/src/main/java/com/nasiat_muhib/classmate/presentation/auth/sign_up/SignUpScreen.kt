@@ -14,8 +14,13 @@ fun SignUpScreen(
 ) {
     val signUpDataState = signUpViewModel.signUpDataState.collectAsState()
     val otpScreenState = signUpViewModel.otpScreenState.collectAsState()
+    val navigateToHomeScreenState = signUpViewModel.navigateToHomeScreenState.collectAsState()
 
-    if (signUpDataState.value.data != null && !otpScreenState.value) {
+//    if (signUpDataState.value.data != null && !otpScreenState.value) {
+//        navigateToHomeScreen()
+//    }
+
+    if (navigateToHomeScreenState.value) {
         navigateToHomeScreen()
     }
 

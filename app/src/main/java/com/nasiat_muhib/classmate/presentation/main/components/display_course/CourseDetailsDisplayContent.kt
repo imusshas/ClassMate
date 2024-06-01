@@ -102,13 +102,14 @@ fun CourseDetailsDisplayContent(
             CustomSwipeAbleLazyColumn(
                 items = classes,
                 key = {
-                    "${it.classDepartment}:${it.classCourseCode}:${it.classNo}"
+                    "${it.hashCode()}"
                 }
             ) {
                 DisplayClass(
                     classDetails = it,
                     courseDetailsDisplayViewModel = courseDetailsDisplayViewModel,
-                    isSwipeAble = course.courseCreator == user.email || course.courseTeacher == user.email
+                    isSwipeAble = course.courseCreator == user.email || course.courseTeacher == user.email,
+                    isVisible = classes.contains(it)
                 )
             }
 
@@ -128,13 +129,14 @@ fun CourseDetailsDisplayContent(
             CustomSwipeAbleLazyColumn(
                 items = termTests.toList(),
                 key = {
-                    "${it.department}:${it.courseCode}:${it.eventNo}"
+                    "${it.hashCode()}"
                 }
             ) {
                 DisplayEvent(
                     event = it,
                     courseDetailsDisplayViewModel = courseDetailsDisplayViewModel,
-                    isSwipeAble = course.courseCreator == user.email || course.courseTeacher == user.email
+                    isSwipeAble = course.courseCreator == user.email || course.courseTeacher == user.email,
+                    isVisible = termTests.contains(it)
                 )
             }
 
@@ -155,14 +157,15 @@ fun CourseDetailsDisplayContent(
             CustomSwipeAbleLazyColumn(
                 items = assignments.toList(),
                 key = {
-                    "${it.department}:${it.courseCode}:${it.eventNo}"
+                    "${it.hashCode()}"
                 }
             ) {
                 Log.d(TAG, "CourseDetailsDisplay: ${it.department}:${it.courseCode}:${it.eventNo}")
                 DisplayEvent(
                     event = it,
                     courseDetailsDisplayViewModel = courseDetailsDisplayViewModel,
-                    isSwipeAble = course.courseCreator == user.email || course.courseTeacher == user.email
+                    isSwipeAble = course.courseCreator == user.email || course.courseTeacher == user.email,
+                    isVisible = assignments.contains(it)
                 )
             }
 
@@ -183,7 +186,7 @@ fun CourseDetailsDisplayContent(
             CustomSwipeAbleLazyColumn(
                 items = resources,
                 key = {
-                    "${it.resourceDepartment}:${it.resourceCourseCode}:${it.resourceNo}"
+                    "${it.hashCode()}"
                 }
             ) {
                 DisplayResourceLink(it)

@@ -15,8 +15,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,9 +39,8 @@ fun DisplayClass(
     classDetails: ClassDetails,
     courseDetailsDisplayViewModel: CourseDetailsDisplayViewModel,
     isSwipeAble: Boolean,
+    isVisible: Boolean,
 ) {
-
-    val isVisible = rememberSaveable { mutableStateOf(true) }
 
     val delete = SwipeAction(
         onSwipe = {
@@ -52,7 +49,6 @@ fun DisplayClass(
                     classDetails
                 )
             )
-            isVisible.value = false
         },
         icon = {
             Icon(
@@ -77,7 +73,7 @@ fun DisplayClass(
                 .padding(horizontal = MediumSpace),
         ) {
             AnimatedVisibility(
-                visible = isVisible.value,
+                visible = isVisible,
                 exit = shrinkHorizontally()
             ) {
                 ElevatedCard(

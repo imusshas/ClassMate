@@ -1,14 +1,21 @@
 package com.nasiat_muhib.classmate.presentation.auth.sign_up
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
 import com.nasiat_muhib.classmate.data.model.User
+import com.nasiat_muhib.classmate.data.model.api_response.RequestOTPResponse
+import com.nasiat_muhib.classmate.data.model.api_response.VerifyOTPResponse
 import com.nasiat_muhib.classmate.domain.event.SignUpUIEvent
 import com.nasiat_muhib.classmate.domain.repository.AuthenticationRepository
+import com.nasiat_muhib.classmate.domain.repository.BdAppsApiRepository
 import com.nasiat_muhib.classmate.domain.rules.AuthValidator
 import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.domain.state.SignUpUIState
+import com.nasiat_muhib.classmate.strings.INVALID_OPERATOR
+import com.nasiat_muhib.classmate.strings.REGISTERED
+import com.nasiat_muhib.classmate.strings.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val authRepo: AuthenticationRepository,
+    private val bdAppsApiRepo: BdAppsApiRepository,
 ) : ViewModel() {
 
     private val _signUpUIState = MutableStateFlow(SignUpUIState())
@@ -35,6 +43,15 @@ class SignUpViewModel @Inject constructor(
 
     private val _otpScreenState = MutableStateFlow(false)
     val otpScreenState = _otpScreenState.asStateFlow()
+
+    private val _navigateToHomeScreenState = MutableStateFlow(false)
+    val navigateToHomeScreenState = _navigateToHomeScreenState.asStateFlow()
+
+    private val _requestOTP = MutableStateFlow<RequestOTPResponse?>(null)
+    private val requestOTP = _requestOTP.asStateFlow()
+
+    private val _verifyOTP = MutableStateFlow<VerifyOTPResponse?>(null)
+    private val verifyOTP = _verifyOTP.asStateFlow()
 
 
     fun onEvent(event: SignUpUIEvent) {
@@ -60,7 +77,10 @@ class SignUpViewModel @Inject constructor(
             }
 
             SignUpUIEvent.SignUpButtonClicked -> {
-                signUp()
+                validateSignUpDataWithRules()
+                if (allValidationPassed.value) {
+                    requestOTP()
+                }
             }
 
             is SignUpUIEvent.DepartmentChanged -> {
@@ -73,10 +93,65 @@ class SignUpViewModel @Inject constructor(
 
             SignUpUIEvent.VerifyOTPButtonClicked -> {
                 verifyOTP()
+
             }
 
             is SignUpUIEvent.OTPChanged -> {
                 _signUpUIState.value = _signUpUIState.value.copy(otp = event.otp)
+            }
+        }
+    }
+
+    private fun requestOTP() = viewModelScope.launch {
+
+        val phoneNo = signUpUIState.value.phoneNo
+
+        val subscriberId = if (phoneNo[0] == '+' && phoneNo[1] == '8' && phoneNo[2] == '8') {
+            phoneNo.substring(3)
+        } else if (phoneNo[0] == '8' && phoneNo[1] == '8') {
+            phoneNo.substring(2)
+        } else {
+            phoneNo
+        }
+
+        bdAppsApiRepo.requestOTP(subscriberId = subscriberId).collectLatest { response ->
+            Log.d(TAG, "requestOTP: ${signUpUIState.value.phoneNo}, response: ${response.body()}")
+            Log.d(TAG, "requestOTP: subscriberId: $subscriberId")
+
+            if (response.isSuccessful) {
+                _requestOTP.value = response.body()
+
+                if (requestOTP.value?.statusDetail == SUCCESS) {
+                    _otpScreenState.update { true }
+                } else if (requestOTP.value?.statusDetail == REGISTERED) {
+                    _signUpUIState.value =
+                        signUpUIState.value.copy(phoneNoError = "User is already registered")
+                } else if (requestOTP.value?.statusDetail == INVALID_OPERATOR) {
+                    _signUpUIState.value =
+                        signUpUIState.value.copy(phoneNoError = "Provider must be a Robi operator")
+                }
+            } else {
+                Log.d(TAG, "requestOTP: ${response.errorBody()}")
+            }
+        }
+    }
+
+    private fun verifyOTP() = viewModelScope.launch {
+        requestOTP.value?.let { requestOTPResponse ->
+             bdAppsApiRepo.verifyOTP(
+                referenceNo = requestOTPResponse.referenceNo,
+                otp = signUpUIState.value.otp
+            ).collectLatest { response ->
+                 if (response.isSuccessful) {
+                     _verifyOTP.value = response.body()
+                     if (verifyOTP.value?.statusDetail == SUCCESS) {
+                         signUp()
+                     } else {
+                         _signUpUIState.value = signUpUIState.value.copy(otpError = "Invalid OTP")
+                     }
+                 } else {
+                     Log.d(TAG, "verifyOTP: ${response.errorBody()}")
+                 }
             }
         }
     }
@@ -96,14 +171,12 @@ class SignUpViewModel @Inject constructor(
                 .collectLatest {
                     _signUpDataState.value = it
                     _signUpUIState.value = signUpUIState.value.copy(emailError = it.error)
+                    if (it.error == null && it.data != null) {
+                        _navigateToHomeScreenState.update { true }
+                        _otpScreenState.value = false
+                    }
                 }
-
-            _otpScreenState.update { true }
         }
-    }
-
-    private fun verifyOTP() = viewModelScope.launch {
-        /* TODO() */
     }
 
     private fun validateSignUpDataWithRules() {

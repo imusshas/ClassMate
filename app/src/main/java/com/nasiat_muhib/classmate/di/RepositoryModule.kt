@@ -1,10 +1,11 @@
 package com.nasiat_muhib.classmate.di
 
-import android.app.Notification
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
+import com.nasiat_muhib.classmate.api.BdAppsApi
 import com.nasiat_muhib.classmate.data.repository.AuthenticationRepositoryImpl
+import com.nasiat_muhib.classmate.data.repository.BdAppsApiRepositoryImpl
 import com.nasiat_muhib.classmate.data.repository.ClassDetailsRepositoryImpl
 import com.nasiat_muhib.classmate.data.repository.CourseRepositoryImpl
 import com.nasiat_muhib.classmate.data.repository.EventRepositoryImpl
@@ -14,6 +15,7 @@ import com.nasiat_muhib.classmate.data.repository.ResourceLinkRepositoryImpl
 import com.nasiat_muhib.classmate.data.repository.UserRepositoryImpl
 import com.nasiat_muhib.classmate.domain.repository.AuthenticationRepository
 import com.nasiat_muhib.classmate.data.repository.SearchRepositoryImpl
+import com.nasiat_muhib.classmate.domain.repository.BdAppsApiRepository
 import com.nasiat_muhib.classmate.domain.repository.ClassDetailsRepository
 import com.nasiat_muhib.classmate.domain.repository.CourseRepository
 import com.nasiat_muhib.classmate.domain.repository.EventRepository
@@ -35,7 +37,7 @@ class RepositoryModule {
     @Provides
     @Singleton
     fun providesAuthenticationRepository(
-        auth: FirebaseAuth, firestoreRef: FirebaseFirestore,
+        auth: FirebaseAuth, firestoreRef: FirebaseFirestore
     ): AuthenticationRepository = AuthenticationRepositoryImpl(
         auth, firestoreRef
     )
@@ -43,7 +45,7 @@ class RepositoryModule {
     @Provides
     @Singleton
     fun providesUserRepository(
-        firestoreRef: FirebaseFirestore,
+        firestoreRef: FirebaseFirestore
     ): UserRepository = UserRepositoryImpl(
         firestoreRef
     )
@@ -92,4 +94,8 @@ class RepositoryModule {
         firestoreRef: FirebaseFirestore,
         messagingRef: FirebaseMessaging
     ): NotificationRepository = NotificationRepositoryImpl(auth, firestoreRef, messagingRef = messagingRef)
+
+    @Singleton
+    @Provides
+    fun providesBdPassApiRepository(api: BdAppsApi): BdAppsApiRepository = BdAppsApiRepositoryImpl(api)
 }

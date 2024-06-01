@@ -30,19 +30,18 @@ import com.nasiat_muhib.classmate.presentation.main.menu.routine.RoutineScreen
 import com.nasiat_muhib.classmate.presentation.main.notification.NotificationScreen
 
 @Composable
-fun ClassMate(
-    navigationViewModel: NavigationViewModel = viewModel(),
-) {
+fun ClassMate() {
+
+    val navigationViewModel: NavigationViewModel = viewModel()
 
     val createCourseViewModel: CreateCourseViewModel = hiltViewModel()
-
     val course by navigationViewModel.course.collectAsState()
 
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = if (Firebase.auth.currentUser != null) {
+        startDestination = if (Firebase.auth.currentUser?.email != null) {
             Screen.HomeScreen.route
         } else {
             Screen.SignInScreen.route
