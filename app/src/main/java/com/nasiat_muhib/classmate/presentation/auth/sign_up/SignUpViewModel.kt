@@ -15,7 +15,6 @@ import com.nasiat_muhib.classmate.domain.state.DataState
 import com.nasiat_muhib.classmate.domain.state.SignUpUIState
 import com.nasiat_muhib.classmate.strings.INVALID_OPERATOR
 import com.nasiat_muhib.classmate.strings.REGISTERED
-import com.nasiat_muhib.classmate.strings.SUCCESS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -121,16 +120,21 @@ class SignUpViewModel @Inject constructor(
             if (response.isSuccessful) {
                 _requestOTP.value = response.body()
 
-                if (requestOTP.value?.statusDetail == SUCCESS) {
+                if (requestOTP.value?.statusCode == "S1000") {
                     _otpScreenState.update { true }
-                } else if (requestOTP.value?.statusDetail == REGISTERED) {
+                }else if (requestOTP.value?.statusDetail == REGISTERED) {
                     _signUpUIState.value =
                         signUpUIState.value.copy(phoneNoError = "User is already registered")
                 } else if (requestOTP.value?.statusDetail == INVALID_OPERATOR) {
                     _signUpUIState.value =
                         signUpUIState.value.copy(phoneNoError = "Provider must be a Robi operator")
+                } else {
+                    _signUpUIState.value =
+                        signUpUIState.value.copy(phoneNoError = "Something went wrong. Please try again")
                 }
             } else {
+                _signUpUIState.value =
+                    signUpUIState.value.copy(phoneNoError = "Something went wrong. Please try again")
                 Log.d(TAG, "requestOTP: ${response.errorBody()}")
             }
         }
@@ -138,45 +142,49 @@ class SignUpViewModel @Inject constructor(
 
     private fun verifyOTP() = viewModelScope.launch {
         requestOTP.value?.let { requestOTPResponse ->
-             bdAppsApiRepo.verifyOTP(
+            bdAppsApiRepo.verifyOTP(
                 referenceNo = requestOTPResponse.referenceNo,
+//                referenceNo = "88016432818651717602326966745874",
                 otp = signUpUIState.value.otp
             ).collectLatest { response ->
-                 if (response.isSuccessful) {
-                     _verifyOTP.value = response.body()
-                     if (verifyOTP.value?.statusDetail == SUCCESS) {
-                         signUp()
-                     } else {
-                         _signUpUIState.value = signUpUIState.value.copy(otpError = "Invalid OTP")
-                     }
-                 } else {
-                     Log.d(TAG, "verifyOTP: ${response.errorBody()}")
-                 }
+
+                Log.d(TAG, "verifyOTP: ${response.body()}")
+
+                if (response.isSuccessful) {
+                    _verifyOTP.value = response.body()
+                    if (verifyOTP.value?.statusCode == "S1000") {
+                        signUp()
+                    } else {
+                        _signUpUIState.value = signUpUIState.value.copy(otpError = "Invalid OTP")
+                    }
+                } else {
+                    _signUpUIState.value = signUpUIState.value.copy(otpError = "Something went wrong. Please try again")
+//                    Log.d(TAG, "verifyOTP: ${response.errorBody()}")
+                }
             }
         }
     }
 
     private fun signUp() = viewModelScope.launch(Dispatchers.IO) {
-        validateSignUpDataWithRules()
-        if (allValidationPassed.value) {
-            val user = User(
-                firstName = signUpUIState.value.firstName,
-                lastName = signUpUIState.value.lastName,
-                role = signUpUIState.value.role,
-                department = signUpUIState.value.department,
-                phoneNo = signUpUIState.value.phoneNo,
-                email = signUpUIState.value.email,
-            )
-            authRepo.signUp(signUpUIState.value.email, signUpUIState.value.password, user)
-                .collectLatest {
-                    _signUpDataState.value = it
-                    _signUpUIState.value = signUpUIState.value.copy(emailError = it.error)
-                    if (it.error == null && it.data != null) {
-                        _navigateToHomeScreenState.update { true }
-                        _otpScreenState.value = false
-                    }
+
+        val user = User(
+            firstName = signUpUIState.value.firstName,
+            lastName = signUpUIState.value.lastName,
+            role = signUpUIState.value.role,
+            department = signUpUIState.value.department,
+            phoneNo = signUpUIState.value.phoneNo,
+            email = signUpUIState.value.email,
+        )
+        authRepo.signUp(signUpUIState.value.email, signUpUIState.value.password, user)
+            .collectLatest {
+                _signUpDataState.value = it
+                _signUpUIState.value = signUpUIState.value.copy(emailError = it.error)
+                if (it.error == null && it.data != null) {
+                    _navigateToHomeScreenState.update { true }
+                    _otpScreenState.value = false
                 }
-        }
+            }
+
     }
 
     private fun validateSignUpDataWithRules() {

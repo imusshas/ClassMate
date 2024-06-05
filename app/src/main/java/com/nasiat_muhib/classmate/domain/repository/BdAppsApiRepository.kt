@@ -2,7 +2,6 @@ package com.nasiat_muhib.classmate.domain.repository
 
 
 import com.nasiat_muhib.classmate.data.model.api_response.RequestOTPResponse
-import com.nasiat_muhib.classmate.data.model.api_response.SubscriptionStatusResponse
 import com.nasiat_muhib.classmate.data.model.api_response.VerifyOTPResponse
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
